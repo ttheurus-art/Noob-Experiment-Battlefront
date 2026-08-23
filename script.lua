@@ -185,29 +185,32 @@ local Running = false
 MainTab:CreateToggle({
     Name = "Auto Missle And Auto Reload (Guest Mech Only)",
     CurrentValue = false,
+
     Callback = function(Value)
         Running = Value
 
         if Value then
+
+            -- Auto Missile
             task.spawn(function()
                 while Running do
+                    local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Missiles.RemoteEvent
+                    Event:FireServer()
 
-local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Missiles.RemoteEvent
-Event:FireServer()
                     task.wait(0.2)
                 end
             end)
 
+            -- Auto Reload
             task.spawn(function()
                 while Running do
+                    local Event = game:GetService("ReplicatedStorage").ItemsEvent
+                    Event:FireServer("Refill Rockets")
 
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Refill Rockets"
-				
                     task.wait(2.3)
                 end
             end)
+
         end
     end,
 })
