@@ -204,9 +204,6 @@ Event:FireServer()
 local Event = game:GetService("ReplicatedStorage").ItemsEvent
 Event:FireServer(
     "Refill Rockets"
-)
-end,
-})
 				
                     task.wait(2.3)
                 end
