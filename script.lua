@@ -167,3 +167,13 @@ local Button = MainTab:CreateButton({
       character:PivotTo(CFrame.new(1575, -100, 555))
    end,
 })
+
+local Button = MainTab:CreateButton({
+   Name = "Teleport back(WayPoint)",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+
+      character:PivotTo(CFrame.new(20, 68, 104))
+   end,
+})
