@@ -180,28 +180,34 @@ local Button = MainTab:CreateButton({
 
 local MainSection = MainTab:CreateSection("Auto Thing🔫")
 
+local Running = false
 
-local Toggle = MainTab:CreateToggle({
-    Name = "Auto Shoot Missiles (Guest Mech Only And The Upgraded One Too)",
+MainTab:CreateToggle({
+    Name = "Auto Missle And Auto Reload (Guest Mech Only)",
     CurrentValue = false,
-    Flag = "AutoMissiles",
-
     Callback = function(Value)
+        Running = Value
+
         if Value then
             task.spawn(function()
-                while Value do
-                    local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Missiles.RemoteEvent
-                    Event:FireServer()
+                while Running do
 
+local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Missiles.RemoteEvent
+Event:FireServer()
                     task.wait(0.2)
                 end
             end)
 
             task.spawn(function()
-                while Value do
-                    local Event = game:GetService("ReplicatedStorage").ItemsEvent
-                    Event:FireServer("Refill Rockets")
+                while Running do
 
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Refill Rockets"
+)
+end,
+})
+				
                     task.wait(2.3)
                 end
             end)
