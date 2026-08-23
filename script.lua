@@ -168,33 +168,30 @@ local Button = MainTab:CreateButton({
    end,
 })
 
-local Button = MainTab:CreateButton({
-   Name = "Teleport back(WayPoint)",
-   Callback = function()
-      local player = game.Players.LocalPlayer
-      local character = player.Character or player.CharacterAdded:Wait()
-
-      character:PivotTo(CFrame.new(20, 68, 104))
-   end,
-})
-
-local MainSection = MainTab:CreateSection("Auto Thing")
-
 local Toggle = MainTab:CreateToggle({
     Name = "Auto Shoot Missiles (Guest Mech Only And The Upgraded One Too)",
     CurrentValue = false,
     Flag = "AutoMissiles",
+
     Callback = function(Value)
         if Value then
-            local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Missiles.RemoteEvent
-            Event:FireServer()
+            task.spawn(function()
+                while Value do
+                    local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Missiles.RemoteEvent
+                    Event:FireServer()
 
-            local Event = game:GetService("ReplicatedStorage").ItemsEvent
-            Event:FireServer(
-                "Refill Rockets"
-            )
+                    task.wait(0.2)
+                end
+            end)
 
-            task.wait(2.3)
+            task.spawn(function()
+                while Value do
+                    local Event = game:GetService("ReplicatedStorage").ItemsEvent
+                    Event:FireServer("Refill Rockets")
+
+                    task.wait(2.3)
+                end
+            end)
         end
     end,
 })
