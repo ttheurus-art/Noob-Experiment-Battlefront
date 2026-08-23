@@ -168,6 +168,19 @@ local Button = MainTab:CreateButton({
    end,
 })
 
+local Button = MainTab:CreateButton({
+   Name = "Teleport Back (WayPoint I Think)",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+
+      character:PivotTo(CFrame.new(557, 178, -430))
+   end,
+})
+
+local MainSection = MainTab:CreateSection("Auto Thing🔫")
+
+
 local Toggle = MainTab:CreateToggle({
     Name = "Auto Shoot Missiles (Guest Mech Only And The Upgraded One Too)",
     CurrentValue = false,
