@@ -177,3 +177,24 @@ local Button = MainTab:CreateButton({
       character:PivotTo(CFrame.new(20, 68, 104))
    end,
 })
+
+local MainSection = MainTab:CreateSection("Auto Thing")
+
+local Toggle = MainTab:CreateToggle({
+    Name = "Auto Shoot Missiles (Guest Mech Only And The Upgraded One Too)",
+    CurrentValue = false,
+    Flag = "AutoMissiles",
+    Callback = function(Value)
+        if Value then
+            local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Missiles.RemoteEvent
+            Event:FireServer()
+
+            local Event = game:GetService("ReplicatedStorage").ItemsEvent
+            Event:FireServer(
+                "Refill Rockets"
+            )
+
+            task.wait(2.3)
+        end
+    end,
+})
