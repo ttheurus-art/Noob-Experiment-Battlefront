@@ -4,11 +4,11 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V1.2🔥",
+   Name = "Noob Experiment: Battlefront V1.5🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "This Is Still Beta Gng",
+   LoadingTitle = "Everything Made By 1 Kid",
    LoadingSubtitle = "Lil BrickBattler",
-   Theme = "Ocean", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+   Theme = "Light", -- Check https://docs.sirius.menu/rayfield/configuration/themes
 
    DisableRayfieldPrompts = false,
    DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
@@ -164,7 +164,7 @@ local Button = MainTab:CreateButton({
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
 
-      character:PivotTo(CFrame.new(1575, -100, 555))
+      character:PivotTo(CFrame.new(1575, -25, 555))
    end,
 })
 
