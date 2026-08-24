@@ -173,6 +173,16 @@ local Button = MainTab:CreateButton({
 })
 
 local Button = MainTab:CreateButton({
+   Name = "Teleport to safe zone (not 100% safe)",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+
+      character:PivotTo(CFrame.new(1671, -492, -101))
+   end,
+})
+
+local Button = MainTab:CreateButton({
    Name = "Teleport Back (WayPoint I Think)",
    Callback = function()
       local player = game.Players.LocalPlayer
