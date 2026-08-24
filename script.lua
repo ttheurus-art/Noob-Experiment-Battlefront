@@ -231,7 +231,7 @@ MainTab:CreateToggle({
                 while Running do
                    local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Slash.RemoteEvent
 Event:FireServer()
-                    task.wait(0.2)
+                    task.wait(0.1)
                 end
             end)
 
@@ -240,7 +240,7 @@ Event:FireServer()
                 while Running do
 local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Punch.RemoteEvent
 Event:FireServer()
-                    task.wait(2.3)
+                    task.wait(0.1)
                 end
             end)
 
