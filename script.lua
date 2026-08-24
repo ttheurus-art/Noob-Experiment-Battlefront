@@ -120,7 +120,7 @@ end,
 local MainSection = MainTab:CreateSection("shop set (if not use the right unit it bug)")
 
 local Button = MainTab:CreateButton({
-    Name = "Buy "Noob" Set (750 money or more/less idk(for newbie))",
+    Name = "Buy >Noob< Set (750 money or more/less idk(for newbie))",
 
     Callback = function()
 
