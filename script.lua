@@ -128,14 +128,14 @@ end,
 local MainSection = MainTab:CreateSection("shop set (if not use the right unit it bug)")
 
 local Button = MainTab:CreateButton({
-    Name = "Buy >Noob< Set (750 money or more/less idk(for newbie))",
+    Name = "Buy >Noob< pack (1000 money and for newbie)",
 
     Callback = function()
 
         local Event = game:GetService("ReplicatedStorage").ItemsEvent
 
         Event:FireServer("Blaster")
-        Event:FireServer("Rocket")
+        Event:FireServer("Jetpack")
         Event:FireServer("Sword")
         Event:FireServer("Grenade")
 
