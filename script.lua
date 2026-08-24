@@ -117,45 +117,21 @@ end,
 })
 
 
-local MainSection = MainTab:CreateSection("shop for boombox race")
+local MainSection = MainTab:CreateSection("shop set (if not use the right unit it bug)")
 
 local Button = MainTab:CreateButton({
-   Name = "Buy Noob Set(750 money or more/less idk)",
-   Callback = function()
+    Name = "Buy "Noob" Set (750 money or more/less idk(for newbie))",
 
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Blaster"
-)
-end,
-})
+    Callback = function()
 
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Rocket"
-)
-end,
-})
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
 
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Sword"
-)
-end,
-})
+        Event:FireServer("Blaster")
+        Event:FireServer("Rocket")
+        Event:FireServer("Sword")
+        Event:FireServer("Grenade")
 
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Grenade"
-)
-end,
-})
-
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Grenade"
-)
-end,
+    end,
 })
 
 local MainTab = Window:CreateTab("Main👍", nil)
