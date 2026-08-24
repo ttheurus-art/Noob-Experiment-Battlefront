@@ -6,9 +6,9 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Noob Experiment: Battlefront V1.5🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "Everything Made By 1 Kid",
+   LoadingTitle = "Everything Made By 13 Y/O Kid",
    LoadingSubtitle = "Lil BrickBattler",
-   Theme = "Light", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+   Theme = "Serenity", -- Check https://docs.sirius.menu/rayfield/configuration/themes
 
    DisableRayfieldPrompts = false,
    DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
@@ -120,17 +120,45 @@ end,
 local MainSection = MainTab:CreateSection("shop for boombox race")
 
 local Button = MainTab:CreateButton({
-   Name = "Buy Teleport (150 money)",
+   Name = "Buy Noob Set(750 money or more/less idk)",
    Callback = function()
 
 local Event = game:GetService("ReplicatedStorage").ItemsEvent
 Event:FireServer(
-    "Bruh"
+    "Blaster"
 )
 end,
 })
 
-local MainTab = Window:CreateTab("Fun👍", nil)
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Rocket"
+)
+end,
+})
+
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Sword"
+)
+end,
+})
+
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Grenade"
+)
+end,
+})
+
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Grenade"
+)
+end,
+})
+
+local MainTab = Window:CreateTab("Main👍", nil)
 local MainSection = MainTab:CreateSection("buying thing🧿")
 
 local Button = MainTab:CreateButton({
@@ -164,7 +192,7 @@ local Button = MainTab:CreateButton({
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
 
-      character:PivotTo(CFrame.new(1575, -25, 555))
+      character:PivotTo(CFrame.new(1575, -1000, 555))
    end,
 })
 
