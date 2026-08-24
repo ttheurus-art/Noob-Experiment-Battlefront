@@ -45,6 +45,14 @@ p.CanCollide = true
 p.Transparency = 0
 p.Parent = workspace
 
+local p = Instance.new("Part")
+p.Size = Vector3.new(15, 2, 15)
+p.Position = Vector3.new(1671, -499, -101)
+p.Anchored = true
+p.CanCollide = true
+p.Transparency = 0
+p.Parent = workspace
+
 local MainTab = Window:CreateTab("Information", nil)
 
 MainTab:CreateSection("About")
