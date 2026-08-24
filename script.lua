@@ -229,7 +229,7 @@ MainTab:CreateToggle({
     end,
 })
 
-local Running = false
+local AttackRunning = false
 
 MainTab:CreateToggle({
     Name = "Auto M1 / Attack",
@@ -237,7 +237,7 @@ MainTab:CreateToggle({
     Flag = "AutoAttack",
 
     Callback = function(Value)
-        Running = Value
+        AttackRunning = Value
 
         if not Value then
             return
@@ -247,7 +247,7 @@ MainTab:CreateToggle({
             local Players = game:GetService("Players")
             local player = Players.LocalPlayer
 
-            while Running do
+            while AttackRunning do
                 local character = player.Character
 
                 if character then
@@ -264,28 +264,20 @@ MainTab:CreateToggle({
                         local swordEvent = sword and sword:FindFirstChild("RemoteEvent")
                         local comboEvent = combo and combo:FindFirstChild("RemoteEvent")
 
-                        -- Slash
                         if slashEvent then
-                            local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Slash.RemoteEvent
-Event:FireServer()
+                            slashEvent:FireServer()
                         end
 
-                        -- Punch
                         if punchEvent then
-                            local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Punch.RemoteEvent
-Event:FireServer()
+                            punchEvent:FireServer()
                         end
 
-                        -- Sword
                         if swordEvent then
-                            local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Sword.RemoteEvent
-Event:FireServer()
+                            swordEvent:FireServer()
                         end
 
-                        -- Combo
                         if comboEvent then
-                            local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Combo.RemoteEvent
-Event:FireServer()
+                            comboEvent:FireServer()
                         end
                     end
                 end
