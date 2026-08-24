@@ -168,7 +168,7 @@ local Button = MainTab:CreateButton({
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
 
-      character:PivotTo(CFrame.new(1575, -544, 555))
+      character:PivotTo(CFrame.new(1575, -444, 555))
    end,
 })
 
