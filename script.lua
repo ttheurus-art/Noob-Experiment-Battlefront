@@ -173,7 +173,7 @@ local Button = MainTab:CreateButton({
 })
 
 local Button = MainTab:CreateButton({
-   Name = "Teleport to safe zone (not 100% safe)",
+   Name = "Teleport to lobby (Must Use Small Unit Or Bug)",
    Callback = function()
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
