@@ -42,16 +42,16 @@ p.Size = Vector3.new(500, 15, 500)
 p.Position = Vector3.new(1575, -469, 555)
 p.Anchored = true
 p.CanCollide = true
-p.Transparency = 0
+p.Transparency = 0.3
 p.Parent = workspace
 
 local p2 = Instance.new("Part")
-p.Size = Vector3.new(20, 5, 20)
-p.Position = Vector3.new(1673, -497, -106)
-p.Anchored = true
-p.CanCollide = true
-p.Transparency = 0
-p.Parent = workspace
+p2.Size = Vector3.new(20, 5, 20)
+p2.Position = Vector3.new(1673, -497, -106)
+p2.Anchored = true
+p2.CanCollide = true
+p2.Transparency = 0
+p2.Parent = workspace
 
 local MainTab = Window:CreateTab("Information", nil)
 
