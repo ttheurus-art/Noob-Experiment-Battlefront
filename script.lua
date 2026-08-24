@@ -39,7 +39,7 @@ local Window = Rayfield:CreateWindow({
 
 local p = Instance.new("Part")
 p.Size = Vector3.new(500, 15, 500)
-p.Position = Vector3.new(1575, -450, 555)
+p.Position = Vector3.new(1575, -469, 555)
 p.Anchored = true
 p.CanCollide = true
 p.Transparency = 0
