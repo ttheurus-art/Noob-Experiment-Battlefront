@@ -215,8 +215,7 @@ MainTab:CreateToggle({
     end,
 })
 
-local SlashEnabled = false
-local PunchEnabled = false
+local Running = false
 
 MainTab:CreateToggle({
     Name = "Auto M1 / Attack",
@@ -224,39 +223,48 @@ MainTab:CreateToggle({
     Flag = "AutoAttack",
 
     Callback = function(Value)
-        SlashEnabled = Value
-        PunchEnabled = Value
+        Running = Value
 
-        if Value then
-
-            task.spawn(function()
-                while SlashEnabled do
-                    local player = game:GetService("Players").LocalPlayer
-                    local character = player.Character
-
-                    if character then
-                        local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Slash.RemoteEvent
-Event:FireServer()
-                    end
-
-                    task.wait(0.1)
-                end
-            end)
-
-            task.spawn(function()
-                while PunchEnabled do
-                    local player = game:GetService("Players").LocalPlayer
-                    local character = player.Character
-
-                    if character then
-                        local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Punch.RemoteEvent
-Event:FireServer()
-                    end
-
-                    task.wait(0.1)
-                end
-            end)
-
+        if not Value then
+            return
         end
+
+        task.spawn(function()
+            local Players = game:GetService("Players")
+            local player = Players.LocalPlayer
+
+            while Running do
+                local character = player.Character
+
+                if character then
+                    local abilities = character:FindFirstChild("Abilities")
+
+                    if abilities then
+                        local slash = abilities:FindFirstChild("Slash")
+                        local punch = abilities:FindFirstChild("Punch")
+
+                        if slash then
+                            local slashEvent = slash:FindFirstChild("RemoteEvent")
+
+                            if slashEvent then
+                                local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Slash.RemoteEvent
+Event:FireServer()
+                            end
+                        end
+
+                        if punch then
+                            local punchEvent = punch:FindFirstChild("RemoteEvent")
+
+                            if punchEvent then
+                                local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Punch.RemoteEvent
+Event:FireServer()
+                            end
+                        end
+                    end
+                end
+
+                task.wait(0.1)
+            end
+        end)
     end,
 })
