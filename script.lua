@@ -214,3 +214,36 @@ MainTab:CreateToggle({
         end
     end,
 })
+
+local Running = false
+
+MainTab:CreateToggle({
+    Name = "Auto M1/Attack/Fight back or whatever",
+    CurrentValue = false,
+
+    Callback = function(Value)
+        Running = Value
+
+        if Value then
+
+            -- Auto Slash
+            task.spawn(function()
+                while Running do
+                   local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Slash.RemoteEvent
+Event:FireServer()
+                    task.wait(0.2)
+                end
+            end)
+
+            -- Auto Punch
+            task.spawn(function()
+                while Running do
+local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Punch.RemoteEvent
+Event:FireServer()
+                    task.wait(2.3)
+                end
+            end)
+
+        end
+    end,
+})
