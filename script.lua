@@ -256,23 +256,36 @@ MainTab:CreateToggle({
                     if abilities then
                         local slash = abilities:FindFirstChild("Slash")
                         local punch = abilities:FindFirstChild("Punch")
+                        local sword = abilities:FindFirstChild("Sword")
+                        local combo = abilities:FindFirstChild("Combo")
 
-                        if slash then
-                            local slashEvent = slash:FindFirstChild("RemoteEvent")
+                        local slashEvent = slash and slash:FindFirstChild("RemoteEvent")
+                        local punchEvent = punch and punch:FindFirstChild("RemoteEvent")
+                        local swordEvent = sword and sword:FindFirstChild("RemoteEvent")
+                        local comboEvent = combo and combo:FindFirstChild("RemoteEvent")
 
-                            if slashEvent then
-                                local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Slash.RemoteEvent
+                        -- Slash
+                        if slashEvent then
+                            local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Slash.RemoteEvent
 Event:FireServer()
-                            end
                         end
 
-                        if punch then
-                            local punchEvent = punch:FindFirstChild("RemoteEvent")
-
-                            if punchEvent then
-                                local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Punch.RemoteEvent
+                        -- Punch
+                        if punchEvent then
+                            local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Punch.RemoteEvent
 Event:FireServer()
-                            end
+                        end
+
+                        -- Sword
+                        if swordEvent then
+                            local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Sword.RemoteEvent
+Event:FireServer()
+                        end
+
+                        -- Combo
+                        if comboEvent then
+                            local Event = game:GetService("Players").LocalPlayer.Character.Abilities.Combo.RemoteEvent
+Event:FireServer()
                         end
                     end
                 end
