@@ -58,7 +58,7 @@ local MainTab = Window:CreateTab("Information", nil)
 MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
-    Title = "- delete Auto Regen \n + update teleport",
+    Title = "- delete Auto Regen \n+ update teleport \n",
     Content = "nothing, I just dont have Idea"
 })
 
@@ -171,7 +171,7 @@ end,
 local MainSection = MainTab:CreateSection("Teleport🤔")
 
 local Button = MainTab:CreateButton({
-   Name = "Teleport to safe zone (not 100% safe)",
+   Name = "Teleport to safe area👾 (not 100% safe)",
    Callback = function()
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
@@ -181,7 +181,7 @@ local Button = MainTab:CreateButton({
 })
 
 local Button = MainTab:CreateButton({
-   Name = "Teleport to lobby inside💠 (Must Use Small Unit Or Bug)",
+   Name = "Teleport to lobby inside💠 (No Titans)",
    Callback = function()
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
