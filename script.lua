@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V1.6🔥",
+   Name = "Noob Experiment: Battlefront V1.7🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Y/O Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -321,22 +321,7 @@ MainTab:CreateToggle({
 })
 
 local RegenRunning = false
-local RegenMode = "0.1s / +1 HP"
-
-MainTab:CreateDropdown({
-    Name = "Regen Mode",
-    Options = {
-        "0.1s / +1 HP",
-        "0.01s / +10 HP",
-        "0.001s / +100 HP"
-    },
-    CurrentOption = {"0.1s / +1 HP"},
-    Flag = "RegenMode",
-
-    Callback = function(Option)
-        RegenMode = Option[1]
-    end,
-})
+local RegenAmount = 1
 
 MainTab:CreateToggle({
     Name = "Auto Regen",
@@ -358,26 +343,41 @@ MainTab:CreateToggle({
                 local character = player.Character
                 local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 
-                local amount = 1
-                local delayTime = 0.1
-
-                if RegenMode == "0.01s / +10 HP" then
-                    amount = 10
-                    delayTime = 0.01
-                elseif RegenMode == "0.001s / +100 HP" then
-                    amount = 100
-                    delayTime = 0.001
-                end
-
                 if humanoid then
                     humanoid.Health = math.min(
-                        humanoid.Health + amount,
+                        humanoid.Health + RegenAmount,
                         humanoid.MaxHealth
                     )
                 end
 
-                task.wait(delayTime)
+                task.wait(0.1)
             end
         end)
+    end,
+})
+
+MainTab:CreateDropdown({
+    Name = "Regen Amount",
+    Options = {
+        "0.1s / 1 HP",
+        "0.1s / 10 HP",
+        "0.1s / 100 HP",
+        "0.1s / 500 HP"
+    },
+    CurrentOption = {"0.1s / 1 HP"},
+    Flag = "RegenAmount",
+
+    Callback = function(Option)
+        local selected = Option[1]
+
+        if selected == "0.1s / 1 HP" then
+            RegenAmount = 1
+        elseif selected == "0.1s / 10 HP" then
+            RegenAmount = 10
+        elseif selected == "0.1s / 100 HP" then
+            RegenAmount = 100
+        elseif selected == "0.1s / 500 HP" then
+            RegenAmount = 500
+        end
     end,
 })
