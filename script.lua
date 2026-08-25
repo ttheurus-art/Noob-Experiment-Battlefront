@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V1.7🔥",
+   Name = "Noob Experiment: Battlefront V1.8🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Y/O Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -20,9 +20,9 @@ local Window = Rayfield:CreateWindow({
    },
 
    Discord = {
-      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
-      RememberJoins = false -- Set this to false to make them join the discord every time they load it up
+      Enabled = true, -- Prompt the user to join your Discord server if their executor supports it
+      Invite = "https://discord.gg/85cMYuy4J", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
+      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
    },
 
    KeySystem = false, -- Set this to true to use our key system
@@ -58,8 +58,8 @@ local MainTab = Window:CreateTab("Information", nil)
 MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
-    Title = "- delete Auto Regen \n+ update teleport \n",
-    Content = "nothing, I just dont have Idea"
+    Title = "+ Auto TP To Time Essence \n+ update teleport \n",
+    Content = "join my discord to give me idea!💡"
 })
 
 local MoneyDisplay = MainTab:CreateParagraph({
@@ -331,3 +331,50 @@ MainTab:CreateToggle({
     end,
 })
 
+local EssenceRunning = false
+
+MainTab:CreateToggle({
+    Name = "Auto TP To Time Essence When Spawn (Wip)",
+    CurrentValue = false,
+    Flag = "AutoTPTimeEssence",
+
+    Callback = function(Value)
+        EssenceRunning = Value
+
+        if not Value then
+            return
+        end
+
+        task.spawn(function()
+            local Players = game:GetService("Players")
+            local player = Players.LocalPlayer
+
+            while EssenceRunning do
+                local character = player.Character
+
+                if character then
+                    local essence = workspace:FindFirstChild("Time Essence", true)
+
+                    if essence then
+                        local targetPart
+
+                        if essence:IsA("BasePart") then
+                            targetPart = essence
+                        else
+                            targetPart = essence:FindFirstChildWhichIsA(
+                                "BasePart",
+                                true
+                            )
+                        end
+
+                        if targetPart then
+                            character:PivotTo(targetPart.CFrame)
+                        end
+                    end
+                end
+
+                task.wait(0.1)
+            end
+        end)
+    end,
+})
