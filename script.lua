@@ -22,7 +22,7 @@ local Window = Rayfield:CreateWindow({
    Discord = {
       Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
       Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+      RememberJoins = false -- Set this to false to make them join the discord every time they load it up
    },
 
    KeySystem = false, -- Set this to true to use our key system
@@ -50,7 +50,7 @@ p2.Size = Vector3.new(20, 5, 20)
 p2.Position = Vector3.new(1673, -497, -106)
 p2.Anchored = true
 p2.CanCollide = true
-p2.Transparency = 0
+p2.Transparency = 1
 p2.Parent = workspace
 
 local MainTab = Window:CreateTab("Information", nil)
