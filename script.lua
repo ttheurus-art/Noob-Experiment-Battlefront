@@ -47,7 +47,7 @@ p.Parent = workspace
 
 local p2 = Instance.new("Part")
 p2.Size = Vector3.new(20, 5, 20)
-p2.Position = Vector3.new(1673, -497, -106)
+p2.Position = Vector3.new(1690, -497, -139)
 p2.Anchored = true
 p2.CanCollide = true
 p2.Transparency = 1
@@ -58,8 +58,8 @@ local MainTab = Window:CreateTab("Information", nil)
 MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
-    Title = "+ Auto Regen",
-    Content = "still working on it"
+    Title = "- delete Auto Regen \n + update teleport",
+    Content = "nothing, I just dont have Idea"
 })
 
 local MoneyDisplay = MainTab:CreateParagraph({
@@ -181,14 +181,25 @@ local Button = MainTab:CreateButton({
 })
 
 local Button = MainTab:CreateButton({
-   Name = "Teleport to lobby (Must Use Small Unit Or Bug)",
+   Name = "Teleport to lobby inside💠 (Must Use Small Unit Or Bug)",
    Callback = function()
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
 
-      character:PivotTo(CFrame.new(1671, -492, -101))
+      character:PivotTo(CFrame.new(1689, -492, -138))
    end,
 })
+
+local Button = MainTab:CreateButton({
+   Name = "Teleport to lobby outside🃏",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+
+      character:PivotTo(CFrame.new(1747, -399, -146))
+   end,
+})
+
 
 local Button = MainTab:CreateButton({
    Name = "Teleport Back (WayPoint I Think)",
@@ -320,39 +331,3 @@ MainTab:CreateToggle({
     end,
 })
 
-local RegenRunning = false
-
-MainTab:CreateToggle({
-    Name = "Auto Regen (+5 HP Per 0.2s)",
-    CurrentValue = false,
-    Flag = "FastRegen",
-
-    Callback = function(Value)
-        RegenRunning = Value
-
-        if not Value then
-            return
-        end
-
-        task.spawn(function()
-            local Players = game:GetService("Players")
-            local player = Players.LocalPlayer
-
-            while RegenRunning do
-                local character = player.Character
-                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-
-                if humanoid and humanoid.Health > 0 then
-                    if humanoid.Health < humanoid.MaxHealth then
-                        humanoid.Health = math.min(
-                            humanoid.Health + 5,
-                            humanoid.MaxHealth
-                        )
-                    end
-                end
-
-                task.wait(0.2)
-            end
-        end)
-    end,
-})
