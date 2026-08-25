@@ -323,7 +323,7 @@ MainTab:CreateToggle({
 local RegenRunning = false
 
 MainTab:CreateToggle({
-    Name = "Auto Regen (Wip)",
+    Name = "Auto Regen (+1 Health Every 0.001 Sec)",
     CurrentValue = false,
     Flag = "FastRegen",
 
