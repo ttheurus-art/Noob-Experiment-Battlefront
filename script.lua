@@ -320,15 +320,15 @@ MainTab:CreateToggle({
     end,
 })
 
-local RandomRegenRunning = false
+local RegenRunning = false
 
 MainTab:CreateToggle({
-    Name = "Auto Regen (wip)",
+    Name = "Auto Regen (Very Wip)",
     CurrentValue = false,
-    Flag = "RandomRegen",
+    Flag = "StackedFastRegen",
 
     Callback = function(Value)
-        RandomRegenRunning = Value
+        RegenRunning = Value
 
         if not Value then
             return
@@ -338,20 +338,36 @@ MainTab:CreateToggle({
             local Players = game:GetService("Players")
             local player = Players.LocalPlayer
 
-            while RandomRegenRunning do
-                local character = player.Character
-                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+            local intervals = {
+                0.1,
+                0.2,
+                0.3,
+                0.4,
+                0.5,
+                0.6,
+                0.7,
+                0.8,
+                0.9,
+                1.0
+            }
 
-                if humanoid and humanoid.Health > 0 then
-                    local randomAmount = math.random(36, 183)
+            for _, interval in ipairs(intervals) do
+                task.spawn(function()
+                    while RegenRunning do
+                        local character = player.Character
+                        local humanoid = character
+                            and character:FindFirstChildOfClass("Humanoid")
 
-                    humanoid.Health = math.min(
-                        humanoid.Health + randomAmount,
-                        humanoid.MaxHealth
-                    )
-                end
+                        if humanoid and humanoid.Health > 0 then
+                            humanoid.Health = math.min(
+                                humanoid.Health + 5,
+                                humanoid.MaxHealth
+                            )
+                        end
 
-                task.wait(0.2)
+                        task.wait(interval)
+                    end
+                end)
             end
         end)
     end,
