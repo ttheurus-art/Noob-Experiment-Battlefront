@@ -59,7 +59,7 @@ MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
     Title = "+ Auto Regen",
-    Content = "Yes it's OVERPOWAA"
+    Content = "still working on it"
 })
 
 local MoneyDisplay = MainTab:CreateParagraph({
@@ -320,55 +320,39 @@ MainTab:CreateToggle({
     end,
 })
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local SetRegen = ReplicatedStorage:WaitForChild("SetRegen")
-
-local RegenAmount = 1
+local RandomRegenRunning = false
 
 MainTab:CreateToggle({
-    Name = "Auto Regen",
+    Name = "Auti Regen (wip)",
     CurrentValue = false,
-    Flag = "FastRegen",
+    Flag = "RandomRegen",
 
     Callback = function(Value)
-        SetRegen:FireServer(Value, RegenAmount)
-    end,
-})
+        RandomRegenRunning = Value
 
-MainTab:CreateDropdown({
-    Name = "Regen Amount",
-    Options = {
-        "+1 per 0.01s",
-        "+10 per 0.01s",
-        "+100 per 0.01s",
-        "+255 per 0.01s",
-        "+355 per 0.01s",
-        "+455 per 0.01s",
-        "+555 per 0.01s"
-    },
-
-    CurrentOption = {"+1 per 0.01s"},
-    Flag = "RegenAmount",
-
-    Callback = function(Option)
-        local selected = Option[1]
-
-        if selected == "+1 per 0.01s" then
-            RegenAmount = 1
-        elseif selected == "+10 per 0.01s" then
-            RegenAmount = 10
-        elseif selected == "+100 per 0.01s" then
-            RegenAmount = 100
-        elseif selected == "+255 per 0.01s" then
-            RegenAmount = 255
-        elseif selected == "+355 per 0.01s" then
-            RegenAmount = 355
-        elseif selected == "+455 per 0.01s" then
-            RegenAmount = 455
-        elseif selected == "+555 per 0.01s" then
-            RegenAmount = 555
+        if not Value then
+            return
         end
 
-        SetRegen:FireServer(true, RegenAmount)
+        task.spawn(function()
+            local Players = game:GetService("Players")
+            local player = Players.LocalPlayer
+
+            while RandomRegenRunning do
+                local character = player.Character
+                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+                if humanoid and humanoid.Health > 0 then
+                    local randomAmount = math.random(36, 183)
+
+                    humanoid.Health = math.min(
+                        humanoid.Health + randomAmount,
+                        humanoid.MaxHealth
+                    )
+                end
+
+                task.wait(0.2)
+            end
+        end)
     end,
 })
