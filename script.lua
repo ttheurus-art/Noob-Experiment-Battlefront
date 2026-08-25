@@ -350,7 +350,7 @@ MainTab:CreateToggle({
                     )
                 end
 
-                task.wait(0.1)
+                task.wait(0.01)
             end
         end)
     end,
@@ -359,25 +359,34 @@ MainTab:CreateToggle({
 MainTab:CreateDropdown({
     Name = "Regen Amount",
     Options = {
-        "0.1s / 1 HP",
-        "0.1s / 10 HP",
-        "0.1s / 100 HP",
-        "0.1s / 500 HP"
+        "+1 per 0.01s",
+        "+10 per 0.01s",
+        "+100 per 0.01s",
+        "+255 per 0.01s",
+        "+355 per 0.01s",
+        "+455 per 0.01s",
+        "+555 per 0.01s"
     },
-    CurrentOption = {"0.1s / 1 HP"},
+    CurrentOption = {"+1 per 0.01s"},
     Flag = "RegenAmount",
 
     Callback = function(Option)
         local selected = Option[1]
 
-        if selected == "0.1s / 1 HP" then
+        if selected == "+1 per 0.01s" then
             RegenAmount = 1
-        elseif selected == "0.1s / 10 HP" then
+        elseif selected == "+10 per 0.01s" then
             RegenAmount = 10
-        elseif selected == "0.1s / 100 HP" then
+        elseif selected == "+100 per 0.01s" then
             RegenAmount = 100
-        elseif selected == "0.1s / 500 HP" then
-            RegenAmount = 500
+        elseif selected == "+255 per 0.01s" then
+            RegenAmount = 255
+        elseif selected == "+355 per 0.01s" then
+            RegenAmount = 355
+        elseif selected == "+455 per 0.01s" then
+            RegenAmount = 455
+        elseif selected == "+555 per 0.01s" then
+            RegenAmount = 555
         end
     end,
 })
