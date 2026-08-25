@@ -344,12 +344,12 @@ MainTab:CreateToggle({
 
                 if humanoid then
                     humanoid.Health = math.min(
-                        humanoid.Health + 10,
+                        humanoid.Health + 1,
                         humanoid.MaxHealth
                     )
                 end
 
-                task.wait(0.1)
+                task.wait(0.001)
             end
         end)
     end,
