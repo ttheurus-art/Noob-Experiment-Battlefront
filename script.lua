@@ -323,9 +323,9 @@ MainTab:CreateToggle({
 local RegenRunning = false
 
 MainTab:CreateToggle({
-    Name = "Auto Regen (Very Wip)",
+    Name = "Auto Regen (+5 HP Per 0.2s)",
     CurrentValue = false,
-    Flag = "StackedFastRegen",
+    Flag = "FastRegen",
 
     Callback = function(Value)
         RegenRunning = Value
@@ -338,36 +338,20 @@ MainTab:CreateToggle({
             local Players = game:GetService("Players")
             local player = Players.LocalPlayer
 
-            local intervals = {
-                0.1,
-                0.2,
-                0.3,
-                0.4,
-                0.5,
-                0.6,
-                0.7,
-                0.8,
-                0.9,
-                1.0
-            }
+            while RegenRunning do
+                local character = player.Character
+                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 
-            for _, interval in ipairs(intervals) do
-                task.spawn(function()
-                    while RegenRunning do
-                        local character = player.Character
-                        local humanoid = character
-                            and character:FindFirstChildOfClass("Humanoid")
-
-                        if humanoid and humanoid.Health > 0 then
-                            humanoid.Health = math.min(
-                                humanoid.Health + 5,
-                                humanoid.MaxHealth
-                            )
-                        end
-
-                        task.wait(interval)
+                if humanoid and humanoid.Health > 0 then
+                    if humanoid.Health < humanoid.MaxHealth then
+                        humanoid.Health = math.min(
+                            humanoid.Health + 5,
+                            humanoid.MaxHealth
+                        )
                     end
-                end)
+                end
+
+                task.wait(0.2)
             end
         end)
     end,
