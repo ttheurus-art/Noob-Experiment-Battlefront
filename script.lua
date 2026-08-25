@@ -269,6 +269,7 @@ MainTab:CreateToggle({
                         local drill = abilities:FindFirstChild("Drill")
 						local hit = abilities:FindFirstChild("Hit")
                         local energysword = abilities:FindFirstChild("Energy Sword")
+						local knife = abilities:FindFirstChild("Knife")
 								
                         local slashEvent = slash and slash:FindFirstChild("RemoteEvent")
                         local punchEvent = punch and punch:FindFirstChild("RemoteEvent")
@@ -277,6 +278,7 @@ MainTab:CreateToggle({
                         local drillEvent = drill and drill:FindFirstChild("RemoteEvent")
 						local hitEvent = hit and hit:FindFirstChild("RemoteEvent")
                         local energyswordEvent = energysword and energysword:FindFirstChild("RemoteEvent")
+						local knifeEvent = knife and knife:FindFirstChild("RemoteEvent")
 								
                         if slashEvent then
                             slashEvent:FireServer()
@@ -289,6 +291,10 @@ MainTab:CreateToggle({
                         if swordEvent then
                             swordEvent:FireServer()
                         end
+								
+						if knifeEvent then
+                            knifeEvent:FireServer()
+								end
 								
                         if drillEvent then
                             drillEvent:FireServer()
