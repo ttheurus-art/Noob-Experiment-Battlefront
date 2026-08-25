@@ -321,9 +321,25 @@ MainTab:CreateToggle({
 })
 
 local RegenRunning = false
+local RegenMode = "0.1s / +1 HP"
+
+MainTab:CreateDropdown({
+    Name = "Regen Mode",
+    Options = {
+        "0.1s / +1 HP",
+        "0.01s / +10 HP",
+        "0.001s / +100 HP"
+    },
+    CurrentOption = {"0.1s / +1 HP"},
+    Flag = "RegenMode",
+
+    Callback = function(Option)
+        RegenMode = Option[1]
+    end,
+})
 
 MainTab:CreateToggle({
-    Name = "Auto Regen (+1 Health Every 0.000001 Sec)",
+    Name = "Auto Regen",
     CurrentValue = false,
     Flag = "FastRegen",
 
@@ -342,14 +358,25 @@ MainTab:CreateToggle({
                 local character = player.Character
                 local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 
+                local amount = 1
+                local delayTime = 0.1
+
+                if RegenMode == "0.01s / +10 HP" then
+                    amount = 10
+                    delayTime = 0.01
+                elseif RegenMode == "0.001s / +100 HP" then
+                    amount = 100
+                    delayTime = 0.001
+                end
+
                 if humanoid then
                     humanoid.Health = math.min(
-                        humanoid.Health + 1,
+                        humanoid.Health + amount,
                         humanoid.MaxHealth
                     )
                 end
 
-                task.wait(0.000001)
+                task.wait(delayTime)
             end
         end)
     end,
