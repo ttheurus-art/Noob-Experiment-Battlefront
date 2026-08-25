@@ -320,7 +320,9 @@ MainTab:CreateToggle({
     end,
 })
 
-local RegenRunning = false
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SetRegen = ReplicatedStorage:WaitForChild("SetRegen")
+
 local RegenAmount = 1
 
 MainTab:CreateToggle({
@@ -329,30 +331,7 @@ MainTab:CreateToggle({
     Flag = "FastRegen",
 
     Callback = function(Value)
-        RegenRunning = Value
-
-        if not Value then
-            return
-        end
-
-        task.spawn(function()
-            local Players = game:GetService("Players")
-            local player = Players.LocalPlayer
-
-            while RegenRunning do
-                local character = player.Character
-                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-
-                if humanoid then
-                    humanoid.Health = math.min(
-                        humanoid.Health + RegenAmount,
-                        humanoid.MaxHealth
-                    )
-                end
-
-                task.wait(0.01)
-            end
-        end)
+        SetRegen:FireServer(Value, RegenAmount)
     end,
 })
 
@@ -367,6 +346,7 @@ MainTab:CreateDropdown({
         "+455 per 0.01s",
         "+555 per 0.01s"
     },
+
     CurrentOption = {"+1 per 0.01s"},
     Flag = "RegenAmount",
 
@@ -388,5 +368,7 @@ MainTab:CreateDropdown({
         elseif selected == "+555 per 0.01s" then
             RegenAmount = 555
         end
+
+        SetRegen:FireServer(true, RegenAmount)
     end,
 })
