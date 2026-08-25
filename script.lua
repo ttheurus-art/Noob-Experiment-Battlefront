@@ -55,11 +55,11 @@ p2.Parent = workspace
 
 local MainTab = Window:CreateTab("Information", nil)
 
-MainTab:CreateSection("About")
+MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
-    Title = "just",
-    Content = "still updating and I need help"
+    Title = "+ Auto Regen",
+    Content = "Yes it's OVERPOWAA"
 })
 
 local MoneyDisplay = MainTab:CreateParagraph({
