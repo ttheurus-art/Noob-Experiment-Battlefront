@@ -46,8 +46,8 @@ p.Transparency = 0.3
 p.Parent = workspace
 
 local p2 = Instance.new("Part")
-p2.Size = Vector3.new(20, 5, 20)
-p2.Position = Vector3.new(1690, -497, -139)
+p2.Size = Vector3.new(45, 5, 45)
+p2.Position = Vector3.new(1690, -498, -139)
 p2.Anchored = true
 p2.CanCollide = true
 p2.Transparency = 1
@@ -186,7 +186,7 @@ local Button = MainTab:CreateButton({
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
 
-      character:PivotTo(CFrame.new(1689, -492, -138))
+      character:PivotTo(CFrame.new(1689, -490, -138))
    end,
 })
 
