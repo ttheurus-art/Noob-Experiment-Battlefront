@@ -319,3 +319,38 @@ MainTab:CreateToggle({
         end)
     end,
 })
+
+local RegenRunning = false
+
+MainTab:CreateToggle({
+    Name = "Auto Regen (Wip)",
+    CurrentValue = false,
+    Flag = "FastRegen",
+
+    Callback = function(Value)
+        RegenRunning = Value
+
+        if not Value then
+            return
+        end
+
+        task.spawn(function()
+            local Players = game:GetService("Players")
+            local player = Players.LocalPlayer
+
+            while RegenRunning do
+                local character = player.Character
+                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+                if humanoid then
+                    humanoid.Health = math.min(
+                        humanoid.Health + 10,
+                        humanoid.MaxHealth
+                    )
+                end
+
+                task.wait(0.1)
+            end
+        end)
+    end,
+})
