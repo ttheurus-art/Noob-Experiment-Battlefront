@@ -323,7 +323,7 @@ MainTab:CreateToggle({
 local RandomRegenRunning = false
 
 MainTab:CreateToggle({
-    Name = "Auti Regen (wip)",
+    Name = "Auto Regen (wip)",
     CurrentValue = false,
     Flag = "RandomRegen",
 
