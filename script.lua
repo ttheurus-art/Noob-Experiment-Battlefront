@@ -334,7 +334,7 @@ MainTab:CreateToggle({
 local EssenceRunning = false
 
 MainTab:CreateToggle({
-    Name = "Auto TP To Time Essence When Spawn (Wip)",
+    Name = "Auto TP Time Essence",
     CurrentValue = false,
     Flag = "AutoTPTimeEssence",
 
@@ -351,25 +351,25 @@ MainTab:CreateToggle({
 
             while EssenceRunning do
                 local character = player.Character
+                local essence = workspace:FindFirstChild("TimeEssence")
 
-                if character then
-                    local essence = workspace:FindFirstChild("Time Essence", true)
+                if character and essence then
+                    local targetCFrame
 
-                    if essence then
-                        local targetPart
+                    if essence:IsA("BasePart") then
+                        targetCFrame = essence.CFrame
+                    elseif essence:IsA("Model") then
+                        targetCFrame = essence:GetPivot()
+                    else
+                        local part = essence:FindFirstChildWhichIsA("BasePart", true)
 
-                        if essence:IsA("BasePart") then
-                            targetPart = essence
-                        else
-                            targetPart = essence:FindFirstChildWhichIsA(
-                                "BasePart",
-                                true
-                            )
+                        if part then
+                            targetCFrame = part.CFrame
                         end
+                    end
 
-                        if targetPart then
-                            character:PivotTo(targetPart.CFrame)
-                        end
+                    if targetCFrame then
+                        character:PivotTo(targetCFrame)
                     end
                 end
 
