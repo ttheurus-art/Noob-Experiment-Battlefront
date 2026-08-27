@@ -331,6 +331,71 @@ MainTab:CreateToggle({
     end,
 })
 
+local ProjectileRunning = false
+
+MainTab:CreateToggle({
+    Name = "Auto Projectile / Shoot",
+    CurrentValue = false,
+    Flag = "AutoProjectile",
+
+    Callback = function(Value)
+        ProjectileRunning = Value
+
+        if not Value then
+            return
+        end
+
+        task.spawn(function()
+            local Players = game:GetService("Players")
+            local player = Players.LocalPlayer
+
+            while ProjectileRunning do
+                local character = player.Character
+
+                if character then
+                    local abilities = character:FindFirstChild("Abilities")
+
+                    if abilities then
+                        local blasters = abilities:FindFirstChild("Blasters")
+                        local blaster = abilities:FindFirstChild("Blaster")
+                        local rocket = abilities:FindFirstChild("Rocket")
+                        local rockets = abilities:FindFirstChild("Rockets")
+                        local rocketlaunchers = abilities:FindFirstChild("Rocket Launchers")
+
+                        local blastersEvent = blasters and blasters:FindFirstChild("RemoteEvent")
+                        local blasterEvent = blaster and blaster:FindFirstChild("RemoteEvent")
+                        local rocketEvent = rocket and rocket:FindFirstChild("RemoteEvent")
+                        local rocketsEvent = rockets and rockets:FindFirstChild("RemoteEvent")
+                        local rocketlaunchersEvent = rocketlaunchers and rocketlaunchers:FindFirstChild("RemoteEvent")
+
+                        if blastersEvent then
+                            blastersEvent:FireServer()
+                        end
+
+                        if blasterEvent then
+                            blasterEvent:FireServer()
+                        end
+
+                        if rocketEvent then
+                            rocketEvent:FireServer()
+                        end
+
+                        if rocketsEvent then
+                            rocketsEvent:FireServer()
+                        end
+
+                        if rocketlaunchersEvent then
+                            rocketlaunchersEvent:FireServer()
+                        end
+                    end
+                end
+
+                task.wait(0.1)
+            end
+        end)
+    end,
+})
+
 local EssenceRunning = false
 
 MainTab:CreateToggle({
