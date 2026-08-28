@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V1.8🔥",
+   Name = "Noob Experiment: Battlefront V1.8.6🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Y/O Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -444,7 +444,7 @@ MainTab:CreateToggle({
     end,
 })
 
-local MainTab = Window:CreateTab("Fun🫧", nil)
+local MainTab = Window:CreateTab("Fun😵‍💫", nil)
 local MainSection = MainTab:CreateSection("I dont know what I make")
 
 local Players = game:GetService("Players")
@@ -478,9 +478,9 @@ MainTab:CreateToggle({
                     if root then
                         root.CFrame = root.CFrame
                             * CFrame.Angles(
-                                math.rad(77),
+                                math.rad(777),
                                 0,
-                                math.rad(77)
+                                math.rad(777)
                             )
                     end
 
