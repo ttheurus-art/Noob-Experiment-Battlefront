@@ -444,62 +444,41 @@ MainTab:CreateToggle({
     end,
 })
 
-local SettingsTab = Window:CreateTab("Settings", 4483362458)
+local MainTab = Window:CreateTab("Fun🪽", nil)
+local MainSection = MainTab:CreateSection("I dont know what I make")
 
-SettingsTab:CreateSection("UI Settings")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
-SettingsTab:CreateKeybind({
-    Name = "Toggle UI",
-    CurrentKeybind = "K",
-    HoldToInteract = false,
-    Flag = "ToggleUIKeybind",
+local player = Players.LocalPlayer
+local SpinRunning = false
+local SpinSpeed = 55
 
-    Callback = function()
-        Rayfield:Toggle()
-    end,
-})
-
-SettingsTab:CreateSection("Configuration")
-
-SettingsTab:CreateButton({
-    Name = "Load Configuration",
-    Callback = function()
-        Rayfield:LoadConfiguration()
-    end,
-})
-
-SettingsTab:CreateSection("Theme")
-
-SettingsTab:CreateDropdown({
-    Name = "Theme",
-    Options = {
-        "Default",
-        "AmberGlow",
-        "Amethyst",
-        "Bloom",
-        "DarkBlue",
-        "Green",
-        "Light",
-        "Ocean",
-        "Serenity"
-    },
-    CurrentOption = {"DarkBlue"},
-    MultipleOptions = false,
-    Flag = "Theme",
-
-    Callback = function(Option)
-        local selectedTheme = Option[1]
-        Rayfield:SetTheme(selectedTheme)
-    end,
-})
-
-SettingsTab:CreateSection("Notifications")
-
-SettingsTab:CreateToggle({
-    Name = "Rayfield Prompts",
-    CurrentValue = true,
-    Flag = "RayfieldPrompts",
+MainTab:CreateToggle({
+    Name = "Call It Slin (sit + spin)",
+    CurrentValue = false,
+    Flag = "SitSpin55",
 
     Callback = function(Value)
+        SpinRunning = Value
+
+        if not Value then
+            return
+        end
+
+        task.spawn(function()
+            while SpinRunning do
+                local character = player.Character
+                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+                local root = character and character:FindFirstChild("HumanoidRootPart")
+
+                if humanoid and root then
+                    humanoid.Sit = true
+                    root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(SpinSpeed), 0)
+                end
+
+                task.wait()
+            end
+        end)
     end,
 })
