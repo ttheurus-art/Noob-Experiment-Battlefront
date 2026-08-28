@@ -451,30 +451,70 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
+
 local SpinRunning = false
 local SpinSpeed = 99
+local EmoteSpeed = 77
+local EmoteId = "rbxassetid://10214311282"
+
+local CurrentTrack = nil
 
 MainTab:CreateToggle({
-    Name = "I CALL IT SLINGINGING",
+    Name = "I CAST SLINGINGING",
     CurrentValue = false,
-    Flag = "SitSpin99",
+    Flag = "SitSpinBreakdance",
 
     Callback = function(Value)
         SpinRunning = Value
 
-        if not Value then
+        local character = player.Character
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+        if not character or not humanoid then
             return
         end
 
+        -- OFF
+        if not Value then
+            if CurrentTrack then
+                CurrentTrack:Stop(0)
+                CurrentTrack:Destroy()
+                CurrentTrack = nil
+            end
+
+            humanoid.Sit = false
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+
+            return
+        end
+
+        -- ON
+        humanoid.Sit = true
+
+        local animator = humanoid:FindFirstChildOfClass("Animator")
+
+        if not animator then
+            animator = Instance.new("Animator")
+            animator.Parent = humanoid
+        end
+
+        local animation = Instance.new("Animation")
+        animation.AnimationId = EmoteId
+
+        local track = animator:LoadAnimation(animation)
+        CurrentTrack = track
+
+        track.Looped = true
+        track:Play(0)
+        track:AdjustSpeed(EmoteSpeed)
+
         task.spawn(function()
             while SpinRunning do
-                local character = player.Character
-                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-                local root = character and character:FindFirstChild("HumanoidRootPart")
+                local currentCharacter = player.Character
+                local root = currentCharacter
+                    and currentCharacter:FindFirstChild("HumanoidRootPart")
 
-                if humanoid and root then
-                    humanoid.Sit = true
-
+                if root then
                     root.CFrame = root.CFrame
                         * CFrame.Angles(0, math.rad(SpinSpeed), 0)
                 end
