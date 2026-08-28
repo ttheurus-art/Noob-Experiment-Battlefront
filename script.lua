@@ -453,10 +453,10 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 local RagdollSpinRunning = false
-local SpinSpeed = 18
-local MinImpulse = 500
-local MaxImpulse = 1000
-local FlingCooldown = 0.8
+local SpinSpeed = 99
+local MinImpulse = 1000
+local MaxImpulse = 5000
+local FlingCooldown = 0.3
 
 local TouchConnections = {}
 local LastFling = 0
