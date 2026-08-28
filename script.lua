@@ -444,33 +444,62 @@ MainTab:CreateToggle({
     end,
 })
 
-local MainTab = Window:CreateTab("Work In Progress", nil)
-local MainSection = MainTab:CreateSection("Still Testing Is It Work Or No")
+local SettingsTab = Window:CreateTab("Settings", 4483362458)
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local GiveChars = ReplicatedStorage
-    :WaitForChild("ADMIN")
-    :WaitForChild("GiveChars")
+SettingsTab:CreateSection("UI Settings")
 
-local TargetPlayer = ""
+SettingsTab:CreateKeybind({
+    Name = "Toggle UI",
+    CurrentKeybind = "K",
+    HoldToInteract = false,
+    Flag = "ToggleUIKeybind",
 
-MainTab:CreateInput({
-    Name = "Target Player",
-    PlaceholderText = "Enter player name...",
-    RemoveTextAfterFocusLost = false,
-
-    Callback = function(Text)
-        TargetPlayer = Text
+    Callback = function()
+        Rayfield:Toggle()
     end,
 })
 
-MainTab:CreateButton({
-    Name = "Give WT#Whathappened",
-    Callback = function()
-        if TargetPlayer == "" then
-            return
-        end
+SettingsTab:CreateSection("Configuration")
 
-        GiveChars:FireServer("WT#Whathappened", TargetPlayer)
+SettingsTab:CreateButton({
+    Name = "Load Configuration",
+    Callback = function()
+        Rayfield:LoadConfiguration()
+    end,
+})
+
+SettingsTab:CreateSection("Theme")
+
+SettingsTab:CreateDropdown({
+    Name = "Theme",
+    Options = {
+        "Default",
+        "AmberGlow",
+        "Amethyst",
+        "Bloom",
+        "DarkBlue",
+        "Green",
+        "Light",
+        "Ocean",
+        "Serenity"
+    },
+    CurrentOption = {"DarkBlue"},
+    MultipleOptions = false,
+    Flag = "Theme",
+
+    Callback = function(Option)
+        local selectedTheme = Option[1]
+        Rayfield:SetTheme(selectedTheme)
+    end,
+})
+
+SettingsTab:CreateSection("Notifications")
+
+SettingsTab:CreateToggle({
+    Name = "Rayfield Prompts",
+    CurrentValue = true,
+    Flag = "RayfieldPrompts",
+
+    Callback = function(Value)
     end,
 })
