@@ -452,20 +452,42 @@ local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 
-local SpinRunning = false
+local SlingingingRunning = false
 local SpinSpeed = 99
 local EmoteSpeed = 77
 local EmoteId = "rbxassetid://10214311282"
 
 local CurrentTrack = nil
+local OriginalCollision = {}
+
+local function SaveAndEnableCollision(character)
+    OriginalCollision = {}
+
+    for _, object in ipairs(character:GetDescendants()) do
+        if object:IsA("BasePart") then
+            OriginalCollision[object] = object.CanCollide
+            object.CanCollide = true
+        end
+    end
+end
+
+local function RestoreCollision()
+    for part, originalValue in pairs(OriginalCollision) do
+        if part and part.Parent then
+            part.CanCollide = originalValue
+        end
+    end
+
+    OriginalCollision = {}
+end
 
 MainTab:CreateToggle({
-    Name = "I CAST SLINGINGING",
+    Name = "SLINGINGING",
     CurrentValue = false,
-    Flag = "SitSpinBreakdance",
+    Flag = "Slinginging",
 
     Callback = function(Value)
-        SpinRunning = Value
+        SlingingingRunning = Value
 
         local character = player.Character
         local humanoid = character and character:FindFirstChildOfClass("Humanoid")
@@ -476,21 +498,28 @@ MainTab:CreateToggle({
 
         -- OFF
         if not Value then
+            SlingingingRunning = false
+
             if CurrentTrack then
                 CurrentTrack:Stop(0)
                 CurrentTrack:Destroy()
                 CurrentTrack = nil
             end
 
-            humanoid.Sit = false
-            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            RestoreCollision()
+
+            humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
 
             return
         end
 
-        -- ON
-        humanoid.Sit = true
+        -- ON: Enable collision on all body/morph parts
+        SaveAndEnableCollision(character)
 
+        -- Ragdoll-like state
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+
+        -- Play Breakdance
         local animator = humanoid:FindFirstChildOfClass("Animator")
 
         if not animator then
@@ -508,8 +537,9 @@ MainTab:CreateToggle({
         track:Play(0)
         track:AdjustSpeed(EmoteSpeed)
 
+        -- Spin
         task.spawn(function()
-            while SpinRunning do
+            while SlingingingRunning do
                 local currentCharacter = player.Character
                 local root = currentCharacter
                     and currentCharacter:FindFirstChild("HumanoidRootPart")
