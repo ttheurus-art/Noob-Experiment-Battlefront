@@ -58,7 +58,7 @@ local MainTab = Window:CreateTab("Information", nil)
 MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
-    Title = "+ Auto TP To Time Essence \n+ update teleport \n",
+    Title = "+ Fun Tab\n",
     Content = "join my discord to give me idea!💡"
 })
 
