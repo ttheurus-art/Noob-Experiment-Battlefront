@@ -443,3 +443,34 @@ MainTab:CreateToggle({
         end)
     end,
 })
+
+local MainTab = Window:CreateTab("Work In Progress", nil)
+local MainSection = MainTab:CreateSection("Still Testing Is It Work Or No")
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GiveChars = ReplicatedStorage
+    :WaitForChild("ADMIN")
+    :WaitForChild("GiveChars")
+
+local TargetPlayer = ""
+
+MainTab:CreateInput({
+    Name = "Target Player",
+    PlaceholderText = "Enter player name...",
+    RemoveTextAfterFocusLost = false,
+
+    Callback = function(Text)
+        TargetPlayer = Text
+    end,
+})
+
+MainTab:CreateButton({
+    Name = "Give WT#Whathappened",
+    Callback = function()
+        if TargetPlayer == "" then
+            return
+        end
+
+        GiveChars:FireServer("WT#Whathappened", TargetPlayer)
+    end,
+})
