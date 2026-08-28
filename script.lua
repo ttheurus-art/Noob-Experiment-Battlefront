@@ -444,41 +444,51 @@ MainTab:CreateToggle({
     end,
 })
 
-local MainTab = Window:CreateTab("Fun🪽", nil)
+local MainTab = Window:CreateTab("Fun🫧", nil)
 local MainSection = MainTab:CreateSection("I dont know what I make")
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
-local SpinRunning = false
-local SpinSpeed = 55
+local RagdollSpin = false
 
 MainTab:CreateToggle({
-    Name = "Call It Slin (sit + spin)",
+    Name = "I CALL IT SLINGINGING",
     CurrentValue = false,
-    Flag = "SitSpin55",
+    Flag = "RagdollSpin77",
 
     Callback = function(Value)
-        SpinRunning = Value
+        RagdollSpin = Value
 
-        if not Value then
+        local character = player.Character
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+        if not character or not humanoid then
             return
         end
 
-        task.spawn(function()
-            while SpinRunning do
-                local character = player.Character
-                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-                local root = character and character:FindFirstChild("HumanoidRootPart")
+        if Value then
+            humanoid:ChangeState(Enum.HumanoidStateType.Ragdoll)
 
-                if humanoid and root then
-                    humanoid.Sit = true
-                    root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(SpinSpeed), 0)
+            task.spawn(function()
+                while RagdollSpin do
+                    local root = character:FindFirstChild("HumanoidRootPart")
+
+                    if root then
+                        root.CFrame = root.CFrame
+                            * CFrame.Angles(
+                                math.rad(77),
+                                0,
+                                math.rad(77)
+                            )
+                    end
+
+                    RunService.Heartbeat:Wait()
                 end
-
-                task.wait()
-            end
-        end)
+            end)
+        else
+            humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+        end
     end,
 })
