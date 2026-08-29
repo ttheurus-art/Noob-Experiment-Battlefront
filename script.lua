@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V2.2🔥",
+   Name = "Noob Experiment: Battlefront V2.3🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Y/O Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -58,7 +58,7 @@ local MainTab = Window:CreateTab("Information", nil)
 MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
-    Title = "+ Musics\n",
+    Title = "+ some music\n",
     Content = "ill let anyone upload my script if i got perm ban"
 })
 
@@ -591,6 +591,7 @@ local MusicList = {
     ["None"] = nil,
     ["AFTERTASTE"] = "85281675332105",
     ["Hacklord LMS"] = "72164848270788",
+	["Eternity V1"] = "128855377868949",
 }
 
 local CustomMusicID = ""
@@ -641,6 +642,15 @@ MainTab:CreateButton({
     end,
 })
 
+--// STOP MUSIC
+MainTab:CreateButton({
+    Name = "Stop Music",
+
+    Callback = function()
+        CustomMusic:Stop()
+    end,
+})
+
 --// PRESET MUSIC
 MainTab:CreateDropdown({
     Name = "Select Music",
@@ -648,7 +658,8 @@ MainTab:CreateDropdown({
     Options = {
         "None",
         "AFTERTASTE",
-        "Hacklord LMS"
+        "Hacklord LMS",
+		"Eternity V1"
     },
 
     CurrentOption = {"None"},
