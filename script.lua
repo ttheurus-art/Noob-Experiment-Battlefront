@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V2.1🔥",
+   Name = "Noob Experiment: Battlefront V2.2🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Y/O Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -586,7 +586,7 @@ MainTab:CreateToggle({
 --// MUSIC
 
 local MusicList = {
-    ["Through Patches of Violet"] = "77579718926500",
+    ["Through Patches of Violet"] = "124191311319569",
     ["AFTERTASTE"] = "85281675332105",
 }
 
