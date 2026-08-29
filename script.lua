@@ -596,7 +596,7 @@ local SoundService = game:GetService("SoundService")
 local MusicList = {
     ["None"] = nil,
     ["AFTERTASTE"] = "85281675332105",
-    ["Timeless"] = "113920511880753",
+    ["Creation of Hatred"] = "111304986203081",
 	["Eternity V1"] = "128855377868949",
 }
 
@@ -664,7 +664,7 @@ MainTab:CreateDropdown({
     Options = {
         "None",
         "AFTERTASTE",
-        "Timeless",
+        "Creation of Hatred",
 		"Eternity V1"
     },
 
