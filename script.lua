@@ -583,40 +583,31 @@ MainTab:CreateToggle({
     end,
 })
 
---// MUSIC
+local CustomMusic = Instance.new("Sound")
+CustomMusic.Name = "CustomMusic"
+CustomMusic.Parent = game:GetService("SoundService")
+CustomMusic.Looped = true
+CustomMusic.Volume = 0.5
 
 local MusicList = {
-    ["Through Patches of Violet"] = "124191311319569",
+    ["Through Patches of Violet"] = "77579718926500",
     ["AFTERTASTE"] = "85281675332105",
+	["Through Patches but forsaken"] = "72164848270788",
 }
 
 local CustomMusicID = ""
-local MusicVolume = 5
 
-local function PlayMusic(ID)
+local function PlayCustomMusic(ID)
     if not ID or ID == "" then
         return
     end
 
-    local MusicFolder = workspace:FindFirstChild("Music")
-
-    if not MusicFolder then
-        warn("Music folder not found")
-        return
-    end
-
-    for _, sound in ipairs(MusicFolder:GetDescendants()) do
-        if sound:IsA("Sound") then
-            sound.SoundId = "rbxassetid://" .. ID
-            sound.Volume = MusicVolume / 10
-            sound:Play()
-        end
-    end
+    CustomMusic.SoundId = "rbxassetid://" .. ID
+    CustomMusic:Play()
 end
 
 MainTab:CreateSection("Music")
 
---// CUSTOM MUSIC ID
 MainTab:CreateInput({
     Name = "Music ID",
     PlaceholderText = "Enter Roblox Music ID...",
@@ -627,16 +618,14 @@ MainTab:CreateInput({
     end,
 })
 
---// PLAY CUSTOM MUSIC
 MainTab:CreateButton({
     Name = "Play Custom Music",
 
     Callback = function()
-        PlayMusic(CustomMusicID)
+        PlayCustomMusic(CustomMusicID)
     end,
 })
 
---// PRESET MUSIC
 MainTab:CreateDropdown({
     Name = "Select Music",
 
@@ -645,22 +634,18 @@ MainTab:CreateDropdown({
         "AFTERTASTE"
     },
 
-    CurrentOption = {
-        "Through Patches of Violet"
-    },
-
+    CurrentOption = {"Through Patches of Violet"},
     MultipleOptions = false,
 
     Callback = function(Option)
         local ID = MusicList[Option[1]]
 
         if ID then
-            PlayMusic(ID)
+            PlayCustomMusic(ID)
         end
     end,
 })
 
---// VOLUME 0-10
 MainTab:CreateSlider({
     Name = "Music Volume",
     Range = {0, 10},
@@ -669,16 +654,14 @@ MainTab:CreateSlider({
     CurrentValue = 5,
 
     Callback = function(Value)
-        MusicVolume = Value / 10
+        CustomMusic.Volume = Value / 10
+    end,
+})
 
-        local MusicFolder = workspace:FindFirstChild("Music")
+MainTab:CreateButton({
+    Name = "Stop Custom Music",
 
-        if MusicFolder then
-            for _, sound in ipairs(MusicFolder:GetDescendants()) do
-                if sound:IsA("Sound") then
-                    sound.Volume = MusicVolume
-                end
-            end
-        end
+    Callback = function()
+        CustomMusic:Stop()
     end,
 })
