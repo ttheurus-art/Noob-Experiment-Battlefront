@@ -598,6 +598,7 @@ local MusicList = {
     ["AFTERTASTE"] = "85281675332105",
     ["Creation of Hatred"] = "111304986203081",
 	["Eternity V1"] = "128855377868949",
+	["At The Speed of Light"] = "117386268398589"
 }
 
 local CustomMusicID = ""
@@ -665,7 +666,8 @@ MainTab:CreateDropdown({
         "None",
         "AFTERTASTE",
         "Creation of Hatred",
-		"Eternity V1"
+		"Eternity V1",
+		"At The Speed of Light"
     },
 
     CurrentOption = {"None"},
