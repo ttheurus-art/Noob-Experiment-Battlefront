@@ -584,11 +584,11 @@ MainTab:CreateToggle({
 })
 
 local MusicList = {
-    ["Feel The Fury"] = "120538712060030",
-    ["Through Patches of Violet"] = "76760458012018",
+    ["Feel The Fury OUTCOME MEMORIES"] = "102131672407031",
+    ["Through Patches of Violet"] = "77579718926500",
 }
 
-local SelectedSong = "Feel The Fury"
+local SelectedSong = "Feel The Fury OUTCOME MEMORIES"
 local CustomMusicID = ""
 
 local function PlayMusic(ID)
@@ -635,8 +635,8 @@ MainTab:CreateButton({
 MainTab:CreateDropdown({
     Name = "Select Music",
     Options = {
-        "Feel The Fury",
-        "Honorer"
+        "Feel The Fury OUTCOME MEMORIES",
+        "Through Patchs of Violet"
     },
     CurrentOption = {"Feel The Fury"},
     MultipleOptions = false,
