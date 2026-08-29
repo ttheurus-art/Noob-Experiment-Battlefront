@@ -59,7 +59,7 @@ MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
     Title = "+ Musics\n",
-    Content = "join my discord to give me idea!💡"
+    Content = "ill let anyone upload my script if i got perm ban"
 })
 
 local MoneyDisplay = MainTab:CreateParagraph({
