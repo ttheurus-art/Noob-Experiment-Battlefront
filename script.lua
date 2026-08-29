@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V1.8.6🔥",
+   Name = "Noob Experiment: Battlefront V1.9.8🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Y/O Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -58,7 +58,7 @@ local MainTab = Window:CreateTab("Information", nil)
 MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
-    Title = "+ Fun Tab\n",
+    Title = "+ Music Section\n",
     Content = "join my discord to give me idea!💡"
 })
 
