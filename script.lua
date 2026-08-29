@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V2.3🔥",
+   Name = "Noob Experiment: Battlefront V2.5🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Y/O Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -361,12 +361,14 @@ MainTab:CreateToggle({
                         local rocket = abilities:FindFirstChild("Rocket")
                         local rockets = abilities:FindFirstChild("Rockets")
                         local rocketlaunchers = abilities:FindFirstChild("Rocket Launchers")
+						local rocketlauncher = abilities:FindFirstChild("Rocket Launcher")
 
                         local blastersEvent = blasters and blasters:FindFirstChild("RemoteEvent")
                         local blasterEvent = blaster and blaster:FindFirstChild("RemoteEvent")
                         local rocketEvent = rocket and rocket:FindFirstChild("RemoteEvent")
                         local rocketsEvent = rockets and rockets:FindFirstChild("RemoteEvent")
                         local rocketlaunchersEvent = rocketlaunchers and rocketlaunchers:FindFirstChild("RemoteEvent")
+						local rocketlauncherEvent = rocketlauncher and rocketlauncher:FindFirstChild("RemoteEvent")
 
                         if blastersEvent then
                             blastersEvent:FireServer()
@@ -382,7 +384,11 @@ MainTab:CreateToggle({
 
                         if rocketsEvent then
                             rocketsEvent:FireServer()
-                        end
+						end
+
+						if rocketlauncherEvent then
+                            rocketlauncherEvent:FireServer()
+								end
 
                         if rocketlaunchersEvent then
                             rocketlaunchersEvent:FireServer()
@@ -454,8 +460,8 @@ local player = Players.LocalPlayer
 
 local RagdollSpinRunning = false
 local SpinSpeed = 99
-local MinImpulse = 1000
-local MaxImpulse = 5000
+local MinImpulse = 900
+local MaxImpulse = 3500
 local FlingCooldown = 0.3
 
 local TouchConnections = {}
@@ -542,7 +548,7 @@ local function SetupTouchDetection(character)
 end
 
 MainTab:CreateToggle({
-    Name = "HAHAHA SLINGINGING",
+    Name = "I CALL IT SLINGINGING",
     CurrentValue = false,
     Flag = "RagdollSpinFling",
 
@@ -590,7 +596,7 @@ local SoundService = game:GetService("SoundService")
 local MusicList = {
     ["None"] = nil,
     ["AFTERTASTE"] = "85281675332105",
-    ["Hacklord LMS"] = "72164848270788",
+    ["Timeless"] = "113920511880753",
 	["Eternity V1"] = "128855377868949",
 }
 
@@ -658,7 +664,7 @@ MainTab:CreateDropdown({
     Options = {
         "None",
         "AFTERTASTE",
-        "Hacklord LMS",
+        "Timeless",
 		"Eternity V1"
     },
 
