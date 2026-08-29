@@ -58,7 +58,7 @@ local MainTab = Window:CreateTab("Information", nil)
 MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
-    Title = "+ Music Section\n",
+    Title = "+ Musics\n",
     Content = "join my discord to give me idea!💡"
 })
 
@@ -584,7 +584,7 @@ MainTab:CreateToggle({
 })
 
 local MusicList = {
-    ["Feel The Fury OUTCOME MEMORIES"] = "102131672407031",
+    ["Feel The Fury OUTCOME MEMORIES"] = "80215938105460",
     ["Through Patches of Violet"] = "77579718926500",
 }
 
