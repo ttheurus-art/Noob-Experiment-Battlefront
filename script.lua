@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V1.9.8🔥",
+   Name = "Noob Experiment: Battlefront V2.0🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Y/O Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -585,7 +585,7 @@ MainTab:CreateToggle({
 
 local MusicList = {
     ["Feel The Fury"] = "102131672407031",
-    ["Honorer"] = "128857183932211",
+    ["Honorer"] = "110788401793874",
 }
 
 local SelectedSong = "Feel The Fury"
@@ -621,6 +621,16 @@ MainTab:CreateInput({
     end,
 })
 
+-- Mainkan ID yang dimasukkan sendiri
+MainTab:CreateButton({
+    Name = "Play Custom Music",
+    Callback = function()
+        PlayMusic(CustomMusicID)
+    end,
+})
+
+
+
 -- Daftar lagu yang sudah disediakan
 MainTab:CreateDropdown({
     Name = "Select Music",
@@ -633,14 +643,6 @@ MainTab:CreateDropdown({
 
     Callback = function(Option)
         SelectedSong = Option[1]
-    end,
-})
-
--- Mainkan ID yang dimasukkan sendiri
-MainTab:CreateButton({
-    Name = "Play Custom Music",
-    Callback = function()
-        PlayMusic(CustomMusicID)
     end,
 })
 
