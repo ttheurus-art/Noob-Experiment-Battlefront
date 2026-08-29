@@ -586,11 +586,12 @@ MainTab:CreateToggle({
 --// MUSIC
 
 local MusicList = {
-    ["Feel The Fury(Scrapped)"] = "105304797255881",
+    ["Through Patches of Violet"] = "77579718926500",
     ["AFTERTASTE"] = "85281675332105",
 }
 
 local CustomMusicID = ""
+local MusicVolume = 5
 
 local function PlayMusic(ID)
     if not ID or ID == "" then
@@ -607,6 +608,7 @@ local function PlayMusic(ID)
     for _, sound in ipairs(MusicFolder:GetDescendants()) do
         if sound:IsA("Sound") then
             sound.SoundId = "rbxassetid://" .. ID
+            sound.Volume = MusicVolume / 10
             sound:Play()
         end
     end
@@ -614,6 +616,7 @@ end
 
 MainTab:CreateSection("Music")
 
+--// CUSTOM MUSIC ID
 MainTab:CreateInput({
     Name = "Music ID",
     PlaceholderText = "Enter Roblox Music ID...",
@@ -624,6 +627,7 @@ MainTab:CreateInput({
     end,
 })
 
+--// PLAY CUSTOM MUSIC
 MainTab:CreateButton({
     Name = "Play Custom Music",
 
@@ -632,16 +636,17 @@ MainTab:CreateButton({
     end,
 })
 
+--// PRESET MUSIC
 MainTab:CreateDropdown({
     Name = "Select Music",
 
     Options = {
-        "Feel The Fury(Scrapped)",
+        "Through Patches of Violet",
         "AFTERTASTE"
     },
 
     CurrentOption = {
-        "Feel The Fury(Scrapped)"
+        "Through Patches of Violet"
     },
 
     MultipleOptions = false,
@@ -651,6 +656,29 @@ MainTab:CreateDropdown({
 
         if ID then
             PlayMusic(ID)
+        end
+    end,
+})
+
+--// VOLUME 0-10
+MainTab:CreateSlider({
+    Name = "Music Volume",
+    Range = {0, 10},
+    Increment = 1,
+    Suffix = "/10",
+    CurrentValue = 5,
+
+    Callback = function(Value)
+        MusicVolume = Value / 10
+
+        local MusicFolder = workspace:FindFirstChild("Music")
+
+        if MusicFolder then
+            for _, sound in ipairs(MusicFolder:GetDescendants()) do
+                if sound:IsA("Sound") then
+                    sound.Volume = MusicVolume
+                end
+            end
         end
     end,
 })
