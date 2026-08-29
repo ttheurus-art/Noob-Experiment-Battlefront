@@ -582,3 +582,73 @@ MainTab:CreateToggle({
         end)
     end,
 })
+
+local MusicList = {
+    ["Feel The Fury"] = "102131672407031",
+    ["Honorer"] = "128857183932211",
+}
+
+local SelectedSong = "Feel The Fury"
+local CustomMusicID = ""
+
+local function PlayMusic(ID)
+    if not ID or ID == "" then
+        return
+    end
+
+    local MusicFolder = workspace:FindFirstChild("Music")
+
+    if not MusicFolder then
+        return
+    end
+
+    for _, sound in ipairs(MusicFolder:GetDescendants()) do
+        if sound:IsA("Sound") then
+            sound.SoundId = "rbxassetid://" .. ID
+            sound:Play()
+        end
+    end
+end
+
+-- Input untuk ID sendiri
+MainTab:CreateInput({
+    Name = "Music ID",
+    PlaceholderText = "Enter Roblox Music ID...",
+    RemoveTextAfterFocusLost = false,
+
+    Callback = function(Text)
+        CustomMusicID = Text
+    end,
+})
+
+-- Daftar lagu yang sudah disediakan
+MainTab:CreateDropdown({
+    Name = "Select Music",
+    Options = {
+        "Feel The Fury",
+        "Honorer"
+    },
+    CurrentOption = {"Feel The Fury"},
+    MultipleOptions = false,
+
+    Callback = function(Option)
+        SelectedSong = Option[1]
+    end,
+})
+
+-- Mainkan ID yang dimasukkan sendiri
+MainTab:CreateButton({
+    Name = "Play Custom Music",
+    Callback = function()
+        PlayMusic(CustomMusicID)
+    end,
+})
+
+-- Mainkan lagu dari daftar
+MainTab:CreateButton({
+    Name = "Play Selected Music",
+    Callback = function()
+        local ID = MusicList[SelectedSong]
+        PlayMusic(ID)
+    end,
+})
