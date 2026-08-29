@@ -583,12 +583,13 @@ MainTab:CreateToggle({
     end,
 })
 
+--// MUSIC
+
 local MusicList = {
-    ["Feel The Fury OUTCOME MEMORIES"] = "80215938105460",
-    ["Through Patches of Violet"] = "77579718926500",
+    ["Feel The Fury(Scrapped)"] = "105304797255881",
+    ["AFTERTASTE"] = "85281675332105",
 }
 
-local SelectedSong = "Feel The Fury OUTCOME MEMORIES"
 local CustomMusicID = ""
 
 local function PlayMusic(ID)
@@ -599,6 +600,7 @@ local function PlayMusic(ID)
     local MusicFolder = workspace:FindFirstChild("Music")
 
     if not MusicFolder then
+        warn("Music folder not found")
         return
     end
 
@@ -610,7 +612,8 @@ local function PlayMusic(ID)
     end
 end
 
--- Input untuk ID sendiri
+MainTab:CreateSection("Music")
+
 MainTab:CreateInput({
     Name = "Music ID",
     PlaceholderText = "Enter Roblox Music ID...",
@@ -621,36 +624,33 @@ MainTab:CreateInput({
     end,
 })
 
--- Mainkan ID yang dimasukkan sendiri
 MainTab:CreateButton({
     Name = "Play Custom Music",
+
     Callback = function()
         PlayMusic(CustomMusicID)
     end,
 })
 
-
-
--- Daftar lagu yang sudah disediakan
 MainTab:CreateDropdown({
     Name = "Select Music",
+
     Options = {
-        "Feel The Fury OUTCOME MEMORIES",
-        "Through Patchs of Violet"
+        "Feel The Fury(Scrapped)",
+        "AFTERTASTE"
     },
-    CurrentOption = {"Feel The Fury"},
+
+    CurrentOption = {
+        "Feel The Fury(Scrapped)"
+    },
+
     MultipleOptions = false,
 
     Callback = function(Option)
-        SelectedSong = Option[1]
-    end,
-})
+        local ID = MusicList[Option[1]]
 
--- Mainkan lagu dari daftar
-MainTab:CreateButton({
-    Name = "Play Selected Music",
-    Callback = function()
-        local ID = MusicList[SelectedSong]
-        PlayMusic(ID)
+        if ID then
+            PlayMusic(ID)
+        end
     end,
 })
