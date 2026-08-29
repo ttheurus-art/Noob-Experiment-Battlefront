@@ -583,31 +583,41 @@ MainTab:CreateToggle({
     end,
 })
 
-local CustomMusic = Instance.new("Sound")
-CustomMusic.Name = "CustomMusic"
-CustomMusic.Parent = game:GetService("SoundService")
-CustomMusic.Looped = true
-CustomMusic.Volume = 0.5
+--// MUSIC
+
+local SoundService = game:GetService("SoundService")
 
 local MusicList = {
-    ["Through Patches of Violet"] = "77579718926500",
+    ["None"] = nil,
     ["AFTERTASTE"] = "85281675332105",
-	["Through Patches but forsaken"] = "72164848270788",
+    ["Hacklord LMS"] = "72164848270788",
 }
 
 local CustomMusicID = ""
+local MusicVolume = 5
+local SelectedMusicID = nil
 
-local function PlayCustomMusic(ID)
+-- Sound sementara untuk script
+local CustomMusic = Instance.new("Sound")
+CustomMusic.Name = "NoobExperiment_CustomMusic"
+CustomMusic.Parent = SoundService
+CustomMusic.Looped = true
+CustomMusic.Volume = MusicVolume
+
+local function StartMusic(ID)
     if not ID or ID == "" then
         return
     end
 
+    CustomMusic:Stop()
     CustomMusic.SoundId = "rbxassetid://" .. ID
+    CustomMusic.Volume = MusicVolume
     CustomMusic:Play()
 end
 
 MainTab:CreateSection("Music")
 
+--// CUSTOM MUSIC ID
 MainTab:CreateInput({
     Name = "Music ID",
     PlaceholderText = "Enter Roblox Music ID...",
@@ -618,50 +628,48 @@ MainTab:CreateInput({
     end,
 })
 
+--// START CUSTOM MUSIC
 MainTab:CreateButton({
-    Name = "Play Custom Music",
+    Name = "Start Music",
 
     Callback = function()
-        PlayCustomMusic(CustomMusicID)
-    end,
-})
-
-MainTab:CreateDropdown({
-    Name = "Select Music",
-
-    Options = {
-        "Through Patches of Violet",
-        "AFTERTASTE"
-    },
-
-    CurrentOption = {"Through Patches of Violet"},
-    MultipleOptions = false,
-
-    Callback = function(Option)
-        local ID = MusicList[Option[1]]
-
-        if ID then
-            PlayCustomMusic(ID)
+        if CustomMusicID ~= "" then
+            StartMusic(CustomMusicID)
+        elseif SelectedMusicID then
+            StartMusic(SelectedMusicID)
         end
     end,
 })
 
+--// PRESET MUSIC
+MainTab:CreateDropdown({
+    Name = "Select Music",
+
+    Options = {
+        "None",
+        "AFTERTASTE",
+        "Hacklord LMS"
+    },
+
+    CurrentOption = {"None"},
+    MultipleOptions = false,
+
+    Callback = function(Option)
+        local SelectedName = Option[1]
+        SelectedMusicID = MusicList[SelectedName]
+    end,
+})
+
+--// VOLUME 0.1 - 10
 MainTab:CreateSlider({
     Name = "Music Volume",
-    Range = {0, 10},
-    Increment = 1,
+    Range = {0.1, 10},
+    Increment = 0.1,
     Suffix = "/10",
     CurrentValue = 5,
 
     Callback = function(Value)
-        CustomMusic.Volume = Value / 10
-    end,
-})
-
-MainTab:CreateButton({
-    Name = "Stop Custom Music",
-
-    Callback = function()
-        CustomMusic:Stop()
+        MusicVolume = Value
+        CustomMusic.Volume = Value
     end,
 })
