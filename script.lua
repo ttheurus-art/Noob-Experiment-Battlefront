@@ -584,8 +584,8 @@ MainTab:CreateToggle({
 })
 
 local MusicList = {
-    ["Feel The Fury"] = "102131672407031",
-    ["Honorer"] = "110788401793874",
+    ["Feel The Fury"] = "120538712060030",
+    ["Through Patches of Violet"] = "76760458012018",
 }
 
 local SelectedSong = "Feel The Fury"
