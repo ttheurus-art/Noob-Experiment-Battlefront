@@ -929,7 +929,8 @@ MainTab:CreateColorPicker({
 })
 
 --==================================================
---// LOW HEALTH VISUAL
+--// LOW HEALTH EFFECT
+--// For MainTab
 --==================================================
 
 local Players = game:GetService("Players")
@@ -941,20 +942,16 @@ local PlayerGui = Player:WaitForChild("PlayerGui")
 
 
 --==================================================
---// CLEAN UP SAAT RELOAD
+--// CLEAN OLD VERSION ON RELOAD
 --==================================================
 
-local OldLowHealth = PlayerGui:FindFirstChild(
-    "NoobExperiment_LowHealth"
-)
+local OldGui = PlayerGui:FindFirstChild("NoobExperiment_LowHealth")
 
-if OldLowHealth then
-    OldLowHealth:Destroy()
+if OldGui then
+    OldGui:Destroy()
 end
 
-local OldBlur = Lighting:FindFirstChild(
-    "NoobExperiment_LowHealthBlur"
-)
+local OldBlur = Lighting:FindFirstChild("NoobExperiment_LowHealthBlur")
 
 if OldBlur then
     OldBlur:Destroy()
@@ -965,48 +962,136 @@ end
 --// SETTINGS
 --==================================================
 
-local LowHealthEnabled = false
+local Enabled = false
 
-local SpeedBoostMultiplier = 1.25
-
-local CurrentHumanoid = nil
 local NormalWalkSpeed = 16
+local CurrentHumanoid = nil
 
 local HealthConnection = nil
-local DeathFadeRunning = false
+local DeathEffectRunning = false
 
 
 --==================================================
---// LOW HEALTH GUI
+--// GUI
 --==================================================
 
-local LowHealthGui = Instance.new("ScreenGui")
+local Gui = Instance.new("ScreenGui")
 
-LowHealthGui.Name =
-    "NoobExperiment_LowHealth"
-
-LowHealthGui.IgnoreGuiInset = true
-LowHealthGui.ResetOnSpawn = false
-LowHealthGui.DisplayOrder = 10
-LowHealthGui.Parent = PlayerGui
+Gui.Name = "NoobExperiment_LowHealth"
+Gui.IgnoreGuiInset = true
+Gui.ResetOnSpawn = false
+Gui.DisplayOrder = 20
+Gui.Parent = PlayerGui
 
 
-local Overlay = Instance.new("Frame")
+--==================================================
+--// CORNER VIGNETTE
+--==================================================
 
-Overlay.Name =
-    "LowHealthOverlay"
+local function CreateCorner(Name, Position, AnchorPoint)
 
-Overlay.Size =
+    local Frame = Instance.new("Frame")
+
+    Frame.Name = Name
+    Frame.AnchorPoint = AnchorPoint
+    Frame.Position = Position
+
+    -- Ukuran responsif mengikuti layar
+    Frame.Size = UDim2.fromScale(0.32, 0.32)
+
+    Frame.BackgroundColor3 =
+        Color3.fromRGB(255, 0, 0)
+
+    Frame.BackgroundTransparency = 1
+    Frame.BorderSizePixel = 0
+
+    Frame.ZIndex = 5
+    Frame.Parent = Gui
+
+    return Frame
+
+end
+
+
+local TopLeft = CreateCorner(
+    "TopLeft",
+    UDim2.fromScale(0, 0),
+    Vector2.new(0, 0)
+)
+
+local TopRight = CreateCorner(
+    "TopRight",
+    UDim2.fromScale(1, 0),
+    Vector2.new(1, 0)
+)
+
+local BottomLeft = CreateCorner(
+    "BottomLeft",
+    UDim2.fromScale(0, 1),
+    Vector2.new(0, 1)
+)
+
+local BottomRight = CreateCorner(
+    "BottomRight",
+    UDim2.fromScale(1, 1),
+    Vector2.new(1, 1)
+)
+
+
+local Corners = {
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight
+}
+
+
+--==================================================
+--// CENTER RED EFFECT
+--// Dipakai hanya untuk efek kedip
+--==================================================
+
+local Flash = Instance.new("Frame")
+
+Flash.Name = "RedFlash"
+
+Flash.Size =
     UDim2.fromScale(1, 1)
 
-Overlay.BackgroundColor3 =
+Flash.Position =
+    UDim2.fromScale(0, 0)
+
+Flash.BackgroundColor3 =
     Color3.fromRGB(255, 0, 0)
 
-Overlay.BackgroundTransparency = 1
+Flash.BackgroundTransparency = 1
 
-Overlay.BorderSizePixel = 0
+Flash.BorderSizePixel = 0
+Flash.ZIndex = 4
 
-Overlay.Parent = LowHealthGui
+Flash.Parent = Gui
+
+
+--==================================================
+--// DEATH SCREEN
+--==================================================
+
+local DeathScreen = Instance.new("Frame")
+
+DeathScreen.Name = "DeathScreen"
+
+DeathScreen.Size =
+    UDim2.fromScale(1, 1)
+
+DeathScreen.BackgroundColor3 =
+    Color3.fromRGB(0, 0, 0)
+
+DeathScreen.BackgroundTransparency = 1
+
+DeathScreen.BorderSizePixel = 0
+DeathScreen.ZIndex = 100
+
+DeathScreen.Parent = Gui
 
 
 --==================================================
@@ -1024,16 +1109,19 @@ Blur.Parent = Lighting
 
 
 --==================================================
---// RESET EFFECTS
+--// RESET
 --==================================================
 
 local function ResetEffects()
 
-    Overlay.BackgroundTransparency = 1
+    for _, Corner in ipairs(Corners) do
+        Corner.BackgroundTransparency = 1
+    end
+
+    Flash.BackgroundTransparency = 1
+    DeathScreen.BackgroundTransparency = 1
 
     Blur.Size = 0
-
-    DeathFadeRunning = false
 
     if CurrentHumanoid
         and CurrentHumanoid.Parent then
@@ -1043,24 +1131,31 @@ local function ResetEffects()
 
     end
 
+    DeathEffectRunning = false
+
 end
 
 
 --==================================================
---// DEATH FADE
+--// DEATH EFFECT
+--// RED FULL -> BLACK
+--// 0.5 SECOND
 --==================================================
 
 local function DeathEffect(Humanoid)
 
-    if DeathFadeRunning then
+    if DeathEffectRunning then
         return
     end
 
-    DeathFadeRunning = true
+    DeathEffectRunning = true
 
-    -- Merah penuh
-    Overlay.BackgroundTransparency = 0
+    -- Matikan efek lainnya
+    for _, Corner in ipairs(Corners) do
+        Corner.BackgroundTransparency = 1
+    end
 
+    Flash.BackgroundTransparency = 1
     Blur.Size = 0
 
     if Humanoid and Humanoid.Parent then
@@ -1069,38 +1164,44 @@ local function DeathEffect(Humanoid)
     end
 
 
-    -- Fade selama 2.5 detik
+    -- Merah penuh
+    DeathScreen.BackgroundColor3 =
+        Color3.fromRGB(255, 0, 0)
+
+    DeathScreen.BackgroundTransparency = 0
+
+
+    -- Fade merah -> hitam dalam 0.5 detik
     local StartTime = os.clock()
-    local Duration = 2.5
+    local Duration = 0.5
 
 
     while os.clock() - StartTime < Duration do
 
-        if not LowHealthEnabled then
-            break
-        end
-
         local Progress =
-            (os.clock() - StartTime) /
-            Duration
-
-
-        Overlay.BackgroundTransparency =
             math.clamp(
-                Progress,
+                (os.clock() - StartTime) / Duration,
                 0,
                 1
             )
 
+        -- Warna merah perlahan menjadi hitam
+        DeathScreen.BackgroundColor3 =
+            Color3.fromRGB(
+                math.floor(255 * (1 - Progress)),
+                0,
+                0
+            )
 
         RunService.RenderStepped:Wait()
 
     end
 
 
-    Overlay.BackgroundTransparency = 1
+    DeathScreen.BackgroundColor3 =
+        Color3.fromRGB(0, 0, 0)
 
-    DeathFadeRunning = false
+    DeathScreen.BackgroundTransparency = 0
 
 end
 
@@ -1114,16 +1215,14 @@ local function SetupCharacter(Character)
     local Humanoid =
         Character:WaitForChild("Humanoid")
 
-
-    CurrentHumanoid =
-        Humanoid
-
+    CurrentHumanoid = Humanoid
 
     NormalWalkSpeed =
         Humanoid.WalkSpeed
 
+    DeathEffectRunning = false
 
-    DeathFadeRunning = false
+    ResetEffects()
 
 
     if HealthConnection then
@@ -1132,9 +1231,9 @@ local function SetupCharacter(Character)
 
 
     HealthConnection =
-        RunService.RenderStepped:Connect(function()
+        RunService.Heartbeat:Connect(function()
 
-        if not LowHealthEnabled then
+        if not Enabled then
 
             ResetEffects()
 
@@ -1159,118 +1258,158 @@ local function SetupCharacter(Character)
 
 
         if MaxHealth <= 0 then
-
-            ResetEffects()
-
             return
-
         end
 
 
         --==================================================
-        --// DEATH
+        --// DEAD
         --==================================================
 
         if Health <= 0 then
 
-            task.spawn(function()
-                DeathEffect(Humanoid)
-            end)
+            if not DeathEffectRunning then
+
+                task.spawn(function()
+                    DeathEffect(Humanoid)
+                end)
+
+            end
 
             return
 
         end
 
 
-        --==================================================
-        --// HEALTH PERCENT
-        --==================================================
+        if DeathEffectRunning then
+            return
+        end
 
-        local HealthPercent =
+
+        local Percent =
             Health / MaxHealth
 
 
         --==================================================
-        --// RED SCREEN <= 35%
-        --// 1 KEDIP = 1.7 DETIK
+        --// <35%
+        --// CORNER RED 10%
         --==================================================
 
-        if HealthPercent <= 0.35 then
+        if Percent < 0.35 then
 
-            local Intensity =
-                1 -
-                (
-                    HealthPercent /
-                    0.35
-                )
-
-
-            local Pulse =
-                (
-                    math.sin(
-                        (
-                            os.clock() /
-                            1.7
-                        ) *
-                        math.pi *
-                        2
-                    ) + 1
-                ) / 2
-
-
-            Overlay.BackgroundTransparency =
-                0.92 -
-                (
-                    Pulse *
-                    0.18 *
-                    (
-                        0.4 +
-                        Intensity * 0.6
-                    )
-                )
+            for _, Corner in ipairs(Corners) do
+                Corner.BackgroundTransparency = 0.90
+            end
 
         else
 
-            Overlay.BackgroundTransparency =
-                1
+            for _, Corner in ipairs(Corners) do
+                Corner.BackgroundTransparency = 1
+            end
 
         end
 
 
         --==================================================
-        --// <= 20% HP
-        --// SPEED +25%
-        --// BLUR
+        --// <25%
+        --// RED BLINK +10% SPEED
         --==================================================
 
-        if HealthPercent <= 0.20 then
+        if Percent < 0.25 then
 
-            Humanoid.WalkSpeed =
-                NormalWalkSpeed *
-                SpeedBoostMultiplier
-
-
-            local BlurIntensity =
-                1 -
+            local Pulse =
                 (
-                    HealthPercent /
-                    0.20
-                )
+                    math.sin(
+                        os.clock() *
+                        math.pi * 2 /
+                        1.7
+                    ) + 1
+                ) / 2
 
 
-            Blur.Size =
-                math.clamp(
-                    BlurIntensity * 8,
-                    0,
-                    8
-                )
+            -- Kedipan merah 25%
+            Flash.BackgroundTransparency =
+                0.75 +
+                (1 - Pulse) * 0.25
+
+
+            -- Speed +10%
+            Humanoid.WalkSpeed =
+                NormalWalkSpeed * 1.10
 
         else
 
-            Humanoid.WalkSpeed =
-                NormalWalkSpeed
+            Flash.BackgroundTransparency = 1
 
-            Blur.Size = 0
+        end
+
+
+        --==================================================
+        --// <20% / <10% EFFECT
+        --==================================================
+
+        if Percent < 0.20 then
+
+            -- Speed +10% tetap aktif
+            Humanoid.WalkSpeed =
+                NormalWalkSpeed * 1.10
+
+        end
+
+
+        --==================================================
+        --// <10%
+        --// RED 50%
+        --// BLUR 35%
+        --// SPEED +50%
+        --==================================================
+
+        if Percent < 0.10 then
+
+            for _, Corner in ipairs(Corners) do
+                Corner.BackgroundTransparency = 0.50
+            end
+
+
+            Blur.Size = 35
+
+
+            Humanoid.WalkSpeed =
+                NormalWalkSpeed * 1.50
+
+        end
+
+
+        --==================================================
+        --// <5%
+        --// FAST BLINK 0.75s
+        --// SPEED +150%
+        --// BLUR 85%
+        --==================================================
+
+        if Percent < 0.05 then
+
+            local FastPulse =
+                (
+                    math.sin(
+                        os.clock() *
+                        math.pi * 2 /
+                        0.75
+                    ) + 1
+                ) / 2
+
+
+            Flash.BackgroundTransparency =
+                0.75 +
+                (1 - FastPulse) * 0.25
+
+
+            Blur.Size = 85
+
+
+            -- +150%
+            Humanoid.WalkSpeed =
+                NormalWalkSpeed * 2.50
 
         end
 
@@ -1297,16 +1436,14 @@ end
 --// RESPAWN
 --==================================================
 
-Player.CharacterAdded:Connect(
-    function(Character)
+Player.CharacterAdded:Connect(function(Character)
 
-        task.spawn(
-            SetupCharacter,
-            Character
-        )
+    task.spawn(
+        SetupCharacter,
+        Character
+    )
 
-    end
-)
+end)
 
 
 --==================================================
@@ -1314,7 +1451,7 @@ Player.CharacterAdded:Connect(
 --==================================================
 
 MainTab:CreateSection(
-    "Low Health Visual"
+    "Low Health Effects"
 )
 
 
@@ -1322,19 +1459,15 @@ MainTab:CreateToggle({
 
     Name = "Low Health Visual",
 
-    -- OFF SETIAP SCRIPT RELOAD
+    -- RESET OFF SAAT RELOAD
     CurrentValue = false,
 
     Callback = function(Value)
 
-        LowHealthEnabled =
-            Value
-
+        Enabled = Value
 
         if not Value then
-
             ResetEffects()
-
         end
 
     end,
