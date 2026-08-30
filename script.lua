@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V2.8🔥",
+   Name = "Noob Experiment: Battlefront V2.9.9🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Years Old Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -128,17 +128,50 @@ end,
 local MainSection = MainTab:CreateSection("shop set (if not use the right unit it bug)")
 
 local Button = MainTab:CreateButton({
-    Name = "Buy >Noob< pack (1000 money and for newbie)",
+    Name = "Buy Blaster (250 money)",
 
     Callback = function()
 
         local Event = game:GetService("ReplicatedStorage").ItemsEvent
 
         Event:FireServer("Blaster")
-        Event:FireServer("Jetpack")
-        Event:FireServer("Sword")
-        Event:FireServer("Grenade")
+        
+    end,
+})
 
+local Button = MainTab:CreateButton({
+    Name = "Buy Sword (100 money)",
+
+    Callback = function()
+
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+
+        Event:FireServer("Sword")
+        
+    end,
+})
+
+local Button = MainTab:CreateButton({
+    Name = "Buy Jetpack (500 money or less idk)",
+
+    Callback = function()
+
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+
+        Event:FireServer("Jetpack")
+        
+    end,
+})
+
+local Button = MainTab:CreateButton({
+    Name = "Buy Bruh (250 money)",
+
+    Callback = function()
+
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+
+        Event:FireServer("Bruh")
+        
     end,
 })
 
@@ -1541,7 +1574,7 @@ MainTab:CreateToggle({
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local MAX_DISTANCE = 250
+local MAX_DISTANCE = 45
 local UPDATE_RATE = 0.1
 local MORPH_CHECK_RATE = 0.5
 
