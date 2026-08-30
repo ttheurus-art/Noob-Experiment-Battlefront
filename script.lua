@@ -37,6 +37,447 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
+--==================================================
+--// UNIVERSAL PLAYER ARMOR + HEALTH DISPLAY
+--// AUTO ACTIVE
+--// INFO DI SISI TANGAN KANAN
+--// MAX DISTANCE: 100 STUDS
+--==================================================
+
+local Players = game:GetService("Players")
+
+local LocalPlayer = Players.LocalPlayer
+
+local MAX_DISTANCE = 100
+local UPDATE_RATE = 0.1
+
+
+--==================================================
+--// GET ARMOR
+--==================================================
+
+local function GetArmor(Character)
+
+    if not Character then
+        return nil
+    end
+
+    -- Cari Armor di dalam morph/character
+    local Armor = Character:FindFirstChild(
+        "Armor",
+        true
+    )
+
+    if Armor then
+
+        if Armor:IsA("NumberValue")
+            or Armor:IsA("IntValue") then
+
+            return Armor.Value
+        end
+
+        local Value =
+            Armor:GetAttribute("Value")
+
+        if typeof(Value) == "number" then
+            return Value
+        end
+
+        local ArmorValue =
+            Armor:GetAttribute("Armor")
+
+        if typeof(ArmorValue) == "number" then
+            return ArmorValue
+        end
+    end
+
+
+    -- Attribute Character
+    local CharacterArmor =
+        Character:GetAttribute("Armor")
+
+    if typeof(CharacterArmor) == "number" then
+        return CharacterArmor
+    end
+
+    return nil
+end
+
+
+--==================================================
+--// CREATE DISPLAY
+--==================================================
+
+local function CreateDisplay(Player)
+
+    if Player == LocalPlayer then
+        return
+    end
+
+
+    local function Setup(Character)
+
+        local Humanoid =
+            Character:WaitForChild(
+                "Humanoid",
+                5
+            )
+
+        if not Humanoid then
+            return
+        end
+
+
+        -- R15
+        local RightHand =
+            Character:FindFirstChild(
+                "RightHand"
+            )
+
+        -- R6 / custom morph
+        if not RightHand then
+            RightHand =
+                Character:FindFirstChild(
+                    "Right Arm"
+                )
+        end
+
+        -- Custom morph: cari bagian tangan kanan
+        if not RightHand then
+
+            for _, Part in ipairs(
+                Character:GetDescendants()
+            ) do
+
+                if Part:IsA("BasePart") then
+
+                    local Name =
+                        string.lower(
+                            Part.Name
+                        )
+
+                    if Name == "righthand"
+                        or Name == "right_arm"
+                        or Name == "rightarm" then
+
+                        RightHand = Part
+                        break
+                    end
+
+                end
+
+            end
+
+        end
+
+
+        if not RightHand then
+            return
+        end
+
+
+        --==================================================
+        --// HAPUS DISPLAY LAMA
+        --==================================================
+
+        local Old =
+            RightHand:FindFirstChild(
+                "PlayerInfoDisplay"
+            )
+
+        if Old then
+            Old:Destroy()
+        end
+
+
+        --==================================================
+        --// BILLBOARD
+        --==================================================
+
+        local Billboard =
+            Instance.new("BillboardGui")
+
+        Billboard.Name =
+            "PlayerInfoDisplay"
+
+        Billboard.Adornee =
+            RightHand
+
+        Billboard.Size =
+            UDim2.fromOffset(
+                100,
+                42
+            )
+
+        -- Posisi di sebelah tangan kanan
+        Billboard.StudsOffsetWorldSpace =
+            Vector3.new(
+                1.5,
+                0,
+                0
+            )
+
+        Billboard.AlwaysOnTop = true
+
+        Billboard.MaxDistance =
+            MAX_DISTANCE
+
+        Billboard.Enabled = true
+
+        Billboard.Parent =
+            RightHand
+
+
+        --==================================================
+        --// INFO TEXT
+        --==================================================
+
+        local Label =
+            Instance.new("TextLabel")
+
+        Label.Name =
+            "Info"
+
+        Label.Size =
+            UDim2.fromScale(
+                1,
+                1
+            )
+
+        Label.BackgroundTransparency =
+            1
+
+        Label.TextColor3 =
+            Color3.fromRGB(
+                0,
+                255,
+                255
+            )
+
+        Label.TextStrokeColor3 =
+            Color3.fromRGB(
+                0,
+                0,
+                0
+            )
+
+        Label.TextStrokeTransparency =
+            0.25
+
+        Label.Font =
+            Enum.Font.GothamBold
+
+        Label.TextSize =
+            12
+
+        Label.TextWrapped =
+            true
+
+        Label.TextXAlignment =
+            Enum.TextXAlignment.Left
+
+        Label.TextYAlignment =
+            Enum.TextYAlignment.Center
+
+        Label.Text =
+            "["
+            .. Player.Name
+            .. "]\n"
+            .. "Armor: ????\n"
+            .. "Health: ????"
+
+        Label.Parent =
+            Billboard
+
+
+        --==================================================
+        --// UPDATE LOOP
+        --==================================================
+
+        task.spawn(function()
+
+            while
+                Character.Parent
+                and RightHand.Parent
+                and Humanoid.Parent
+                and Billboard.Parent
+            do
+
+                --==========================================
+                --// DISTANCE CHECK
+                --==========================================
+
+                local LocalCharacter =
+                    LocalPlayer.Character
+
+                local LocalRoot =
+                    LocalCharacter
+                    and LocalCharacter:FindFirstChild(
+                        "HumanoidRootPart"
+                    )
+
+                if LocalRoot then
+
+                    local TargetPosition =
+                        RightHand.Position
+
+                    local Distance =
+                        (
+                            LocalRoot.Position
+                            - TargetPosition
+                        ).Magnitude
+
+                    Billboard.Enabled =
+                        Distance <= MAX_DISTANCE
+
+                else
+
+                    Billboard.Enabled =
+                        false
+
+                end
+
+
+                --==========================================
+                --// HEALTH
+                --==========================================
+
+                local Health =
+                    math.max(
+                        0,
+                        Humanoid.Health
+                    )
+
+                local MaxHealth =
+                    math.max(
+                        0,
+                        Humanoid.MaxHealth
+                    )
+
+
+                --==========================================
+                --// ARMOR
+                --==========================================
+
+                local Armor =
+                    GetArmor(Character)
+
+                local ArmorText
+
+
+                if Armor ~= nil then
+
+                    ArmorText =
+                        tostring(
+                            math.floor(
+                                Armor + 0.5
+                            )
+                        )
+
+                else
+
+                    ArmorText =
+                        "????"
+
+                end
+
+
+                --==========================================
+                --// UPDATE TEXT
+                --==========================================
+
+                Label.Text =
+                    "["
+                    .. Player.Name
+                    .. "]\n"
+                    .. "Armor: "
+                    .. ArmorText
+                    .. "\n"
+                    .. "Health: "
+                    .. math.floor(
+                        Health + 0.5
+                    )
+                    .. "/"
+                    .. math.floor(
+                        MaxHealth + 0.5
+                    )
+
+
+                task.wait(
+                    UPDATE_RATE
+                )
+
+            end
+
+
+            -- Bersihkan setelah character hilang
+
+            if Billboard then
+                Billboard:Destroy()
+            end
+
+        end)
+
+    end
+
+
+    --==================================================
+    --// CHARACTER SAAT INI
+    --==================================================
+
+    if Player.Character then
+
+        task.spawn(
+            Setup,
+            Player.Character
+        )
+
+    end
+
+
+    --==================================================
+    --// RESPawn / GANTI MORPH
+    --==================================================
+
+    Player.CharacterAdded:Connect(
+        function(Character)
+
+            task.spawn(
+                Setup,
+                Character
+            )
+
+        end
+    )
+
+end
+
+
+--==================================================
+--// PLAYER YANG SUDAH ADA
+--==================================================
+
+for _, Player in ipairs(
+    Players:GetPlayers()
+) do
+
+    CreateDisplay(Player)
+
+end
+
+
+--==================================================
+--// PLAYER BARU
+--==================================================
+
+Players.PlayerAdded:Connect(
+    function(Player)
+
+        CreateDisplay(Player)
+
+    end
+)
+
 local p = Instance.new("Part")
 p.Size = Vector3.new(500, 15, 500)
 p.Position = Vector3.new(1575, -469, 555)
