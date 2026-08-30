@@ -772,8 +772,8 @@ end
 local VisualizerEnabled = true
 local VisualizerColor = Color3.fromRGB(255, 40, 40)
 
-local BAR_COUNT = 28
-local MAX_HEIGHT = 30
+local BAR_COUNT = 35
+local MAX_HEIGHT = 100
 
 local Bars = {}
 
@@ -895,8 +895,8 @@ VisualizerConnection =
         -- Tinggi bar
         local Height =
             4 +
-            ((Wave + 1) * 0.8) * 20 +
-            ((Wave2 + 1) * 0.8) * 5
+            ((Wave + 1) * 1) * 20 +
+            ((Wave2 + 1) * 1) * 6
 
 
         Bar.Size =
@@ -906,7 +906,7 @@ VisualizerConnection =
                 0,
                 math.clamp(
                     Height,
-                    4,
+                    5,
                     MAX_HEIGHT
                 )
             )
