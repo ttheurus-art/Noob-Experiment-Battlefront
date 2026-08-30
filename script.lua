@@ -895,8 +895,8 @@ VisualizerConnection =
         -- Tinggi bar
         local Height =
             4 +
-            ((Wave + 1) * 0.5) * 23 +
-            ((Wave2 + 1) * 0.5) * 5
+            ((Wave + 1) * 0.8) * 20 +
+            ((Wave2 + 1) * 0.8) * 5
 
 
         Bar.Size =
