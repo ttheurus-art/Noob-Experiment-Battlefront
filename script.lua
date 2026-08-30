@@ -880,7 +880,7 @@ VisualizerConnection =
         local Wave =
             math.sin(
                 Time * 3.55 +
-                i * 0.25
+                i * 1
             )
 
 
@@ -888,7 +888,7 @@ VisualizerConnection =
         local Wave2 =
             math.sin(
                 Time * 3.55 +
-                i * 0.25
+                i * 1
             )
 
 
