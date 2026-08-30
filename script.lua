@@ -525,7 +525,7 @@ task.spawn(function()
     end
 end)
 
-MainTab:CreateSection("Information)
+MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "+ Visualizer thingy\n\n+ Display Thingy (auto)",
