@@ -770,7 +770,7 @@ end
 --==================================================
 
 local VisualizerEnabled = true
-local VisualizerColor = Color3.fromRGB(255, 40, 40)
+local VisualizerColor = Color3.fromRGB(200, 55, 255)
 
 local BAR_COUNT = 35
 local MAX_HEIGHT = 100
