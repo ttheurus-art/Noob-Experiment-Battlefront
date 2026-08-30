@@ -1357,7 +1357,7 @@ local function SetupCharacter(Character)
 
         if Percent < 0.35 then
 
-            OverlayTransparency = 0.90
+            OverlayTransparency = 0.80
 
         end
 
@@ -1371,8 +1371,8 @@ local function SetupCharacter(Character)
 
         if Percent < 0.25 then
 
-            OverlayTransparency = 0.75
-            SpeedMultiplier = 1.10
+            OverlayTransparency = 0.40
+            SpeedMultiplier = 1.50
 
 
             local Pulse =
@@ -1409,9 +1409,9 @@ local function SetupCharacter(Character)
 
         if Percent < 0.10 then
 
-            OverlayTransparency = 0.50
-            BlurSize = 35
-            SpeedMultiplier = 1.50
+            OverlayTransparency = 0.25
+            BlurSize = 40
+            SpeedMultiplier = 2
 
         end
 
@@ -1427,7 +1427,7 @@ local function SetupCharacter(Character)
         if Percent < 0.05 then
 
             -- Lebih tebal dari 10% HP
-            OverlayTransparency = 0.30
+            OverlayTransparency = 0.05
 
             BlurSize = 85
 
