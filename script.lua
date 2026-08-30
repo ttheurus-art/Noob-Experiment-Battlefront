@@ -598,7 +598,8 @@ local MusicList = {
     ["AFTERTASTE"] = "85281675332105",
     ["Creation of Hatred"] = "111304986203081",
 	["Eternity V1"] = "128855377868949",
-	["At The Speed of Light"] = "117386268398589"
+	["At The Speed of Light"] = "117386268398589",
+	["The Great Strategy"] = "122220105663741"
 }
 
 local CustomMusicID = ""
@@ -667,7 +668,8 @@ MainTab:CreateDropdown({
         "AFTERTASTE",
         "Creation of Hatred",
 		"Eternity V1",
-		"At The Speed of Light"
+		"At The Speed of Light",
+		"The Great Strategy"
     },
 
     CurrentOption = {"None"},
@@ -685,7 +687,7 @@ MainTab:CreateSlider({
     Range = {0.1, 10},
     Increment = 0.1,
     Suffix = "/10",
-    CurrentValue = 5,
+    CurrentValue = 2.5,
 
     Callback = function(Value)
         MusicVolume = Value
@@ -885,7 +887,7 @@ MainTab:CreateSection(
 
 MainTab:CreateToggle({
 
-    Name = "Enable Visualizer",
+    Name = "Enable Wave Visualizer",
 
     CurrentValue = true,
 
@@ -906,7 +908,7 @@ MainTab:CreateToggle({
 
 MainTab:CreateColorPicker({
 
-    Name = "Visualizer Color",
+    Name = "Wave Visualizer Color",
 
     Color = VisualizerColor,
 
