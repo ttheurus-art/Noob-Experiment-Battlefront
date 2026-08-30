@@ -692,3 +692,309 @@ MainTab:CreateSlider({
         CustomMusic.Volume = Value
     end,
 })
+
+--==================================================
+--// AUDIO VISUALIZER
+--// Tidak mengatur / mengganti musik
+--==================================================
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+
+--==================================================
+--// CLEAN UP SAAT SCRIPT DI-RELOAD
+--==================================================
+
+local OldVisualizer = PlayerGui:FindFirstChild(
+    "NoobExperiment_Visualizer"
+)
+
+if OldVisualizer then
+    OldVisualizer:Destroy()
+end
+
+
+--==================================================
+--// SETTINGS
+--==================================================
+
+local VisualizerEnabled = true
+
+local VisualizerColor =
+    Color3.fromRGB(255, 40, 40)
+
+local BAR_COUNT = 45
+
+local Bars = {}
+local CurrentHeights = {}
+
+
+--==================================================
+--// VISUALIZER GUI
+--==================================================
+
+local VisualizerGui = Instance.new("ScreenGui")
+
+VisualizerGui.Name =
+    "NoobExperiment_Visualizer"
+
+VisualizerGui.ResetOnSpawn = false
+VisualizerGui.IgnoreGuiInset = true
+VisualizerGui.DisplayOrder = 5
+VisualizerGui.Parent = PlayerGui
+
+
+local VisualizerFrame = Instance.new("Frame")
+
+VisualizerFrame.Name = "Visualizer"
+
+VisualizerFrame.AnchorPoint =
+    Vector2.new(0.5, 1)
+
+VisualizerFrame.Position =
+    UDim2.new(0.5, 0, 1, -5)
+
+VisualizerFrame.Size =
+    UDim2.new(1, -20, 0, 70)
+
+VisualizerFrame.BackgroundTransparency = 1
+VisualizerFrame.BorderSizePixel = 0
+VisualizerFrame.Parent = VisualizerGui
+
+
+--==================================================
+--// CREATE VISUALIZER BARS
+--==================================================
+
+for i = 1, BAR_COUNT do
+
+    local Bar = Instance.new("Frame")
+
+    Bar.Name = "Bar_" .. i
+
+    Bar.AnchorPoint =
+        Vector2.new(0.5, 1)
+
+    Bar.Position =
+        UDim2.new(
+            (i - 0.5) / BAR_COUNT,
+            0,
+            1,
+            0
+        )
+
+    Bar.Size =
+        UDim2.new(
+            1 / BAR_COUNT,
+            -3,
+            0,
+            4
+        )
+
+    Bar.BackgroundColor3 =
+        VisualizerColor
+
+    Bar.BackgroundTransparency = 0.1
+    Bar.BorderSizePixel = 0
+    Bar.Parent = VisualizerFrame
+
+    Bars[i] = Bar
+    CurrentHeights[i] = 4
+
+end
+
+
+--==================================================
+--// FIND AUDIO YANG SEDANG DIMAINKAN
+--==================================================
+
+local function GetPlayingMusic()
+
+    local BestSound = nil
+    local BestLoudness = 0
+
+    for _, Object in ipairs(
+        game:GetDescendants()
+    ) do
+
+        if Object:IsA("Sound")
+            and Object.IsPlaying then
+
+            local Loudness =
+                Object.PlaybackLoudness
+
+            if Loudness > BestLoudness then
+
+                BestLoudness =
+                    Loudness
+
+                BestSound =
+                    Object
+
+            end
+        end
+    end
+
+    return BestSound
+
+end
+
+
+--==================================================
+--// VISUALIZER MOVEMENT
+--==================================================
+
+RunService.RenderStepped:Connect(function()
+
+    if not VisualizerEnabled then
+        return
+    end
+
+
+    local Audio =
+        GetPlayingMusic()
+
+    local Loudness = 0
+
+
+    if Audio then
+
+        Loudness =
+            Audio.PlaybackLoudness
+
+    end
+
+
+    local Power =
+        math.clamp(
+            Loudness / 250,
+            0,
+            1
+        )
+
+
+    for i, Bar in ipairs(Bars) do
+
+        -- Sedikit variasi antar-bar
+        local Variation =
+            0.75 +
+            (
+                math.sin(i * 1.7) + 1
+            ) * 0.15
+
+
+        local TargetHeight =
+            4 +
+            (
+                Power *
+                60 *
+                Variation
+            )
+
+
+        -- Naik cepat
+        if TargetHeight >
+            CurrentHeights[i] then
+
+            CurrentHeights[i] +=
+                (
+                    TargetHeight -
+                    CurrentHeights[i]
+                ) * 0.35
+
+
+        -- Turun smooth
+        else
+
+            CurrentHeights[i] +=
+                (
+                    TargetHeight -
+                    CurrentHeights[i]
+                ) * 0.12
+
+        end
+
+
+        Bar.Size =
+            UDim2.new(
+                1 / BAR_COUNT,
+                -3,
+                0,
+                CurrentHeights[i]
+            )
+
+    end
+
+end)
+
+
+--==================================================
+--// VISUALIZER TAB
+--// Dibuat setelah Music Tab
+--==================================================
+
+local VisualizerTab =
+    Window:CreateTab(
+        "Visualizer",
+        nil
+    )
+
+
+VisualizerTab:CreateSection(
+    "Audio Visualizer"
+)
+
+
+--==================================================
+--// ENABLE VISUALIZER
+--==================================================
+
+VisualizerTab:CreateToggle({
+
+    Name = "Enable Visualizer",
+
+    CurrentValue = true,
+
+    Callback = function(Value)
+
+        VisualizerEnabled =
+            Value
+
+        VisualizerFrame.Visible =
+            Value
+
+    end,
+
+})
+
+
+--==================================================
+--// COLOR PICKER
+--==================================================
+
+VisualizerTab:CreateColorPicker({
+
+    Name = "Visualizer Color",
+
+    Color = VisualizerColor,
+
+    Callback = function(Value)
+
+        VisualizerColor =
+            Value
+
+
+        for _, Bar in ipairs(Bars) do
+
+            Bar.BackgroundColor3 =
+                Value
+
+        end
+
+    end,
+
+})
