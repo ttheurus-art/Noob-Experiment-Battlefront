@@ -37,477 +37,6 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
---==================================================
---// UNIVERSAL PLAYER ARMOR + HEALTH DISPLAY
---// AUTO ACTIVE
---// DISPLAY DI SAMPING MORPH
---// MAX DISTANCE: 100 STUDS
---==================================================
-
-local Players = game:GetService("Players")
-
-local LocalPlayer = Players.LocalPlayer
-
-local MAX_DISTANCE = 100
-local UPDATE_RATE = 0.1
-
-local DISPLAY_COLOR = Color3.fromRGB(0, 255, 255)
-
-
---==================================================
---// GET ARMOR
---==================================================
-
-local function GetArmor(Character)
-
-    if not Character then
-        return nil
-    end
-
-    -- Cari object bernama Armor
-    for _, Object in ipairs(Character:GetDescendants()) do
-
-        if string.lower(Object.Name) == "armor" then
-
-            if Object:IsA("NumberValue")
-                or Object:IsA("IntValue") then
-
-                return Object.Value
-            end
-
-            local Value = Object:GetAttribute("Value")
-
-            if typeof(Value) == "number" then
-                return Value
-            end
-
-            local ArmorValue = Object:GetAttribute("Armor")
-
-            if typeof(ArmorValue) == "number" then
-                return ArmorValue
-            end
-        end
-    end
-
-
-    -- Cari Attribute Armor pada Character
-    local CharacterArmor =
-        Character:GetAttribute("Armor")
-
-    if typeof(CharacterArmor) == "number" then
-        return CharacterArmor
-    end
-
-
-    -- Cari Attribute Armor pada semua object
-    for _, Object in ipairs(Character:GetDescendants()) do
-
-        local Value =
-            Object:GetAttribute("Armor")
-
-        if typeof(Value) == "number" then
-            return Value
-        end
-
-    end
-
-    return nil
-end
-
-
---==================================================
---// GET ROOT
---==================================================
-
-local function GetRoot(Character)
-
-    return Character:FindFirstChild(
-        "HumanoidRootPart"
-    )
-    or Character:FindFirstChild(
-        "UpperTorso"
-    )
-    or Character:FindFirstChild(
-        "Torso"
-    )
-end
-
-
---==================================================
---// CALCULATE DISPLAY POSITION
---==================================================
-
-local function GetDisplayOffset(Character)
-
-    local Root = GetRoot(Character)
-
-    if not Root then
-        return Vector3.new(4, 0, 0)
-    end
-
-
-    -- Dapatkan ukuran seluruh morph
-    local Success, BoxCFrame, BoxSize =
-        pcall(function()
-
-            return Character:GetBoundingBox()
-
-        end)
-
-
-    if Success and BoxSize then
-
-        -- Letakkan display di luar sisi kanan
-        local XOffset =
-            math.max(
-                BoxSize.X * 0.5 + 1.5,
-                3
-            )
-
-        return Vector3.new(
-            XOffset,
-            0,
-            0
-        )
-
-    end
-
-
-    return Vector3.new(
-        4,
-        0,
-        0
-    )
-end
-
-
---==================================================
---// CREATE DISPLAY
---==================================================
-
-local function CreateDisplay(Player)
-
-    if Player == LocalPlayer then
-        return
-    end
-
-
-    local function Setup(Character)
-
-        local Humanoid =
-            Character:WaitForChild(
-                "Humanoid",
-                5
-            )
-
-        if not Humanoid then
-            return
-        end
-
-
-        local Root =
-            GetRoot(Character)
-
-        if not Root then
-            return
-        end
-
-
-        --==================================================
-        --// REMOVE OLD DISPLAY
-        --==================================================
-
-        local OldDisplay =
-            Character:FindFirstChild(
-                "PlayerInfoDisplay",
-                true
-            )
-
-        if OldDisplay then
-            OldDisplay:Destroy()
-        end
-
-
-        --==================================================
-        --// BILLBOARD
-        --==================================================
-
-        local Billboard =
-            Instance.new("BillboardGui")
-
-        Billboard.Name =
-            "PlayerInfoDisplay"
-
-        Billboard.Adornee =
-            Root
-
-        Billboard.Size =
-            UDim2.fromOffset(
-                120,
-                52
-            )
-
-        Billboard.StudsOffsetWorldSpace =
-            GetDisplayOffset(Character)
-
-        Billboard.AlwaysOnTop =
-            true
-
-        Billboard.ZIndexBehavior =
-            Enum.ZIndexBehavior.Sibling
-
-        Billboard.MaxDistance =
-            MAX_DISTANCE
-
-        Billboard.Enabled =
-            true
-
-        Billboard.Parent =
-            Root
-
-
-        --==================================================
-        --// TEXT
-        --==================================================
-
-        local Label =
-            Instance.new("TextLabel")
-
-        Label.Name =
-            "Info"
-
-        Label.Size =
-            UDim2.fromScale(
-                1,
-                1
-            )
-
-        Label.BackgroundTransparency =
-            1
-
-        Label.TextColor3 =
-            DISPLAY_COLOR
-
-        Label.TextStrokeColor3 =
-            Color3.fromRGB(
-                0,
-                0,
-                0
-            )
-
-        Label.TextStrokeTransparency =
-            0.15
-
-        Label.Font =
-            Enum.Font.GothamBold
-
-        Label.TextSize =
-            12
-
-        Label.TextWrapped =
-            true
-
-        Label.TextXAlignment =
-            Enum.TextXAlignment.Left
-
-        Label.TextYAlignment =
-            Enum.TextYAlignment.Center
-
-        Label.Parent =
-            Billboard
-
-
-        --==================================================
-        --// UPDATE LOOP
-        --==================================================
-
-        task.spawn(function()
-
-            while
-                Character.Parent
-                and Root.Parent
-                and Humanoid.Parent
-                and Billboard.Parent
-            do
-
-                --==========================================
-                -- DISTANCE
-                --==========================================
-
-                local LocalCharacter =
-                    LocalPlayer.Character
-
-                local LocalRoot =
-                    LocalCharacter
-                    and LocalCharacter:FindFirstChild(
-                        "HumanoidRootPart"
-                    )
-
-
-                if LocalRoot then
-
-                    local Distance =
-                        (
-                            LocalRoot.Position
-                            - Root.Position
-                        ).Magnitude
-
-                    Billboard.Enabled =
-                        Distance <= MAX_DISTANCE
-
-                else
-
-                    Billboard.Enabled =
-                        false
-
-                end
-
-
-                --==========================================
-                -- HEALTH
-                --==========================================
-
-                local Health =
-                    math.max(
-                        0,
-                        Humanoid.Health
-                    )
-
-                local MaxHealth =
-                    math.max(
-                        0,
-                        Humanoid.MaxHealth
-                    )
-
-
-                --==========================================
-                -- ARMOR
-                --==========================================
-
-                local Armor =
-                    GetArmor(Character)
-
-                local ArmorText
-
-                if Armor ~= nil then
-
-                    ArmorText =
-                        tostring(
-                            math.floor(
-                                Armor + 0.5
-                            )
-                        )
-
-                else
-
-                    ArmorText =
-                        "N/A"
-
-                end
-
-
-                --==========================================
-                -- UPDATE POSITION
-                --==========================================
-
-                Billboard.StudsOffsetWorldSpace =
-                    GetDisplayOffset(Character)
-
-
-                --==========================================
-                -- UPDATE TEXT
-                --==========================================
-
-                Label.Text =
-                    "["
-                    .. Player.Name
-                    .. "]\n"
-                    .. "Armor: "
-                    .. ArmorText
-                    .. "\n"
-                    .. "Health: "
-                    .. math.floor(
-                        Health + 0.5
-                    )
-                    .. "/"
-                    .. math.floor(
-                        MaxHealth + 0.5
-                    )
-
-
-                task.wait(
-                    UPDATE_RATE
-                )
-
-            end
-
-
-            if Billboard then
-                Billboard:Destroy()
-            end
-
-        end)
-
-    end
-
-
-    --==================================================
-    --// CURRENT CHARACTER
-    --==================================================
-
-    if Player.Character then
-
-        task.spawn(
-            Setup,
-            Player.Character
-        )
-
-    end
-
-
-    --==================================================
-    --// RESPAWN / MORPH CHANGE
-    --==================================================
-
-    Player.CharacterAdded:Connect(
-        function(Character)
-
-            task.spawn(
-                Setup,
-                Character
-            )
-
-        end
-    )
-
-end
-
-
---==================================================
---// EXISTING PLAYERS
---==================================================
-
-for _, Player in ipairs(
-    Players:GetPlayers()
-) do
-
-    CreateDisplay(Player)
-
-end
-
-
---==================================================
---// NEW PLAYERS
---==================================================
-
-Players.PlayerAdded:Connect(
-    function(Player)
-
-        CreateDisplay(Player)
-
-    end
-)
-
 local p = Instance.new("Part")
 p.Size = Vector3.new(500, 15, 500)
 p.Position = Vector3.new(1575, -469, 555)
@@ -2002,3 +1531,722 @@ MainTab:CreateToggle({
     end,
 
 })
+
+--==================================================
+--// PLAYER ARMOR + HEALTH DISPLAY
+--// ADD-ON
+--// TARUH DI PALING BAWAH SCRIPT UTAMA
+--==================================================
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local MAX_DISTANCE = 100
+local UPDATE_RATE = 0.1
+local MORPH_CHECK_RATE = 0.5
+
+local Displays = {}
+local CharacterStates = {}
+
+
+--==================================================
+--// GET ARMOR
+--==================================================
+
+local function GetArmor(Character)
+
+    if not Character then
+        return nil
+    end
+
+    -- Cari object bernama Armor di seluruh morph
+    for _, Object in ipairs(
+        Character:GetDescendants()
+    ) do
+
+        if string.lower(Object.Name) == "armor" then
+
+            if Object:IsA("NumberValue")
+                or Object:IsA("IntValue") then
+
+                return Object.Value
+            end
+
+            local Value =
+                Object:GetAttribute("Value")
+
+            if typeof(Value) == "number" then
+                return Value
+            end
+
+            local ArmorValue =
+                Object:GetAttribute("Armor")
+
+            if typeof(ArmorValue) == "number" then
+                return ArmorValue
+            end
+        end
+    end
+
+
+    -- Attribute Armor pada Character
+    local CharacterArmor =
+        Character:GetAttribute("Armor")
+
+    if typeof(CharacterArmor) == "number" then
+        return CharacterArmor
+    end
+
+
+    -- Cari attribute Armor di semua object
+    for _, Object in ipairs(
+        Character:GetDescendants()
+    ) do
+
+        local ArmorValue =
+            Object:GetAttribute("Armor")
+
+        if typeof(ArmorValue) == "number" then
+            return ArmorValue
+        end
+
+    end
+
+
+    return nil
+end
+
+
+--==================================================
+--// GET DISPLAY PART
+--==================================================
+
+local function GetDisplayPart(Character)
+
+    if not Character then
+        return nil
+    end
+
+    -- Prioritas RootPart supaya display
+    -- tidak bergantung pada tangan morph.
+    local Root =
+        Character:FindFirstChild(
+            "HumanoidRootPart"
+        )
+
+    if Root then
+        return Root
+    end
+
+
+    local UpperTorso =
+        Character:FindFirstChild(
+            "UpperTorso"
+        )
+
+    if UpperTorso then
+        return UpperTorso
+    end
+
+
+    local Torso =
+        Character:FindFirstChild(
+            "Torso"
+        )
+
+    if Torso then
+        return Torso
+    end
+
+
+    return nil
+end
+
+
+--==================================================
+--// GET OFFSET
+--==================================================
+
+local function GetOffset(Character)
+
+    local Success, BoxCFrame, BoxSize =
+        pcall(function()
+
+            return Character:GetBoundingBox()
+
+        end)
+
+
+    if Success and BoxSize then
+
+        return Vector3.new(
+            math.max(
+                BoxSize.X * 0.5 + 2,
+                3
+            ),
+            0,
+            0
+        )
+
+    end
+
+
+    return Vector3.new(
+        3,
+        0,
+        0
+    )
+end
+
+
+--==================================================
+--// REMOVE DISPLAY
+--==================================================
+
+local function RemoveDisplay(Player)
+
+    local Data =
+        Displays[Player]
+
+    if not Data then
+        return
+    end
+
+
+    if Data.Gui then
+
+        pcall(function()
+            Data.Gui:Destroy()
+        end)
+
+    end
+
+
+    Displays[Player] = nil
+end
+
+
+--==================================================
+--// CREATE DISPLAY
+--==================================================
+
+local function CreateDisplay(Player)
+
+    if Player == LocalPlayer then
+        return
+    end
+
+
+    local Character =
+        Player.Character
+
+    if not Character then
+        return
+    end
+
+
+    local Humanoid =
+        Character:FindFirstChildOfClass(
+            "Humanoid"
+        )
+
+    local DisplayPart =
+        GetDisplayPart(Character)
+
+
+    if not Humanoid
+        or not DisplayPart then
+
+        return
+    end
+
+
+    -- Kalau display sudah cocok dengan
+    -- character sekarang, jangan bikin ulang.
+    local Existing =
+        Displays[Player]
+
+    if Existing
+        and Existing.Character == Character
+        and Existing.Part == DisplayPart
+        and Existing.Gui
+        and Existing.Gui.Parent then
+
+        return
+    end
+
+
+    RemoveDisplay(Player)
+
+
+    --==================================================
+    -- BILLBOARD
+    --==================================================
+
+    local Billboard =
+        Instance.new("BillboardGui")
+
+    Billboard.Name =
+        "NoobExperiment_ArmorHealth"
+
+    Billboard.Adornee =
+        DisplayPart
+
+    Billboard.Size =
+        UDim2.fromOffset(
+            120,
+            50
+        )
+
+    Billboard.StudsOffsetWorldSpace =
+        GetOffset(Character)
+
+    Billboard.AlwaysOnTop =
+        true
+
+    Billboard.ZIndexBehavior =
+        Enum.ZIndexBehavior.Sibling
+
+    Billboard.MaxDistance =
+        MAX_DISTANCE
+
+    Billboard.Enabled =
+        true
+
+    Billboard.Parent =
+        DisplayPart
+
+
+    --==================================================
+    -- TEXT
+    --==================================================
+
+    local Text =
+        Instance.new("TextLabel")
+
+    Text.Name =
+        "PlayerInfo"
+
+    Text.Size =
+        UDim2.fromScale(
+            1,
+            1
+        )
+
+    Text.BackgroundTransparency =
+        1
+
+    Text.TextColor3 =
+        Color3.fromRGB(
+            0,
+            255,
+            255
+        )
+
+    Text.TextStrokeColor3 =
+        Color3.fromRGB(
+            0,
+            0,
+            0
+        )
+
+    Text.TextStrokeTransparency =
+        0.1
+
+    Text.Font =
+        Enum.Font.GothamBold
+
+    Text.TextSize =
+        12
+
+    Text.TextWrapped =
+        true
+
+    Text.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+    Text.TextYAlignment =
+        Enum.TextYAlignment.Center
+
+    Text.Parent =
+        Billboard
+
+
+    Displays[Player] = {
+        Character = Character,
+        Part = DisplayPart,
+        Gui = Billboard,
+        Text = Text
+    }
+
+
+    CharacterStates[Player] = {
+        Character = Character,
+        LastDescendantCount = #Character:GetDescendants()
+    }
+
+end
+
+
+--==================================================
+--// UPDATE DISPLAY
+--==================================================
+
+local function UpdateDisplay(Player)
+
+    local Data =
+        Displays[Player]
+
+    if not Data then
+        return
+    end
+
+
+    local Character =
+        Player.Character
+
+
+    -- Character sudah berubah
+    if Character ~= Data.Character then
+
+        CreateDisplay(Player)
+
+        return
+    end
+
+
+    if not Character
+        or not Character.Parent
+        or not Data.Gui
+        or not Data.Gui.Parent then
+
+        CreateDisplay(Player)
+
+        return
+    end
+
+
+    local Humanoid =
+        Character:FindFirstChildOfClass(
+            "Humanoid"
+        )
+
+    if not Humanoid then
+        return
+    end
+
+
+    --==================================================
+    -- DISTANCE
+    --==================================================
+
+    local LocalCharacter =
+        LocalPlayer.Character
+
+    local LocalRoot =
+        LocalCharacter
+        and LocalCharacter:FindFirstChild(
+            "HumanoidRootPart"
+        )
+
+
+    if LocalRoot and Data.Part then
+
+        local Distance =
+            (
+                LocalRoot.Position
+                - Data.Part.Position
+            ).Magnitude
+
+        Data.Gui.Enabled =
+            Distance <= MAX_DISTANCE
+
+    else
+
+        Data.Gui.Enabled =
+            false
+
+    end
+
+
+    --==================================================
+    -- HEALTH
+    --==================================================
+
+    local Health =
+        math.max(
+            0,
+            Humanoid.Health
+        )
+
+    local MaxHealth =
+        math.max(
+            0,
+            Humanoid.MaxHealth
+        )
+
+
+    --==================================================
+    -- ARMOR
+    --==================================================
+
+    local Armor =
+        GetArmor(Character)
+
+
+    local ArmorText
+
+    if Armor ~= nil then
+
+        ArmorText =
+            tostring(
+                math.floor(
+                    Armor + 0.5
+                )
+            )
+
+    else
+
+        ArmorText =
+            "N/A"
+
+    end
+
+
+    --==================================================
+    -- UPDATE POSITION
+    --==================================================
+
+    Data.Gui.StudsOffsetWorldSpace =
+        GetOffset(Character)
+
+
+    --==================================================
+    -- UPDATE TEXT
+    --==================================================
+
+    Data.Text.Text =
+        "["
+        .. Player.Name
+        .. "]\n"
+        .. "Armor: "
+        .. ArmorText
+        .. "\n"
+        .. "Health: "
+        .. math.floor(
+            Health + 0.5
+        )
+        .. "/"
+        .. math.floor(
+            MaxHealth + 0.5
+        )
+
+end
+
+
+--==================================================
+--// WATCH PLAYER
+--==================================================
+
+local function WatchPlayer(Player)
+
+    if Player == LocalPlayer then
+        return
+    end
+
+
+    -- CharacterAdded
+    Player.CharacterAdded:Connect(
+        function(Character)
+
+            task.wait(0.2)
+
+            CreateDisplay(Player)
+
+        end
+    )
+
+
+    -- CharacterRemoving
+    Player.CharacterRemoving:Connect(
+        function()
+
+            RemoveDisplay(Player)
+
+        end
+    )
+
+
+    -- Character saat ini
+    if Player.Character then
+
+        task.spawn(function()
+
+            CreateDisplay(Player)
+
+        end)
+
+    end
+
+end
+
+
+--==================================================
+--// EXISTING PLAYERS
+--==================================================
+
+for _, Player in ipairs(
+    Players:GetPlayers()
+) do
+
+    WatchPlayer(Player)
+
+end
+
+
+--==================================================
+--// NEW PLAYERS
+--==================================================
+
+Players.PlayerAdded:Connect(
+    function(Player)
+
+        WatchPlayer(Player)
+
+    end
+)
+
+
+--==================================================
+--// PLAYER LEAVE
+--==================================================
+
+Players.PlayerRemoving:Connect(
+    function(Player)
+
+        RemoveDisplay(Player)
+
+        CharacterStates[Player] = nil
+
+    end
+)
+
+
+--==================================================
+--// MAIN UPDATE LOOP
+--==================================================
+
+task.spawn(function()
+
+    while true do
+
+        for _, Player in ipairs(
+            Players:GetPlayers()
+        ) do
+
+            if Player ~= LocalPlayer then
+
+                -- Pastikan display selalu ada
+                if not Displays[Player]
+                    or not Displays[Player].Gui
+                    or not Displays[Player].Gui.Parent then
+
+                    CreateDisplay(Player)
+
+                end
+
+
+                UpdateDisplay(Player)
+
+            end
+
+        end
+
+
+        task.wait(
+            UPDATE_RATE
+        )
+
+    end
+
+end)
+
+
+--==================================================
+--// MORPH CHANGE DETECTOR
+--// Untuk morph yang berubah tanpa
+--// CharacterAdded.
+--==================================================
+
+task.spawn(function()
+
+    while true do
+
+        for _, Player in ipairs(
+            Players:GetPlayers()
+        ) do
+
+            if Player ~= LocalPlayer
+                and Player.Character then
+
+                local Character =
+                    Player.Character
+
+                local State =
+                    CharacterStates[Player]
+
+
+                if not State then
+
+                    CharacterStates[Player] = {
+                        Character = Character,
+                        LastDescendantCount =
+                            #Character:GetDescendants()
+                    }
+
+                    CreateDisplay(Player)
+
+                elseif State.Character ~= Character then
+
+                    State.Character =
+                        Character
+
+                    State.LastDescendantCount =
+                        #Character:GetDescendants()
+
+                    CreateDisplay(Player)
+
+                else
+
+                    local Count =
+                        #Character:GetDescendants()
+
+                    if Count ~= State.LastDescendantCount then
+
+                        State.LastDescendantCount =
+                            Count
+
+                        -- Struktur morph berubah.
+                        -- Pastikan display tetap berada
+                        -- pada posisi yang benar.
+
+                        task.defer(function()
+                            CreateDisplay(Player)
+                        end)
+
+                    end
+
+                end
+
+            end
+
+        end
+
+
+        task.wait(
+            MORPH_CHECK_RATE
+        )
+
+    end
+
+end)
