@@ -901,36 +901,8 @@ MainTab:CreateToggle({
 
 })
 
-
 --==================================================
---// COLOR PICKER
---==================================================
-
-MainTab:CreateColorPicker({
-
-    Name = "Wave Visualizer Color",
-
-    Color = VisualizerColor,
-
-    Callback = function(Value)
-
-        VisualizerColor = Value
-
-
-        for _, Bar in ipairs(Bars) do
-
-            Bar.BackgroundColor3 =
-                Value
-
-        end
-
-    end,
-
-})
-
---==================================================
---// LOW HEALTH EFFECT
---// For MainTab
+-- LOW HEALTH VIGNETTE
 --==================================================
 
 local Players = game:GetService("Players")
@@ -940,162 +912,144 @@ local Lighting = game:GetService("Lighting")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
-
---==================================================
---// CLEAN OLD VERSION ON RELOAD
---==================================================
-
+-- CLEAN UP SAAT RELOAD
 local OldGui = PlayerGui:FindFirstChild("NoobExperiment_LowHealth")
-
 if OldGui then
     OldGui:Destroy()
 end
 
 local OldBlur = Lighting:FindFirstChild("NoobExperiment_LowHealthBlur")
-
 if OldBlur then
     OldBlur:Destroy()
 end
 
-
---==================================================
---// SETTINGS
---==================================================
-
+-- SETTINGS
 local Enabled = false
-
-local NormalWalkSpeed = 16
 local CurrentHumanoid = nil
-
+local NormalWalkSpeed = 16
 local HealthConnection = nil
 local DeathEffectRunning = false
 
-
 --==================================================
---// GUI
+-- GUI
 --==================================================
 
 local Gui = Instance.new("ScreenGui")
-
 Gui.Name = "NoobExperiment_LowHealth"
 Gui.IgnoreGuiInset = true
 Gui.ResetOnSpawn = false
 Gui.DisplayOrder = 20
 Gui.Parent = PlayerGui
 
-
 --==================================================
---// CORNER VIGNETTE
+-- VIGNETTE
 --==================================================
 
-local function CreateCorner(Name, Position, AnchorPoint)
+local function CreateVignette(Name, Position, Rotation)
 
     local Frame = Instance.new("Frame")
-
     Frame.Name = Name
-    Frame.AnchorPoint = AnchorPoint
     Frame.Position = Position
-
-    -- Ukuran responsif mengikuti layar
-    Frame.Size = UDim2.fromScale(0.32, 0.32)
-
-    Frame.BackgroundColor3 =
-        Color3.fromRGB(255, 0, 0)
+    Frame.Size = UDim2.fromScale(0.55, 0.55)
 
     Frame.BackgroundTransparency = 1
     Frame.BorderSizePixel = 0
-
     Frame.ZIndex = 5
     Frame.Parent = Gui
 
-    return Frame
+    local Gradient = Instance.new("UIGradient")
 
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(
+            0,
+            Color3.fromRGB(255, 0, 0)
+        ),
+
+        ColorSequenceKeypoint.new(
+            1,
+            Color3.fromRGB(255, 0, 0)
+        )
+    })
+
+    Gradient.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.90),
+        NumberSequenceKeypoint.new(0.35, 0.94),
+        NumberSequenceKeypoint.new(1, 1)
+    })
+
+    Gradient.Rotation = Rotation
+    Gradient.Parent = Frame
+
+    return Frame
 end
 
-
-local TopLeft = CreateCorner(
+local TopLeft = CreateVignette(
     "TopLeft",
     UDim2.fromScale(0, 0),
-    Vector2.new(0, 0)
+    45
 )
 
-local TopRight = CreateCorner(
+local TopRight = CreateVignette(
     "TopRight",
-    UDim2.fromScale(1, 0),
-    Vector2.new(1, 0)
+    UDim2.fromScale(0.45, 0),
+    135
 )
 
-local BottomLeft = CreateCorner(
+local BottomLeft = CreateVignette(
     "BottomLeft",
-    UDim2.fromScale(0, 1),
-    Vector2.new(0, 1)
+    UDim2.fromScale(0, 0.45),
+    -45
 )
 
-local BottomRight = CreateCorner(
+local BottomRight = CreateVignette(
     "BottomRight",
-    UDim2.fromScale(1, 1),
-    Vector2.new(1, 1)
+    UDim2.fromScale(0.45, 0.45),
+    -135
 )
 
-
-local Corners = {
+local Vignettes = {
     TopLeft,
     TopRight,
     BottomLeft,
     BottomRight
 }
 
-
 --==================================================
---// CENTER RED EFFECT
---// Dipakai hanya untuk efek kedip
+-- RED BLINK
 --==================================================
 
 local Flash = Instance.new("Frame")
 
 Flash.Name = "RedFlash"
-
-Flash.Size =
-    UDim2.fromScale(1, 1)
-
-Flash.Position =
-    UDim2.fromScale(0, 0)
+Flash.Size = UDim2.fromScale(1, 1)
 
 Flash.BackgroundColor3 =
     Color3.fromRGB(255, 0, 0)
 
 Flash.BackgroundTransparency = 1
-
 Flash.BorderSizePixel = 0
 Flash.ZIndex = 4
-
 Flash.Parent = Gui
 
-
 --==================================================
---// DEATH SCREEN
+-- DEATH SCREEN
 --==================================================
 
 local DeathScreen = Instance.new("Frame")
 
 DeathScreen.Name = "DeathScreen"
-
-DeathScreen.Size =
-    UDim2.fromScale(1, 1)
+DeathScreen.Size = UDim2.fromScale(1, 1)
 
 DeathScreen.BackgroundColor3 =
-    Color3.fromRGB(0, 0, 0)
+    Color3.fromRGB(255, 0, 0)
 
 DeathScreen.BackgroundTransparency = 1
-
 DeathScreen.BorderSizePixel = 0
 DeathScreen.ZIndex = 100
-
 DeathScreen.Parent = Gui
 
-
 --==================================================
---// BLUR
+-- BLUR
 --==================================================
 
 local Blur = Instance.new("BlurEffect")
@@ -1104,42 +1058,35 @@ Blur.Name =
     "NoobExperiment_LowHealthBlur"
 
 Blur.Size = 0
-
 Blur.Parent = Lighting
 
-
 --==================================================
---// RESET
+-- RESET
 --==================================================
 
 local function ResetEffects()
 
-    for _, Corner in ipairs(Corners) do
-        Corner.BackgroundTransparency = 1
+    for _, Vignette in ipairs(Vignettes) do
+        Vignette.Visible = false
     end
 
     Flash.BackgroundTransparency = 1
     DeathScreen.BackgroundTransparency = 1
-
     Blur.Size = 0
+
+    DeathEffectRunning = false
 
     if CurrentHumanoid
         and CurrentHumanoid.Parent then
 
         CurrentHumanoid.WalkSpeed =
             NormalWalkSpeed
-
     end
-
-    DeathEffectRunning = false
-
 end
 
-
 --==================================================
---// DEATH EFFECT
---// RED FULL -> BLACK
---// 0.5 SECOND
+-- DEATH EFFECT
+-- RED -> BLACK / 0.5 SECOND
 --==================================================
 
 local function DeathEffect(Humanoid)
@@ -1150,31 +1097,20 @@ local function DeathEffect(Humanoid)
 
     DeathEffectRunning = true
 
-    -- Matikan efek lainnya
-    for _, Corner in ipairs(Corners) do
-        Corner.BackgroundTransparency = 1
+    for _, Vignette in ipairs(Vignettes) do
+        Vignette.Visible = false
     end
 
     Flash.BackgroundTransparency = 1
     Blur.Size = 0
 
-    if Humanoid and Humanoid.Parent then
-        Humanoid.WalkSpeed =
-            NormalWalkSpeed
-    end
-
-
-    -- Merah penuh
     DeathScreen.BackgroundColor3 =
         Color3.fromRGB(255, 0, 0)
 
     DeathScreen.BackgroundTransparency = 0
 
-
-    -- Fade merah -> hitam dalam 0.5 detik
     local StartTime = os.clock()
     local Duration = 0.5
-
 
     while os.clock() - StartTime < Duration do
 
@@ -1185,7 +1121,6 @@ local function DeathEffect(Humanoid)
                 1
             )
 
-        -- Warna merah perlahan menjadi hitam
         DeathScreen.BackgroundColor3 =
             Color3.fromRGB(
                 math.floor(255 * (1 - Progress)),
@@ -1194,20 +1129,16 @@ local function DeathEffect(Humanoid)
             )
 
         RunService.RenderStepped:Wait()
-
     end
-
 
     DeathScreen.BackgroundColor3 =
         Color3.fromRGB(0, 0, 0)
 
     DeathScreen.BackgroundTransparency = 0
-
 end
 
-
 --==================================================
---// CHARACTER SETUP
+-- CHARACTER
 --==================================================
 
 local function SetupCharacter(Character)
@@ -1216,39 +1147,27 @@ local function SetupCharacter(Character)
         Character:WaitForChild("Humanoid")
 
     CurrentHumanoid = Humanoid
-
-    NormalWalkSpeed =
-        Humanoid.WalkSpeed
+    NormalWalkSpeed = Humanoid.WalkSpeed
 
     DeathEffectRunning = false
-
     ResetEffects()
-
 
     if HealthConnection then
         HealthConnection:Disconnect()
     end
 
-
     HealthConnection =
         RunService.Heartbeat:Connect(function()
 
         if not Enabled then
-
             ResetEffects()
-
             return
-
         end
-
 
         if not Humanoid
             or not Humanoid.Parent then
-
             return
-
         end
-
 
         local MaxHealth =
             Humanoid.MaxHealth
@@ -1256,63 +1175,72 @@ local function SetupCharacter(Character)
         local Health =
             Humanoid.Health
 
-
         if MaxHealth <= 0 then
             return
         end
 
-
         --==================================================
-        --// DEAD
+        -- MATI
         --==================================================
 
         if Health <= 0 then
 
             if not DeathEffectRunning then
-
                 task.spawn(function()
                     DeathEffect(Humanoid)
                 end)
-
             end
 
             return
-
         end
-
 
         if DeathEffectRunning then
             return
         end
 
-
         local Percent =
             Health / MaxHealth
 
-
         --==================================================
-        --// <35%
-        --// CORNER RED 10%
+        -- <35% : VIGNETTE 10%
         --==================================================
 
         if Percent < 0.35 then
 
-            for _, Corner in ipairs(Corners) do
-                Corner.BackgroundTransparency = 0.90
+            for _, Vignette in ipairs(Vignettes) do
+
+                Vignette.Visible = true
+
+                local Gradient =
+                    Vignette:FindFirstChildOfClass(
+                        "UIGradient"
+                    )
+
+                if Gradient then
+                    Gradient.Transparency =
+                        NumberSequence.new({
+                            NumberSequenceKeypoint.new(
+                                0, 0.90
+                            ),
+                            NumberSequenceKeypoint.new(
+                                0.35, 0.94
+                            ),
+                            NumberSequenceKeypoint.new(
+                                1, 1
+                            )
+                        })
+                end
             end
 
         else
 
-            for _, Corner in ipairs(Corners) do
-                Corner.BackgroundTransparency = 1
+            for _, Vignette in ipairs(Vignettes) do
+                Vignette.Visible = false
             end
-
         end
 
-
         --==================================================
-        --// <25%
-        --// RED BLINK +10% SPEED
+        -- <25% : BLINK 1.7s + SPEED 10%
         --==================================================
 
         if Percent < 0.25 then
@@ -1326,65 +1254,58 @@ local function SetupCharacter(Character)
                     ) + 1
                 ) / 2
 
-
-            -- Kedipan merah 25%
             Flash.BackgroundTransparency =
                 0.75 +
                 (1 - Pulse) * 0.25
 
-
-            -- Speed +10%
             Humanoid.WalkSpeed =
                 NormalWalkSpeed * 1.10
 
         else
 
             Flash.BackgroundTransparency = 1
-
         end
 
-
         --==================================================
-        --// <20% / <10% EFFECT
-        --==================================================
-
-        if Percent < 0.20 then
-
-            -- Speed +10% tetap aktif
-            Humanoid.WalkSpeed =
-                NormalWalkSpeed * 1.10
-
-        end
-
-
-        --==================================================
-        --// <10%
-        --// RED 50%
-        --// BLUR 35%
-        --// SPEED +50%
+        -- <10% : RED 50% + BLUR 35 + SPEED 50%
         --==================================================
 
         if Percent < 0.10 then
 
-            for _, Corner in ipairs(Corners) do
-                Corner.BackgroundTransparency = 0.50
-            end
+            for _, Vignette in ipairs(Vignettes) do
 
+                local Gradient =
+                    Vignette:FindFirstChildOfClass(
+                        "UIGradient"
+                    )
+
+                if Gradient then
+
+                    Gradient.Transparency =
+                        NumberSequence.new({
+                            NumberSequenceKeypoint.new(
+                                0, 0.50
+                            ),
+                            NumberSequenceKeypoint.new(
+                                0.35, 0.70
+                            ),
+                            NumberSequenceKeypoint.new(
+                                1, 1
+                            )
+                        })
+
+                end
+            end
 
             Blur.Size = 35
 
-
             Humanoid.WalkSpeed =
                 NormalWalkSpeed * 1.50
-
         end
 
-
         --==================================================
-        --// <5%
-        --// FAST BLINK 0.75s
-        --// SPEED +150%
-        --// BLUR 85%
+        -- <5% : FAST BLINK 0.75s
+        -- BLUR 85 + SPEED 150%
         --==================================================
 
         if Percent < 0.05 then
@@ -1398,28 +1319,22 @@ local function SetupCharacter(Character)
                     ) + 1
                 ) / 2
 
-
             Flash.BackgroundTransparency =
                 0.75 +
                 (1 - FastPulse) * 0.25
 
-
             Blur.Size = 85
 
-
-            -- +150%
+            -- +150% = 2.5x speed normal
             Humanoid.WalkSpeed =
                 NormalWalkSpeed * 2.50
-
         end
 
     end)
-
 end
 
-
 --==================================================
---// CURRENT CHARACTER
+-- CURRENT CHARACTER
 --==================================================
 
 if Player.Character then
@@ -1431,9 +1346,8 @@ if Player.Character then
 
 end
 
-
 --==================================================
---// RESPAWN
+-- RESPAWN
 --==================================================
 
 Player.CharacterAdded:Connect(function(Character)
@@ -1445,21 +1359,18 @@ Player.CharacterAdded:Connect(function(Character)
 
 end)
 
-
 --==================================================
---// MAIN TAB
+-- MAIN TAB
 --==================================================
 
 MainTab:CreateSection(
     "Low Health Effects"
 )
 
-
 MainTab:CreateToggle({
 
     Name = "Low Health Visual",
 
-    -- RESET OFF SAAT RELOAD
     CurrentValue = false,
 
     Callback = function(Value)
