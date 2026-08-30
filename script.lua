@@ -87,8 +87,8 @@ end)
 MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
-    Title = "+ Visualizer thingy\n\n+ Display Thingy (auto)",
-    Content = "Ah \n\nill let anyone upload my script if i got perm ban\n\n make the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
+    Title = "information and tips",
+    Content = "ill let anyone upload my script if i got perm ban\n\n +Visual Stats Other (no money)\n +update Low Health Visual\n +Wave Visualizer\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
 })
 
 local MainTab = Window:CreateTab("Shop", nil)
@@ -1402,7 +1402,8 @@ local function SetupCharacter(Character)
 
         if Percent < 0.35 then
 
-            OverlayTransparency = 0.80
+            OverlayTransparency = 0.35
+			BlurSize = 10
 
         end
 
@@ -1411,13 +1412,14 @@ local function SetupCharacter(Character)
         -- BELOW 25%
         -- RED EDGE 25%
         -- BLINK 1.7s
-        -- SPEED +10%
+        -- SPEED +100%
         --==============================================
 
         if Percent < 0.25 then
 
-            OverlayTransparency = 0.40
-            SpeedMultiplier = 1.50
+            OverlayTransparency = 0.25
+			BlurSize = 25
+            SpeedMultiplier = 2
 
 
             local Pulse =
@@ -1449,14 +1451,14 @@ local function SetupCharacter(Character)
         -- BELOW 10%
         -- RED EDGE 50%
         -- BLUR 35
-        -- SPEED +50%
+        -- SPEED +150%
         --==============================================
 
         if Percent < 0.10 then
 
-            OverlayTransparency = 0.25
-            BlurSize = 40
-            SpeedMultiplier = 2
+            OverlayTransparency = 0.10
+            BlurSize = 55
+            SpeedMultiplier = 2.50
 
         end
 
@@ -1466,7 +1468,7 @@ local function SetupCharacter(Character)
         -- RED LEBIH TEBAL
         -- FAST BLINK 0.75s
         -- BLUR 85
-        -- SPEED +150%
+        -- SPEED +250%
         --==============================================
 
         if Percent < 0.05 then
@@ -1506,8 +1508,11 @@ local function SetupCharacter(Character)
             OverlayTransparency
         )
 
-        Blur.Size =
-            BlurSize
+        if Blur.Size < BlurSize then
+    Blur.Size = math.min(Blur.Size + 1, BlurSize)
+elseif Blur.Size > BlurSize then
+    Blur.Size = math.max(Blur.Size - 1, BlurSize)
+			end
 
         Humanoid.WalkSpeed =
             NormalWalkSpeed
