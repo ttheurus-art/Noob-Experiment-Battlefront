@@ -927,3 +927,312 @@ MainTab:CreateColorPicker({
     end,
 
 })
+
+--==================================================
+--// LOW HEALTH VISUAL
+--==================================================
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+
+--==================================================
+--// CLEAN UP SAAT RELOAD
+--==================================================
+
+local OldLowHealth = PlayerGui:FindFirstChild(
+    "NoobExperiment_LowHealth"
+)
+
+if OldLowHealth then
+    OldLowHealth:Destroy()
+end
+
+local OldBlur = Lighting:FindFirstChild(
+    "NoobExperiment_LowHealthBlur"
+)
+
+if OldBlur then
+    OldBlur:Destroy()
+end
+
+
+--==================================================
+--// SETTINGS
+--==================================================
+
+local LowHealthEnabled = false
+local SpeedBoostMultiplier = 1.25
+
+local CurrentHumanoid = nil
+local NormalWalkSpeed = 16
+local HealthConnection = nil
+
+
+--==================================================
+--// LOW HEALTH GUI
+--==================================================
+
+local LowHealthGui = Instance.new("ScreenGui")
+
+LowHealthGui.Name =
+    "NoobExperiment_LowHealth"
+
+LowHealthGui.IgnoreGuiInset = true
+LowHealthGui.ResetOnSpawn = false
+LowHealthGui.DisplayOrder = 10
+LowHealthGui.Parent = PlayerGui
+
+
+local Overlay = Instance.new("Frame")
+
+Overlay.Name =
+    "LowHealthOverlay"
+
+Overlay.Size =
+    UDim2.fromScale(1, 1)
+
+Overlay.BackgroundColor3 =
+    Color3.fromRGB(255, 0, 0)
+
+Overlay.BackgroundTransparency = 1
+Overlay.BorderSizePixel = 0
+Overlay.Parent = LowHealthGui
+
+
+--==================================================
+--// BLUR EFFECT
+--==================================================
+
+local Blur = Instance.new("BlurEffect")
+
+Blur.Name =
+    "NoobExperiment_LowHealthBlur"
+
+Blur.Size = 0
+Blur.Parent = Lighting
+
+
+--==================================================
+--// RESET EFFECT
+--==================================================
+
+local function ResetEffects()
+
+    Overlay.BackgroundTransparency = 1
+    Blur.Size = 0
+
+    if CurrentHumanoid
+        and CurrentHumanoid.Parent then
+
+        CurrentHumanoid.WalkSpeed =
+            NormalWalkSpeed
+
+    end
+
+end
+
+
+--==================================================
+--// CHARACTER SETUP
+--==================================================
+
+local function SetupCharacter(Character)
+
+    local Humanoid =
+        Character:WaitForChild("Humanoid")
+
+    CurrentHumanoid = Humanoid
+
+    NormalWalkSpeed =
+        Humanoid.WalkSpeed
+
+
+    if HealthConnection then
+        HealthConnection:Disconnect()
+    end
+
+
+    HealthConnection =
+        RunService.RenderStepped:Connect(function()
+
+        if not LowHealthEnabled then
+
+            ResetEffects()
+            return
+
+        end
+
+
+        if not Humanoid
+            or not Humanoid.Parent then
+
+            ResetEffects()
+            return
+
+        end
+
+
+        local MaxHealth =
+            Humanoid.MaxHealth
+
+        local Health =
+            Humanoid.Health
+
+
+        if MaxHealth <= 0
+            or Health <= 0 then
+
+            ResetEffects()
+            return
+
+        end
+
+
+        local HealthPercent =
+            Health / MaxHealth
+
+
+        --==================================================
+        --// RED SCREEN
+        --// AKTIF DI BAWAH 30% HP
+        --==================================================
+
+        if HealthPercent <= 0.30 then
+
+            local Intensity =
+                1 - (HealthPercent / 0.30)
+
+
+            local Pulse =
+                (
+                    math.sin(
+                        os.clock() *
+                        (5 + Intensity * 8)
+                    ) + 1
+                ) * 0.5
+
+
+            Overlay.BackgroundTransparency =
+                0.88 -
+                (
+                    Intensity *
+                    0.20 *
+                    Pulse
+                )
+
+        else
+
+            Overlay.BackgroundTransparency = 1
+
+        end
+
+
+        --==================================================
+        --// 20% HP EFFECT
+        --// SPEED +25% + BLUR
+        --==================================================
+
+        if HealthPercent <= 0.20 then
+
+            -- Speed normal x 1.25
+            Humanoid.WalkSpeed =
+                NormalWalkSpeed *
+                SpeedBoostMultiplier
+
+
+            -- Blur
+            local BlurIntensity =
+                1 -
+                (
+                    HealthPercent /
+                    0.20
+                )
+
+
+            Blur.Size =
+                math.clamp(
+                    BlurIntensity * 8,
+                    0,
+                    8
+                )
+
+        else
+
+            Humanoid.WalkSpeed =
+                NormalWalkSpeed
+
+            Blur.Size = 0
+
+        end
+
+    end)
+
+end
+
+
+--==================================================
+--// CURRENT CHARACTER
+--==================================================
+
+if Player.Character then
+
+    task.spawn(
+        SetupCharacter,
+        Player.Character
+    )
+
+end
+
+
+--==================================================
+--// RESPAWN
+--==================================================
+
+Player.CharacterAdded:Connect(
+    function(Character)
+
+        task.spawn(
+            SetupCharacter,
+            Character
+        )
+
+    end
+)
+
+
+--==================================================
+--// MAIN TAB
+--==================================================
+
+MainTab:CreateSection(
+    "Low Health Visual"
+)
+
+
+MainTab:CreateToggle({
+
+    Name = "Low Health Visual",
+
+    -- OFF SAAT SCRIPT RELOAD
+    CurrentValue = false,
+
+    Callback = function(Value)
+
+        LowHealthEnabled =
+            Value
+
+
+        if not Value then
+
+            ResetEffects()
+
+        end
+
+    end,
+
+})
