@@ -496,13 +496,6 @@ p2.Parent = workspace
 
 local MainTab = Window:CreateTab("Information", nil)
 
-MainTab:CreateSection("Update")
-
-MainTab:CreateParagraph({
-    Title = "+ Visualizer thingy\n",
-    Content = "ill let anyone upload my script if i got perm ban\n\n make the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
-})
-
 local MoneyDisplay = MainTab:CreateParagraph({
     Title = "Stats",
     Content = "Keys: Loading...\nTime Essence: Loading...\nMoney: Loading..."
@@ -531,6 +524,13 @@ task.spawn(function()
         task.wait(0.2)
     end
 end)
+
+MainTab:CreateSection("Information)
+
+MainTab:CreateParagraph({
+    Title = "+ Visualizer thingy\n\n+ Display Thingy (auto)",
+    Content = "ill let anyone upload my script if i got perm ban\n\n make the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
+})
 
 local MainTab = Window:CreateTab("Shop", nil)
 local MainSection = MainTab:CreateSection("You can buy thing")
