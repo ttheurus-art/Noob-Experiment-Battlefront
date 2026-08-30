@@ -694,8 +694,8 @@ MainTab:CreateSlider({
 })
 
 --==================================================
---// AUDIO VISUALIZER
---// Tidak mengatur / mengganti musik
+--// LIGHTWEIGHT WAVE VISUALIZER
+--// Masuk ke MainTab
 --==================================================
 
 local Players = game:GetService("Players")
@@ -723,14 +723,12 @@ end
 --==================================================
 
 local VisualizerEnabled = true
+local VisualizerColor = Color3.fromRGB(255, 40, 40)
 
-local VisualizerColor =
-    Color3.fromRGB(255, 40, 40)
-
-local BAR_COUNT = 45
+local BAR_COUNT = 28
+local MAX_HEIGHT = 30
 
 local Bars = {}
-local CurrentHeights = {}
 
 
 --==================================================
@@ -739,9 +737,7 @@ local CurrentHeights = {}
 
 local VisualizerGui = Instance.new("ScreenGui")
 
-VisualizerGui.Name =
-    "NoobExperiment_Visualizer"
-
+VisualizerGui.Name = "NoobExperiment_Visualizer"
 VisualizerGui.ResetOnSpawn = false
 VisualizerGui.IgnoreGuiInset = true
 VisualizerGui.DisplayOrder = 5
@@ -755,11 +751,13 @@ VisualizerFrame.Name = "Visualizer"
 VisualizerFrame.AnchorPoint =
     Vector2.new(0.5, 1)
 
+-- Sedikit turun dari bagian paling bawah
 VisualizerFrame.Position =
-    UDim2.new(0.5, 0, 1, -5)
+    UDim2.new(0.5, 0, 1, 8)
 
+-- Menyesuaikan lebar layar
 VisualizerFrame.Size =
-    UDim2.new(1, -20, 0, 70)
+    UDim2.new(1, -12, 0, MAX_HEIGHT)
 
 VisualizerFrame.BackgroundTransparency = 1
 VisualizerFrame.BorderSizePixel = 0
@@ -767,7 +765,7 @@ VisualizerFrame.Parent = VisualizerGui
 
 
 --==================================================
---// CREATE VISUALIZER BARS
+--// CREATE 28 BARS
 --==================================================
 
 for i = 1, BAR_COUNT do
@@ -779,6 +777,7 @@ for i = 1, BAR_COUNT do
     Bar.AnchorPoint =
         Vector2.new(0.5, 1)
 
+    -- Dibagi rata sepanjang layar
     Bar.Position =
         UDim2.new(
             (i - 0.5) / BAR_COUNT,
@@ -787,144 +786,82 @@ for i = 1, BAR_COUNT do
             0
         )
 
+    -- Kotak dibuat lebih besar
     Bar.Size =
         UDim2.new(
             1 / BAR_COUNT,
-            -3,
+            -4,
             0,
-            4
+            5
         )
 
     Bar.BackgroundColor3 =
         VisualizerColor
 
-    Bar.BackgroundTransparency = 0.1
+    Bar.BackgroundTransparency = 0.05
     Bar.BorderSizePixel = 0
+
     Bar.Parent = VisualizerFrame
 
     Bars[i] = Bar
-    CurrentHeights[i] = 4
 
 end
 
 
 --==================================================
---// FIND AUDIO YANG SEDANG DIMAINKAN
+--// WAVE ANIMATION
 --==================================================
 
-local function GetPlayingMusic()
+local Time = 0
 
-    local BestSound = nil
-    local BestLoudness = 0
+local VisualizerConnection
 
-    for _, Object in ipairs(
-        game:GetDescendants()
-    ) do
-
-        if Object:IsA("Sound")
-            and Object.IsPlaying then
-
-            local Loudness =
-                Object.PlaybackLoudness
-
-            if Loudness > BestLoudness then
-
-                BestLoudness =
-                    Loudness
-
-                BestSound =
-                    Object
-
-            end
-        end
-    end
-
-    return BestSound
-
-end
-
-
---==================================================
---// VISUALIZER MOVEMENT
---==================================================
-
-RunService.RenderStepped:Connect(function()
+VisualizerConnection =
+    RunService.Heartbeat:Connect(function(DeltaTime)
 
     if not VisualizerEnabled then
         return
     end
 
-
-    local Audio =
-        GetPlayingMusic()
-
-    local Loudness = 0
-
-
-    if Audio then
-
-        Loudness =
-            Audio.PlaybackLoudness
-
-    end
-
-
-    local Power =
-        math.clamp(
-            Loudness / 250,
-            0,
-            1
-        )
+    -- Membatasi DeltaTime supaya tetap stabil
+    Time += math.min(DeltaTime, 0.05)
 
 
     for i, Bar in ipairs(Bars) do
 
-        -- Sedikit variasi antar-bar
-        local Variation =
-            0.75 +
-            (
-                math.sin(i * 1.7) + 1
-            ) * 0.15
-
-
-        local TargetHeight =
-            4 +
-            (
-                Power *
-                60 *
-                Variation
+        -- Gelombang utama
+        local Wave =
+            math.sin(
+                Time * 3 +
+                i * 0.55
             )
 
 
-        -- Naik cepat
-        if TargetHeight >
-            CurrentHeights[i] then
-
-            CurrentHeights[i] +=
-                (
-                    TargetHeight -
-                    CurrentHeights[i]
-                ) * 0.35
+        -- Gelombang kedua untuk variasi
+        local Wave2 =
+            math.sin(
+                Time * 1.6 +
+                i * 0.25
+            )
 
 
-        -- Turun smooth
-        else
-
-            CurrentHeights[i] +=
-                (
-                    TargetHeight -
-                    CurrentHeights[i]
-                ) * 0.12
-
-        end
+        -- Tinggi bar
+        local Height =
+            4 +
+            ((Wave + 1) * 0.5) * 17 +
+            ((Wave2 + 1) * 0.5) * 5
 
 
         Bar.Size =
             UDim2.new(
                 1 / BAR_COUNT,
-                -3,
+                -4,
                 0,
-                CurrentHeights[i]
+                math.clamp(
+                    Height,
+                    4,
+                    MAX_HEIGHT
+                )
             )
 
     end
@@ -933,19 +870,12 @@ end)
 
 
 --==================================================
---// VISUALIZER TAB
---// Dibuat setelah Music Tab
+--// VISUALIZER CONTROLS
+--// SEMUANYA MASUK MainTab
 --==================================================
 
-local VisualizerTab =
-    Window:CreateTab(
-        "Visualizer",
-        nil
-    )
-
-
-VisualizerTab:CreateSection(
-    "Audio Visualizer"
+MainTab:CreateSection(
+    "Wave Visualizer"
 )
 
 
@@ -953,7 +883,7 @@ VisualizerTab:CreateSection(
 --// ENABLE VISUALIZER
 --==================================================
 
-VisualizerTab:CreateToggle({
+MainTab:CreateToggle({
 
     Name = "Enable Visualizer",
 
@@ -961,11 +891,9 @@ VisualizerTab:CreateToggle({
 
     Callback = function(Value)
 
-        VisualizerEnabled =
-            Value
+        VisualizerEnabled = Value
 
-        VisualizerFrame.Visible =
-            Value
+        VisualizerFrame.Visible = Value
 
     end,
 
@@ -976,7 +904,7 @@ VisualizerTab:CreateToggle({
 --// COLOR PICKER
 --==================================================
 
-VisualizerTab:CreateColorPicker({
+MainTab:CreateColorPicker({
 
     Name = "Visualizer Color",
 
@@ -984,8 +912,7 @@ VisualizerTab:CreateColorPicker({
 
     Callback = function(Value)
 
-        VisualizerColor =
-            Value
+        VisualizerColor = Value
 
 
         for _, Bar in ipairs(Bars) do
