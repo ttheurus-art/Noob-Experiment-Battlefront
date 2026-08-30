@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V2.6🔥",
+   Name = "Noob Experiment: Battlefront V2.7🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Y/O Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -59,7 +59,7 @@ MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
     Title = "+ Visualizer thingy\n",
-    Content = "ill let anyone upload my script if i got perm ban\n\n make the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
+    Content = "ill let anyone upload my script if i got perm ban\n\n make the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
 })
 
 local MoneyDisplay = MainTab:CreateParagraph({
@@ -920,7 +920,8 @@ MainTab:CreateColorPicker({
 })
 
 --==================================================
--- LOW HEALTH VIGNETTE
+--// LOW HEALTH VISUAL
+--// 4 CORNER VIGNETTE
 --==================================================
 
 local Players = game:GetService("Players")
@@ -930,21 +931,33 @@ local Lighting = game:GetService("Lighting")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
--- CLEAN UP SAAT RELOAD
+--==================================================
+-- CLEAN UP PREVIOUS VERSION
+--==================================================
+
 local OldGui = PlayerGui:FindFirstChild("NoobExperiment_LowHealth")
+
 if OldGui then
     OldGui:Destroy()
 end
 
-local OldBlur = Lighting:FindFirstChild("NoobExperiment_LowHealthBlur")
+local OldBlur = Lighting:FindFirstChild(
+    "NoobExperiment_LowHealthBlur"
+)
+
 if OldBlur then
     OldBlur:Destroy()
 end
 
+--==================================================
 -- SETTINGS
+--==================================================
+
 local Enabled = false
+
 local CurrentHumanoid = nil
 local NormalWalkSpeed = 16
+
 local HealthConnection = nil
 local DeathEffectRunning = false
 
@@ -953,6 +966,7 @@ local DeathEffectRunning = false
 --==================================================
 
 local Gui = Instance.new("ScreenGui")
+
 Gui.Name = "NoobExperiment_LowHealth"
 Gui.IgnoreGuiInset = true
 Gui.ResetOnSpawn = false
@@ -960,72 +974,134 @@ Gui.DisplayOrder = 20
 Gui.Parent = PlayerGui
 
 --==================================================
--- VIGNETTE
+-- VIGNETTE CONTAINER
 --==================================================
 
-local function CreateVignette(Name, Position, Rotation)
+local VignetteFolder = Instance.new("Folder")
+VignetteFolder.Name = "CornerVignette"
+VignetteFolder.Parent = Gui
 
-    local Frame = Instance.new("Frame")
-    Frame.Name = Name
-    Frame.Position = Position
-    Frame.Size = UDim2.fromScale(0.55, 0.55)
+--==================================================
+-- CREATE SOFT CORNER
+--==================================================
 
-    Frame.BackgroundTransparency = 1
-    Frame.BorderSizePixel = 0
-    Frame.ZIndex = 5
-    Frame.Parent = Gui
+local function CreateSoftCorner(Name, Position, AnchorPoint)
 
-    local Gradient = Instance.new("UIGradient")
+    local Container = Instance.new("Frame")
 
-    Gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(
-            0,
+    Container.Name = Name
+    Container.AnchorPoint = AnchorPoint
+    Container.Position = Position
+
+    -- Besar supaya merah bisa menyebar jauh
+    Container.Size = UDim2.fromScale(0.65, 0.65)
+
+    Container.BackgroundTransparency = 1
+    Container.BorderSizePixel = 0
+
+    Container.ZIndex = 5
+    Container.Parent = VignetteFolder
+
+
+    -- Banyak layer lingkaran transparan.
+    -- Ini membuat efek menyebar/fade,
+    -- bukan kotak solid.
+
+    local Layers = {}
+
+    local LayerData = {
+        {0.05, 0.72},
+        {0.16, 0.78},
+        {0.28, 0.84},
+        {0.40, 0.90},
+        {0.52, 0.94},
+        {0.64, 0.97},
+        {0.76, 0.985},
+        {0.88, 0.995},
+        {1.00, 1.00},
+    }
+
+    for i, Data in ipairs(LayerData) do
+
+        local Size = Data[1]
+        local Transparency = Data[2]
+
+        local Layer = Instance.new("Frame")
+
+        Layer.Name = "Layer" .. i
+
+        Layer.AnchorPoint =
+            Vector2.new(0.5, 0.5)
+
+        Layer.Position =
+            UDim2.fromScale(0.5, 0.5)
+
+        Layer.Size =
+            UDim2.fromScale(Size, Size)
+
+        Layer.BackgroundColor3 =
             Color3.fromRGB(255, 0, 0)
-        ),
 
-        ColorSequenceKeypoint.new(
-            1,
-            Color3.fromRGB(255, 0, 0)
+        Layer.BackgroundTransparency =
+            Transparency
+
+        Layer.BorderSizePixel = 0
+
+        Layer.ZIndex = 5
+
+        Layer.Parent = Container
+
+
+        local Corner =
+            Instance.new("UICorner")
+
+        Corner.CornerRadius =
+            UDim.new(1, 0)
+
+        Corner.Parent = Layer
+
+
+        table.insert(
+            Layers,
+            Layer
         )
-    })
+    end
 
-    Gradient.Transparency = NumberSequence.new({
-        NumberSequenceKeypoint.new(0, 0.90),
-        NumberSequenceKeypoint.new(0.35, 0.94),
-        NumberSequenceKeypoint.new(1, 1)
-    })
-
-    Gradient.Rotation = Rotation
-    Gradient.Parent = Frame
-
-    return Frame
+    return {
+        Container = Container,
+        Layers = Layers
+    }
 end
 
-local TopLeft = CreateVignette(
+--==================================================
+-- FOUR CORNERS
+--==================================================
+
+local TopLeft = CreateSoftCorner(
     "TopLeft",
     UDim2.fromScale(0, 0),
-    45
+    Vector2.new(0, 0)
 )
 
-local TopRight = CreateVignette(
+local TopRight = CreateSoftCorner(
     "TopRight",
-    UDim2.fromScale(0.45, 0),
-    135
+    UDim2.fromScale(1, 0),
+    Vector2.new(1, 0)
 )
 
-local BottomLeft = CreateVignette(
+local BottomLeft = CreateSoftCorner(
     "BottomLeft",
-    UDim2.fromScale(0, 0.45),
-    -45
+    UDim2.fromScale(0, 1),
+    Vector2.new(0, 1)
 )
 
-local BottomRight = CreateVignette(
+local BottomRight = CreateSoftCorner(
     "BottomRight",
-    UDim2.fromScale(0.45, 0.45),
-    -135
+    UDim2.fromScale(1, 1),
+    Vector2.new(1, 1)
 )
 
-local Vignettes = {
+local Corners = {
     TopLeft,
     TopRight,
     BottomLeft,
@@ -1033,20 +1109,24 @@ local Vignettes = {
 }
 
 --==================================================
--- RED BLINK
+-- RED FLASH
 --==================================================
 
 local Flash = Instance.new("Frame")
 
 Flash.Name = "RedFlash"
-Flash.Size = UDim2.fromScale(1, 1)
+
+Flash.Size =
+    UDim2.fromScale(1, 1)
 
 Flash.BackgroundColor3 =
     Color3.fromRGB(255, 0, 0)
 
 Flash.BackgroundTransparency = 1
+
 Flash.BorderSizePixel = 0
-Flash.ZIndex = 4
+Flash.ZIndex = 10
+
 Flash.Parent = Gui
 
 --==================================================
@@ -1056,14 +1136,18 @@ Flash.Parent = Gui
 local DeathScreen = Instance.new("Frame")
 
 DeathScreen.Name = "DeathScreen"
-DeathScreen.Size = UDim2.fromScale(1, 1)
+
+DeathScreen.Size =
+    UDim2.fromScale(1, 1)
 
 DeathScreen.BackgroundColor3 =
     Color3.fromRGB(255, 0, 0)
 
 DeathScreen.BackgroundTransparency = 1
+
 DeathScreen.BorderSizePixel = 0
 DeathScreen.ZIndex = 100
+
 DeathScreen.Parent = Gui
 
 --==================================================
@@ -1079,17 +1163,62 @@ Blur.Size = 0
 Blur.Parent = Lighting
 
 --==================================================
+-- HIDE VIGNETTE
+--==================================================
+
+local function HideCorners()
+
+    for _, Corner in ipairs(Corners) do
+
+        Corner.Container.Visible = false
+
+    end
+end
+
+--==================================================
+-- SET VIGNETTE STRENGTH
+--==================================================
+
+local function SetCornerStrength(Strength)
+
+    for _, Corner in ipairs(Corners) do
+
+        Corner.Container.Visible = true
+
+        local Layers =
+            Corner.Layers
+
+        for i, Layer in ipairs(Layers) do
+
+            local BaseTransparency =
+                0.70 + ((i - 1) * 0.037)
+
+            local Transparency =
+                BaseTransparency +
+                (Strength * 0.25)
+
+            Layer.BackgroundTransparency =
+                math.clamp(
+                    Transparency,
+                    0,
+                    0.995
+                )
+        end
+    end
+end
+
+--==================================================
 -- RESET
 --==================================================
 
 local function ResetEffects()
 
-    for _, Vignette in ipairs(Vignettes) do
-        Vignette.Visible = false
-    end
+    HideCorners()
 
     Flash.BackgroundTransparency = 1
+
     DeathScreen.BackgroundTransparency = 1
+
     Blur.Size = 0
 
     DeathEffectRunning = false
@@ -1104,7 +1233,8 @@ end
 
 --==================================================
 -- DEATH EFFECT
--- RED -> BLACK / 0.5 SECOND
+-- RED FULL -> BLACK
+-- 0.5 SECOND
 --==================================================
 
 local function DeathEffect(Humanoid)
@@ -1115,33 +1245,50 @@ local function DeathEffect(Humanoid)
 
     DeathEffectRunning = true
 
-    for _, Vignette in ipairs(Vignettes) do
-        Vignette.Visible = false
-    end
+    HideCorners()
 
     Flash.BackgroundTransparency = 1
+
     Blur.Size = 0
+
+    if Humanoid
+        and Humanoid.Parent then
+
+        Humanoid.WalkSpeed =
+            NormalWalkSpeed
+    end
+
+    -- FULL RED
 
     DeathScreen.BackgroundColor3 =
         Color3.fromRGB(255, 0, 0)
 
     DeathScreen.BackgroundTransparency = 0
 
+
+    -- RED -> BLACK
+    -- 0.5 SECOND
+
     local StartTime = os.clock()
     local Duration = 0.5
 
-    while os.clock() - StartTime < Duration do
+    while
+        os.clock() - StartTime < Duration
+    do
 
         local Progress =
             math.clamp(
-                (os.clock() - StartTime) / Duration,
+                (os.clock() - StartTime)
+                / Duration,
                 0,
                 1
             )
 
         DeathScreen.BackgroundColor3 =
             Color3.fromRGB(
-                math.floor(255 * (1 - Progress)),
+                math.floor(
+                    255 * (1 - Progress)
+                ),
                 0,
                 0
             )
@@ -1156,7 +1303,7 @@ local function DeathEffect(Humanoid)
 end
 
 --==================================================
--- CHARACTER
+-- CHARACTER SETUP
 --==================================================
 
 local function SetupCharacter(Character)
@@ -1164,28 +1311,39 @@ local function SetupCharacter(Character)
     local Humanoid =
         Character:WaitForChild("Humanoid")
 
-    CurrentHumanoid = Humanoid
-    NormalWalkSpeed = Humanoid.WalkSpeed
+    CurrentHumanoid =
+        Humanoid
+
+    NormalWalkSpeed =
+        Humanoid.WalkSpeed
 
     DeathEffectRunning = false
+
     ResetEffects()
+
 
     if HealthConnection then
         HealthConnection:Disconnect()
     end
 
+
     HealthConnection =
         RunService.Heartbeat:Connect(function()
 
         if not Enabled then
+
             ResetEffects()
+
             return
         end
 
+
         if not Humanoid
             or not Humanoid.Parent then
+
             return
         end
+
 
         local MaxHealth =
             Humanoid.MaxHealth
@@ -1193,88 +1351,82 @@ local function SetupCharacter(Character)
         local Health =
             Humanoid.Health
 
+
         if MaxHealth <= 0 then
             return
         end
 
+
         --==================================================
-        -- MATI
+        -- DEAD
         --==================================================
 
         if Health <= 0 then
 
             if not DeathEffectRunning then
+
                 task.spawn(function()
                     DeathEffect(Humanoid)
                 end)
+
             end
 
             return
         end
+
 
         if DeathEffectRunning then
             return
         end
 
+
         local Percent =
             Health / MaxHealth
 
+
         --==================================================
-        -- <35% : VIGNETTE 10%
+        -- BELOW 35%
+        -- CORNER RED 10%
         --==================================================
 
         if Percent < 0.35 then
 
-            for _, Vignette in ipairs(Vignettes) do
-
-                Vignette.Visible = true
-
-                local Gradient =
-                    Vignette:FindFirstChildOfClass(
-                        "UIGradient"
-                    )
-
-                if Gradient then
-                    Gradient.Transparency =
-                        NumberSequence.new({
-                            NumberSequenceKeypoint.new(
-                                0, 0.90
-                            ),
-                            NumberSequenceKeypoint.new(
-                                0.35, 0.94
-                            ),
-                            NumberSequenceKeypoint.new(
-                                1, 1
-                            )
-                        })
-                end
-            end
+            SetCornerStrength(0.10)
 
         else
 
-            for _, Vignette in ipairs(Vignettes) do
-                Vignette.Visible = false
-            end
+            HideCorners()
+
         end
 
+
         --==================================================
-        -- <25% : BLINK 1.7s + SPEED 10%
+        -- BELOW 25%
+        -- CORNER RED 25%
+        -- SLOW RED BLINK
+        -- SPEED +10%
         --==================================================
 
         if Percent < 0.25 then
 
+            SetCornerStrength(0.25)
+
+
             local Pulse =
                 (
                     math.sin(
-                        os.clock() *
-                        math.pi * 2 /
-                        1.7
+                        os.clock()
+                        * math.pi
+                        * 2
+                        / 1.7
                     ) + 1
                 ) / 2
 
+
             Flash.BackgroundTransparency =
                 0.75 +
-                (1 - Pulse) * 0.25
+                ((1 - Pulse) * 0.25)
+
 
             Humanoid.WalkSpeed =
                 NormalWalkSpeed * 1.10
@@ -1282,70 +1434,66 @@ local function SetupCharacter(Character)
         else
 
             Flash.BackgroundTransparency = 1
+
         end
 
+
         --==================================================
-        -- <10% : RED 50% + BLUR 35 + SPEED 50%
+        -- BELOW 10%
+        -- CORNER RED 50%
+        -- BLUR 35%
+        -- SPEED +50%
         --==================================================
 
         if Percent < 0.10 then
 
-            for _, Vignette in ipairs(Vignettes) do
-
-                local Gradient =
-                    Vignette:FindFirstChildOfClass(
-                        "UIGradient"
-                    )
-
-                if Gradient then
-
-                    Gradient.Transparency =
-                        NumberSequence.new({
-                            NumberSequenceKeypoint.new(
-                                0, 0.50
-                            ),
-                            NumberSequenceKeypoint.new(
-                                0.35, 0.70
-                            ),
-                            NumberSequenceKeypoint.new(
-                                1, 1
-                            )
-                        })
-
-                end
-            end
+            SetCornerStrength(0.50)
 
             Blur.Size = 35
 
             Humanoid.WalkSpeed =
                 NormalWalkSpeed * 1.50
+
         end
 
+
         --==================================================
-        -- <5% : FAST BLINK 0.75s
-        -- BLUR 85 + SPEED 150%
+        -- BELOW 5%
+        -- FAST BLINK 0.75 SECOND
+        -- BLUR 85
+        -- SPEED +150%
         --==================================================
 
         if Percent < 0.05 then
 
+            SetCornerStrength(0.50)
+
+
             local FastPulse =
                 (
                     math.sin(
-                        os.clock() *
-                        math.pi * 2 /
-                        0.75
+                        os.clock()
+                        * math.pi
+                        * 2
+                        / 0.75
                     ) + 1
                 ) / 2
 
+
             Flash.BackgroundTransparency =
                 0.75 +
-                (1 - FastPulse) * 0.25
+                ((1 - FastPulse) * 0.25)
+
 
             Blur.Size = 85
 
-            -- +150% = 2.5x speed normal
+
+            -- +150%
+            -- = 2.5x normal speed
+
             Humanoid.WalkSpeed =
                 NormalWalkSpeed * 2.50
+
         end
 
     end)
