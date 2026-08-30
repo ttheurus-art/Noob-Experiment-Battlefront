@@ -879,15 +879,15 @@ VisualizerConnection =
         -- Gelombang utama
         local Wave =
             math.sin(
-                Time * 3 +
-                i * 0.55
+                Time * 1.75 +
+                i * 0.25
             )
 
 
         -- Gelombang kedua untuk variasi
         local Wave2 =
             math.sin(
-                Time * 1.6 +
+                Time * 1.75 +
                 i * 0.25
             )
 
