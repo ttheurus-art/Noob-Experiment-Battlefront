@@ -88,7 +88,7 @@ MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "information and tips",
-    Content = "ill let anyone upload my script if i got perm ban\n\n +Visual Stats Other (no money)\n +update Low Health Visual\n +Update Wave Visualizer\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
+    Content = "ill let anyone upload my script if i got perm ban\n\n +Visual Stats Other (no money)\n +update Low Health Visual\n +Update Wave Visualizer\n +Added New Music\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
 })
 
 local MainTab = Window:CreateTab("Shop", nil)
@@ -644,7 +644,8 @@ local MusicList = {
     ["Creation of Hatred"] = "111304986203081",
 	["Eternity V1"] = "128855377868949",
 	["At The Speed of Light"] = "117386268398589",
-	["The Great Strategy"] = "122220105663741"
+	["The Great Strategy"] = "122220105663741",
+	["A Retro Soul"] = "116457974828068"
 }
 
 local CustomMusicID = ""
@@ -714,7 +715,8 @@ MainTab:CreateDropdown({
         "Creation of Hatred",
 		"Eternity V1",
 		"At The Speed of Light",
-		"The Great Strategy"
+		"The Great Strategy",
+		"A Retro Soul",
     },
 
     CurrentOption = {"None"},
