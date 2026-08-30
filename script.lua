@@ -59,7 +59,7 @@ MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
     Title = "+ Visualizer thingy\n",
-    Content = "ill let anyone upload my script if i got perm ban"
+    Content = "ill let anyone upload my script if i got perm ban\n\n make the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
 })
 
 local MoneyDisplay = MainTab:CreateParagraph({
@@ -899,6 +899,24 @@ MainTab:CreateToggle({
 
     end,
 
+})
+
+--// WAVE COLOR
+local WaveColor = Color3.fromRGB(255, 0, 0)
+
+MainTab:CreateColorPicker({
+    Name = "Wave Color",
+    Color = WaveColor,
+    Callback = function(Color)
+        WaveColor = Color
+
+        -- Update warna semua bar wave
+        for _, Bar in ipairs(WaveBars) do
+            if Bar then
+                Bar.BackgroundColor3 = Color
+            end
+        end
+    end,
 })
 
 --==================================================
