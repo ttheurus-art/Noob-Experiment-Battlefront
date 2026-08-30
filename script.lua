@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V2.5🔥",
+   Name = "Noob Experiment: Battlefront V2.6🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Y/O Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -58,7 +58,7 @@ local MainTab = Window:CreateTab("Information", nil)
 MainTab:CreateSection("Update")
 
 MainTab:CreateParagraph({
-    Title = "+ some music\n",
+    Title = "+ Visualizer thingy\n",
     Content = "ill let anyone upload my script if i got perm ban"
 })
 
@@ -97,8 +97,8 @@ local MainSection = MainTab:CreateSection("You can buy thing")
 
 Rayfield:Notify({
    Title = "Welcome!",
-   Content = "Enjoy!",
-   Duration = 6.5,
+   Content = "Enjoy Player!",
+   Duration = 4.5,
    Image = nil,
 })
 
