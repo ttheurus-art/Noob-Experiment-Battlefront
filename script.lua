@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V2.9.9🔥",
+   Name = "Noob Experiment: Battlefront V3.0🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Years Old Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -395,6 +395,8 @@ MainTab:CreateToggle({
                         local rockets = abilities:FindFirstChild("Rockets")
                         local rocketlaunchers = abilities:FindFirstChild("Rocket Launchers")
 						local rocketlauncher = abilities:FindFirstChild("Rocket Launcher")
+						local lasergun = abilities:FindFirstChild("Laser Gun")
+						local energylasergunleft = abilities:FindFirstChild("Energy Laser Gun Left")
 
                         local blastersEvent = blasters and blasters:FindFirstChild("RemoteEvent")
                         local blasterEvent = blaster and blaster:FindFirstChild("RemoteEvent")
@@ -402,10 +404,20 @@ MainTab:CreateToggle({
                         local rocketsEvent = rockets and rockets:FindFirstChild("RemoteEvent")
                         local rocketlaunchersEvent = rocketlaunchers and rocketlaunchers:FindFirstChild("RemoteEvent")
 						local rocketlauncherEvent = rocketlauncher and rocketlauncher:FindFirstChild("RemoteEvent")
+						local lasergunEvent = lasergun and lasergun:FindFirstChild("RemoteEvent")
+						local energylasergunleftEvent = energylasergunleft and energylasergunleft:FindFirstChild("RemoteEvent")
 
                         if blastersEvent then
                             blastersEvent:FireServer()
                         end
+
+						if energylasergunleftEvent then
+                            energylasergunleftEvent:FireServer()
+						end
+
+						if lasergunEvent then
+                            lasergunEvent:FireServer()
+						end
 
                         if blasterEvent then
                             blasterEvent:FireServer()
@@ -1574,7 +1586,7 @@ MainTab:CreateToggle({
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local MAX_DISTANCE = 45
+local MAX_DISTANCE = 75
 local UPDATE_RATE = 0.1
 local MORPH_CHECK_RATE = 0.5
 
