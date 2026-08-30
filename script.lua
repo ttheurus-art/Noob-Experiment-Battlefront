@@ -40,7 +40,7 @@ local Window = Rayfield:CreateWindow({
 --==================================================
 --// UNIVERSAL PLAYER ARMOR + HEALTH DISPLAY
 --// AUTO ACTIVE
---// INFO DI SISI TANGAN KANAN
+--// DISPLAY DI TORSO
 --// MAX DISTANCE: 100 STUDS
 --==================================================
 
@@ -62,37 +62,46 @@ local function GetArmor(Character)
         return nil
     end
 
-    -- Cari Armor di dalam morph/character
-    local Armor = Character:FindFirstChild(
-        "Armor",
-        true
-    )
+    --==============================================
+    -- Cari Value bernama "Armor"
+    --==============================================
 
-    if Armor then
+    for _, Object in ipairs(
+        Character:GetDescendants()
+    ) do
 
-        if Armor:IsA("NumberValue")
-            or Armor:IsA("IntValue") then
+        if string.lower(Object.Name) == "armor" then
 
-            return Armor.Value
-        end
+            -- NumberValue / IntValue
+            if Object:IsA("NumberValue")
+                or Object:IsA("IntValue") then
 
-        local Value =
-            Armor:GetAttribute("Value")
+                return Object.Value
+            end
 
-        if typeof(Value) == "number" then
-            return Value
-        end
+            -- Attribute "Value"
+            local Value =
+                Object:GetAttribute("Value")
 
-        local ArmorValue =
-            Armor:GetAttribute("Armor")
+            if typeof(Value) == "number" then
+                return Value
+            end
 
-        if typeof(ArmorValue) == "number" then
-            return ArmorValue
+            -- Attribute "Armor"
+            local ArmorValue =
+                Object:GetAttribute("Armor")
+
+            if typeof(ArmorValue) == "number" then
+                return ArmorValue
+            end
         end
     end
 
 
-    -- Attribute Character
+    --==============================================
+    -- Attribute langsung pada Character
+    --==============================================
+
     local CharacterArmor =
         Character:GetAttribute("Armor")
 
@@ -100,7 +109,81 @@ local function GetArmor(Character)
         return CharacterArmor
     end
 
+
+    --==============================================
+    -- Cari attribute Armor pada object mana pun
+    --==============================================
+
+    for _, Object in ipairs(
+        Character:GetDescendants()
+    ) do
+
+        local Value =
+            Object:GetAttribute("Armor")
+
+        if typeof(Value) == "number" then
+            return Value
+        end
+
+    end
+
+
     return nil
+end
+
+
+--==================================================
+--// GET TORSO
+--==================================================
+
+local function GetTorso(Character)
+
+    -- R15
+    local Torso =
+        Character:FindFirstChild("UpperTorso")
+
+    if Torso then
+        return Torso
+    end
+
+
+    -- R6
+    Torso =
+        Character:FindFirstChild("Torso")
+
+    if Torso then
+        return Torso
+    end
+
+
+    -- Custom morph
+    local PossibleNames = {
+        "Chest",
+        "Body",
+        "Torso",
+        "UpperBody",
+        "HumanoidRootPart"
+    }
+
+    for _, Name in ipairs(PossibleNames) do
+
+        local Part =
+            Character:FindFirstChild(
+                Name,
+                true
+            )
+
+        if Part and Part:IsA("BasePart") then
+            return Part
+        end
+
+    end
+
+
+    -- Fallback terakhir
+    return Character:FindFirstChild(
+        "HumanoidRootPart"
+    )
 end
 
 
@@ -128,61 +211,22 @@ local function CreateDisplay(Player)
         end
 
 
-        -- R15
-        local RightHand =
-            Character:FindFirstChild(
-                "RightHand"
-            )
+        local Torso =
+            GetTorso(Character)
 
-        -- R6 / custom morph
-        if not RightHand then
-            RightHand =
-                Character:FindFirstChild(
-                    "Right Arm"
-                )
-        end
-
-        -- Custom morph: cari bagian tangan kanan
-        if not RightHand then
-
-            for _, Part in ipairs(
-                Character:GetDescendants()
-            ) do
-
-                if Part:IsA("BasePart") then
-
-                    local Name =
-                        string.lower(
-                            Part.Name
-                        )
-
-                    if Name == "righthand"
-                        or Name == "right_arm"
-                        or Name == "rightarm" then
-
-                        RightHand = Part
-                        break
-                    end
-
-                end
-
-            end
-
-        end
-
-
-        if not RightHand then
+        if not Torso then
             return
         end
 
 
-        --==================================================
-        --// HAPUS DISPLAY LAMA
-        --==================================================
+        --==============================================
+        -- HAPUS DISPLAY LAMA
+        --==============================================
 
         local Old =
-            RightHand:FindFirstChild(
-                "PlayerInfoDisplay"
+            Character:FindFirstChild(
+                "PlayerInfoDisplay",
+                true
             )
 
         if Old then
@@ -190,9 +234,9 @@ local function CreateDisplay(Player)
         end
 
 
-        --==================================================
-        --// BILLBOARD
-        --==================================================
+        --==============================================
+        -- BILLBOARD
+        --==============================================
 
         local Billboard =
             Instance.new("BillboardGui")
@@ -201,18 +245,18 @@ local function CreateDisplay(Player)
             "PlayerInfoDisplay"
 
         Billboard.Adornee =
-            RightHand
+            Torso
 
         Billboard.Size =
             UDim2.fromOffset(
                 100,
-                42
+                48
             )
 
-        -- Posisi di sebelah tangan kanan
+        -- Di samping torso
         Billboard.StudsOffsetWorldSpace =
             Vector3.new(
-                1.5,
+                2.2,
                 0,
                 0
             )
@@ -222,15 +266,13 @@ local function CreateDisplay(Player)
         Billboard.MaxDistance =
             MAX_DISTANCE
 
-        Billboard.Enabled = true
-
         Billboard.Parent =
-            RightHand
+            Torso
 
 
-        --==================================================
-        --// INFO TEXT
-        --==================================================
+        --==============================================
+        -- TEXT
+        --==============================================
 
         local Label =
             Instance.new("TextLabel")
@@ -279,32 +321,25 @@ local function CreateDisplay(Player)
         Label.TextYAlignment =
             Enum.TextYAlignment.Center
 
-        Label.Text =
-            "["
-            .. Player.Name
-            .. "]\n"
-            .. "Armor: ????\n"
-            .. "Health: ????"
-
         Label.Parent =
             Billboard
 
 
-        --==================================================
-        --// UPDATE LOOP
-        --==================================================
+        --==============================================
+        -- UPDATE LOOP
+        --==============================================
 
         task.spawn(function()
 
             while
                 Character.Parent
-                and RightHand.Parent
                 and Humanoid.Parent
+                and Torso.Parent
                 and Billboard.Parent
             do
 
                 --==========================================
-                --// DISTANCE CHECK
+                -- DISTANCE
                 --==========================================
 
                 local LocalCharacter =
@@ -318,13 +353,10 @@ local function CreateDisplay(Player)
 
                 if LocalRoot then
 
-                    local TargetPosition =
-                        RightHand.Position
-
                     local Distance =
                         (
                             LocalRoot.Position
-                            - TargetPosition
+                            - Torso.Position
                         ).Magnitude
 
                     Billboard.Enabled =
@@ -332,16 +364,16 @@ local function CreateDisplay(Player)
 
                 else
 
-                    Billboard.Enabled =
-                        false
+                    Billboard.Enabled = false
 
                 end
 
 
                 --==========================================
-                --// HEALTH
+                -- HEALTH
                 --==========================================
 
+                -- Health LANGSUNG dari Humanoid
                 local Health =
                     math.max(
                         0,
@@ -356,14 +388,14 @@ local function CreateDisplay(Player)
 
 
                 --==========================================
-                --// ARMOR
+                -- ARMOR
                 --==========================================
 
                 local Armor =
                     GetArmor(Character)
 
-                local ArmorText
 
+                local ArmorText
 
                 if Armor ~= nil then
 
@@ -377,13 +409,13 @@ local function CreateDisplay(Player)
                 else
 
                     ArmorText =
-                        "????"
+                        "N/A"
 
                 end
 
 
                 --==========================================
-                --// UPDATE TEXT
+                -- DISPLAY
                 --==========================================
 
                 Label.Text =
@@ -410,8 +442,6 @@ local function CreateDisplay(Player)
             end
 
 
-            -- Bersihkan setelah character hilang
-
             if Billboard then
                 Billboard:Destroy()
             end
@@ -421,9 +451,9 @@ local function CreateDisplay(Player)
     end
 
 
-    --==================================================
-    --// CHARACTER SAAT INI
-    --==================================================
+    --==============================================
+    -- CHARACTER SAAT INI
+    --==============================================
 
     if Player.Character then
 
@@ -435,9 +465,9 @@ local function CreateDisplay(Player)
     end
 
 
-    --==================================================
-    --// RESPawn / GANTI MORPH
-    --==================================================
+    --==============================================
+    -- RESPAWN / GANTI MORPH
+    --==============================================
 
     Player.CharacterAdded:Connect(
         function(Character)
