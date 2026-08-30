@@ -926,8 +926,8 @@ MainTab:CreateColorPicker({
 })
 
 --==================================================
---// LOW HEALTH VISUAL
---// HEALTH OVERLAY
+--// LOW HEALTH VISUAL - FINAL
+--// HEALTH OVERLAY + BLUR + SPEED
 --==================================================
 
 local Players = game:GetService("Players")
@@ -938,7 +938,7 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 --==================================================
---// CLEAN UP SAAT SCRIPT DI-RELOAD
+-- CLEAN UP SAAT SCRIPT DI-RELOAD
 --==================================================
 
 local OldGui = PlayerGui:FindFirstChild(
@@ -957,38 +957,34 @@ if OldBlur then
     OldBlur:Destroy()
 end
 
-
 --==================================================
---// SETTINGS
+-- SETTINGS
 --==================================================
 
-local LowHealthEnabled = false
+local Enabled = false
+local Humanoid = nil
 
-local CurrentHumanoid = nil
 local NormalWalkSpeed = 16
-
 local HealthConnection = nil
+
 local DeathRunning = false
 
 
 --==================================================
---// SCREEN GUI
+-- GUI
 --==================================================
 
-local LowHealthGui = Instance.new("ScreenGui")
+local Gui = Instance.new("ScreenGui")
 
-LowHealthGui.Name =
-    "NoobExperiment_LowHealth"
-
-LowHealthGui.IgnoreGuiInset = true
-LowHealthGui.ResetOnSpawn = false
-LowHealthGui.DisplayOrder = 50
-
-LowHealthGui.Parent = PlayerGui
+Gui.Name = "NoobExperiment_LowHealth"
+Gui.IgnoreGuiInset = true
+Gui.ResetOnSpawn = false
+Gui.DisplayOrder = 50
+Gui.Parent = PlayerGui
 
 
 --==================================================
---// HEALTH OVERLAY
+-- HEALTH OVERLAY
 --==================================================
 
 local Overlay = Instance.new("Frame")
@@ -1010,16 +1006,16 @@ Overlay.BorderSizePixel = 0
 
 Overlay.ZIndex = 10
 
-Overlay.Parent = LowHealthGui
+Overlay.Parent = Gui
 
 
 --==================================================
---// EDGE GRADIENT
+-- HORIZONTAL EDGE GRADIENT
 --==================================================
 
-local EdgeGradient = Instance.new("UIGradient")
+local GradientX = Instance.new("UIGradient")
 
-EdgeGradient.Color = ColorSequence.new({
+GradientX.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(
         0,
         Color3.fromRGB(255, 0, 0)
@@ -1036,55 +1032,27 @@ EdgeGradient.Color = ColorSequence.new({
     )
 })
 
-EdgeGradient.Transparency = NumberSequence.new({
-    NumberSequenceKeypoint.new(
-        0,
-        0
-    ),
-
-    NumberSequenceKeypoint.new(
-        0.15,
-        0.35
-    ),
-
-    NumberSequenceKeypoint.new(
-        0.35,
-        0.72
-    ),
-
-    NumberSequenceKeypoint.new(
-        0.5,
-        1
-    ),
-
-    NumberSequenceKeypoint.new(
-        0.65,
-        0.72
-    ),
-
-    NumberSequenceKeypoint.new(
-        0.85,
-        0.35
-    ),
-
-    NumberSequenceKeypoint.new(
-        1,
-        0
-    )
+GradientX.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0),
+    NumberSequenceKeypoint.new(0.18, 0.50),
+    NumberSequenceKeypoint.new(0.38, 0.90),
+    NumberSequenceKeypoint.new(0.50, 1),
+    NumberSequenceKeypoint.new(0.62, 0.90),
+    NumberSequenceKeypoint.new(0.82, 0.50),
+    NumberSequenceKeypoint.new(1, 0)
 })
 
-EdgeGradient.Rotation = 0
-EdgeGradient.Parent = Overlay
+GradientX.Rotation = 0
+GradientX.Parent = Overlay
 
 
 --==================================================
---// ADD SECOND GRADIENT
---// MEMBUAT TEPI LEBIH TERASA
+-- VERTICAL EDGE GRADIENT
 --==================================================
 
-local EdgeGradient2 = Instance.new("UIGradient")
+local GradientY = Instance.new("UIGradient")
 
-EdgeGradient2.Color = ColorSequence.new({
+GradientY.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(
         0,
         Color3.fromRGB(255, 0, 0)
@@ -1096,65 +1064,48 @@ EdgeGradient2.Color = ColorSequence.new({
     )
 })
 
-EdgeGradient2.Transparency = NumberSequence.new({
-    NumberSequenceKeypoint.new(
-        0,
-        0.15
-    ),
-
-    NumberSequenceKeypoint.new(
-        0.25,
-        0.65
-    ),
-
-    NumberSequenceKeypoint.new(
-        0.5,
-        1
-    ),
-
-    NumberSequenceKeypoint.new(
-        0.75,
-        0.65
-    ),
-
-    NumberSequenceKeypoint.new(
-        1,
-        0.15
-    )
+GradientY.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0),
+    NumberSequenceKeypoint.new(0.18, 0.50),
+    NumberSequenceKeypoint.new(0.38, 0.90),
+    NumberSequenceKeypoint.new(0.50, 1),
+    NumberSequenceKeypoint.new(0.62, 0.90),
+    NumberSequenceKeypoint.new(0.82, 0.50),
+    NumberSequenceKeypoint.new(1, 0)
 })
 
-EdgeGradient2.Rotation = 90
-EdgeGradient2.Parent = Overlay
+GradientY.Rotation = 90
+GradientY.Parent = Overlay
 
 
 --==================================================
---// RED FLASH
+-- BLINK OVERLAY
 --==================================================
 
-local RedFlash = Instance.new("Frame")
+local Blink = Instance.new("Frame")
 
-RedFlash.Name = "RedFlash"
+Blink.Name = "HealthBlink"
 
-RedFlash.Size =
+Blink.Size =
     UDim2.fromScale(1, 1)
 
-RedFlash.Position =
+Blink.Position =
     UDim2.fromScale(0, 0)
 
-RedFlash.BackgroundColor3 =
+Blink.BackgroundColor3 =
     Color3.fromRGB(255, 0, 0)
 
-RedFlash.BackgroundTransparency = 1
+Blink.BackgroundTransparency = 1
 
-RedFlash.BorderSizePixel = 0
+Blink.BorderSizePixel = 0
 
-RedFlash.ZIndex = 20
+Blink.ZIndex = 20
 
-RedFlash.Parent = LowHealthGui
+Blink.Parent = Gui
 
 
 --==================================================
---// DEATH SCREEN
+-- DEATH SCREEN
 --==================================================
 
 local DeathScreen = Instance.new("Frame")
@@ -1176,11 +1127,11 @@ DeathScreen.BorderSizePixel = 0
 
 DeathScreen.ZIndex = 100
 
-DeathScreen.Parent = LowHealthGui
+DeathScreen.Parent = Gui
 
 
 --==================================================
---// BLUR
+-- BLUR
 --==================================================
 
 local Blur = Instance.new("BlurEffect")
@@ -1194,14 +1145,30 @@ Blur.Parent = Lighting
 
 
 --==================================================
---// HIDE EFFECTS
+-- OVERLAY STRENGTH
+--==================================================
+
+local function SetOverlay(Transparency)
+
+    Overlay.BackgroundTransparency =
+        math.clamp(
+            Transparency,
+            0,
+            1
+        )
+
+end
+
+
+--==================================================
+-- RESET
 --==================================================
 
 local function ResetEffects()
 
-    Overlay.BackgroundTransparency = 1
+    SetOverlay(1)
 
-    RedFlash.BackgroundTransparency = 1
+    Blink.BackgroundTransparency = 1
 
     DeathScreen.BackgroundTransparency = 1
 
@@ -1209,22 +1176,23 @@ local function ResetEffects()
 
     DeathRunning = false
 
-    if CurrentHumanoid
-        and CurrentHumanoid.Parent then
+    if Humanoid
+        and Humanoid.Parent then
 
-        CurrentHumanoid.WalkSpeed =
+        Humanoid.WalkSpeed =
             NormalWalkSpeed
+
     end
 end
 
 
 --==================================================
---// DEATH EFFECT
---// RED -> BLACK
---// 0.5 SECOND
+-- DEATH EFFECT
+-- RED FULL -> BLACK
+-- 0.5 SECOND
 --==================================================
 
-local function PlayDeathEffect()
+local function DeathEffect()
 
     if DeathRunning then
         return
@@ -1232,9 +1200,8 @@ local function PlayDeathEffect()
 
     DeathRunning = true
 
-    Overlay.BackgroundTransparency = 1
-    RedFlash.BackgroundTransparency = 1
-
+    SetOverlay(1)
+    Blink.BackgroundTransparency = 1
     Blur.Size = 0
 
 
@@ -1246,12 +1213,14 @@ local function PlayDeathEffect()
     DeathScreen.BackgroundTransparency = 0
 
 
-    -- FADE TO BLACK
+    -- RED -> BLACK
 
     local StartTime = os.clock()
     local Duration = 0.5
 
-    while os.clock() - StartTime < Duration do
+    while
+        os.clock() - StartTime < Duration
+    do
 
         local Progress =
             math.clamp(
@@ -1271,6 +1240,7 @@ local function PlayDeathEffect()
             )
 
         RunService.RenderStepped:Wait()
+
     end
 
 
@@ -1278,22 +1248,23 @@ local function PlayDeathEffect()
         Color3.fromRGB(0, 0, 0)
 
     DeathScreen.BackgroundTransparency = 0
+
 end
 
 
 --==================================================
---// CHARACTER SETUP
+-- CHARACTER SETUP
 --==================================================
 
 local function SetupCharacter(Character)
 
-    local Humanoid =
+    local NewHumanoid =
         Character:WaitForChild("Humanoid")
 
-    CurrentHumanoid = Humanoid
+    Humanoid = NewHumanoid
 
     NormalWalkSpeed =
-        Humanoid.WalkSpeed
+        NewHumanoid.WalkSpeed
 
     DeathRunning = false
 
@@ -1301,15 +1272,22 @@ local function SetupCharacter(Character)
 
 
     if HealthConnection then
+
         HealthConnection:Disconnect()
+
         HealthConnection = nil
+
     end
 
 
     HealthConnection =
         RunService.Heartbeat:Connect(function()
 
-        if not LowHealthEnabled then
+        --==============================================
+        -- DISABLED
+        --==============================================
+
+        if not Enabled then
 
             ResetEffects()
 
@@ -1336,17 +1314,17 @@ local function SetupCharacter(Character)
         end
 
 
-        --==================================================
-        --// DEATH
-        --==================================================
+        --==============================================
+        -- DEAD
+        --==============================================
 
         if Health <= 0 then
 
             if not DeathRunning then
 
-                task.spawn(function()
-                    PlayDeathEffect()
-                end)
+                task.spawn(
+                    DeathEffect
+                )
 
             end
 
@@ -1363,44 +1341,38 @@ local function SetupCharacter(Character)
             Health / MaxHealth
 
 
-        --==================================================
-        --// >= 35%
-        --// NO OVERLAY
-        --==================================================
+        --==============================================
+        -- DEFAULT
+        --==============================================
 
-        if Percent >= 0.35 then
-
-            Overlay.BackgroundTransparency = 1
-            RedFlash.BackgroundTransparency = 1
-            Blur.Size = 0
-
-            Humanoid.WalkSpeed =
-                NormalWalkSpeed
-        end
+        local OverlayTransparency = 1
+        local SpeedMultiplier = 1
+        local BlurSize = 0
 
 
-        --==================================================
-        --// < 35%
-        --// HEALTH OVERLAY 10%
-        --==================================================
+        --==============================================
+        -- BELOW 35%
+        -- RED EDGE 10%
+        --==============================================
 
         if Percent < 0.35 then
 
-            Overlay.BackgroundTransparency = 0.90
+            OverlayTransparency = 0.90
 
         end
 
 
-        --==================================================
-        --// < 25%
-        --// OVERLAY 25%
-        --// RED BLINK 1.7s
-        --// SPEED +10%
-        --==================================================
+        --==============================================
+        -- BELOW 25%
+        -- RED EDGE 25%
+        -- BLINK 1.7s
+        -- SPEED +10%
+        --==============================================
 
         if Percent < 0.25 then
 
-            Overlay.BackgroundTransparency = 0.75
+            OverlayTransparency = 0.75
+            SpeedMultiplier = 1.10
 
 
             local Pulse =
@@ -1414,50 +1386,53 @@ local function SetupCharacter(Character)
                 ) / 2
 
 
-            RedFlash.BackgroundTransparency =
+            -- Blink hanya menambah efek.
+            -- Overlay utama tetap menyala.
+
+            Blink.BackgroundTransparency =
                 0.80 +
                 ((1 - Pulse) * 0.20)
 
-
-            Humanoid.WalkSpeed =
-                NormalWalkSpeed * 1.10
-
         else
 
-            RedFlash.BackgroundTransparency = 1
+            Blink.BackgroundTransparency = 1
 
         end
 
 
-        --==================================================
-        --// < 10%
-        --// OVERLAY 50%
-        --// BLUR 35
-        --// SPEED +50%
-        --==================================================
+        --==============================================
+        -- BELOW 10%
+        -- RED EDGE 50%
+        -- BLUR 35
+        -- SPEED +50%
+        --==============================================
 
         if Percent < 0.10 then
 
-            Overlay.BackgroundTransparency = 0.50
-
-            Blur.Size = 35
-
-            Humanoid.WalkSpeed =
-                NormalWalkSpeed * 1.50
+            OverlayTransparency = 0.50
+            BlurSize = 35
+            SpeedMultiplier = 1.50
 
         end
 
 
-        --==================================================
-        --// < 5%
-        --// FAST BLINK 0.75s
-        --// BLUR 85
-        --// SPEED +150%
-        --==================================================
+        --==============================================
+        -- BELOW 5%
+        -- RED LEBIH TEBAL
+        -- FAST BLINK 0.75s
+        -- BLUR 85
+        -- SPEED +150%
+        --==============================================
 
         if Percent < 0.05 then
 
-            Overlay.BackgroundTransparency = 0.50
+            -- Lebih tebal dari 10% HP
+            OverlayTransparency = 0.30
+
+            BlurSize = 85
+
+            -- +150% = 2.5x normal
+            SpeedMultiplier = 2.50
 
 
             local FastPulse =
@@ -1471,26 +1446,35 @@ local function SetupCharacter(Character)
                 ) / 2
 
 
-            RedFlash.BackgroundTransparency =
-                0.80 +
-                ((1 - FastPulse) * 0.20)
+            Blink.BackgroundTransparency =
+                0.65 +
+                ((1 - FastPulse) * 0.35)
 
-
-            Blur.Size = 85
-
-
-            -- +150% = 2.5x normal
-
-            Humanoid.WalkSpeed =
-                NormalWalkSpeed * 2.50
         end
 
+
+        --==============================================
+        -- APPLY SETTING SETIAP FRAME
+        --==============================================
+
+        SetOverlay(
+            OverlayTransparency
+        )
+
+        Blur.Size =
+            BlurSize
+
+        Humanoid.WalkSpeed =
+            NormalWalkSpeed
+            * SpeedMultiplier
+
     end)
+
 end
 
 
 --==================================================
---// CURRENT CHARACTER
+-- CURRENT CHARACTER
 --==================================================
 
 if LocalPlayer.Character then
@@ -1504,7 +1488,7 @@ end
 
 
 --==================================================
---// RESPAWN
+-- RESPAWN
 --==================================================
 
 LocalPlayer.CharacterAdded:Connect(
@@ -1520,7 +1504,7 @@ LocalPlayer.CharacterAdded:Connect(
 
 
 --==================================================
---// MAIN TAB
+-- MAIN TAB
 --==================================================
 
 MainTab:CreateSection(
@@ -1536,10 +1520,12 @@ MainTab:CreateToggle({
 
     Callback = function(Value)
 
-        LowHealthEnabled = Value
+        Enabled = Value
 
         if not Value then
+
             ResetEffects()
+
         end
 
     end,
