@@ -88,7 +88,7 @@ MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "+ Visualizer thingy\n\n+ Display Thingy (auto)",
-    Content = "ill let anyone upload my script if i got perm ban\n\n make the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
+    Content = "Ah \n\nill let anyone upload my script if i got perm ban\n\n make the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
 })
 
 local MainTab = Window:CreateTab("Shop", nil)
@@ -1541,7 +1541,7 @@ MainTab:CreateToggle({
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local MAX_DISTANCE = 100
+local MAX_DISTANCE = 250
 local UPDATE_RATE = 0.1
 local MORPH_CHECK_RATE = 0.5
 
@@ -1668,36 +1668,8 @@ end
 --==================================================
 
 local function GetOffset(Character)
-
-    local Success, BoxCFrame, BoxSize =
-        pcall(function()
-
-            return Character:GetBoundingBox()
-
-        end)
-
-
-    if Success and BoxSize then
-
-        return Vector3.new(
-            math.max(
-                BoxSize.X * 0.5 + 2,
-                3
-            ),
-            0,
-            0
-        )
-
-    end
-
-
-    return Vector3.new(
-        3,
-        0,
-        0
-    )
+    return Vector3.new(0, 0, 0)
 end
-
 
 --==================================================
 --// REMOVE DISPLAY
