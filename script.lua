@@ -901,22 +901,28 @@ MainTab:CreateToggle({
 
 })
 
---// WAVE COLOR
-local WaveColor = Color3.fromRGB(255, 0, 0)
+--==================================================
+--// COLOR PICKER
+--==================================================
 
 MainTab:CreateColorPicker({
-    Name = "Wave Color",
-    Color = WaveColor,
-    Callback = function(Color)
-        WaveColor = Color
 
-        -- Update warna semua bar wave
-        for _, Bar in ipairs(WaveBars) do
-            if Bar then
-                Bar.BackgroundColor3 = Color
-            end
+    Name = "Visualizer Color",
+
+    Color = VisualizerColor,
+
+    Callback = function(Value)
+
+        VisualizerColor = Value
+
+        for _, Bar in ipairs(Bars) do
+
+            Bar.BackgroundColor3 = Value
+
         end
+
     end,
+
 })
 
 --==================================================
