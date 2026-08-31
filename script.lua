@@ -1453,7 +1453,8 @@ local function SetupCharacter(Character)
         --==============================================
 
         local OverlayTransparency = 1
-        local BlurSize = 0
+        local BlurSize = -5
+		SpeedMultiplier = 1
 
 		--==============================================
         -- BELOW 65%
@@ -1478,7 +1479,6 @@ local function SetupCharacter(Character)
 
             OverlayTransparency = 0.65
 			BlurSize = 5
-			SpeedMultiplier = 1
 
         end
 
