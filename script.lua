@@ -1396,6 +1396,90 @@ local function SetupCharacter(Character)
         local SpeedMultiplier = 1
         local BlurSize = 0
 
+		--==============================================
+        -- BELOW 65%
+        -- RED EDGE 10%
+        --==============================================
+
+        if Percent < 0.65 then
+
+            OverlayTransparency = 0.75
+			BlurSize = 3
+
+        end
+
+			
+
+		--==============================================
+        -- BELOW 60%
+        -- RED EDGE 10%
+        --==============================================
+
+        if Percent < 0.60 then
+
+            OverlayTransparency = 0.65
+			BlurSize = 5
+
+        end
+
+			
+
+		--==============================================
+        -- BELOW 55%
+        -- RED EDGE 10%
+        --==============================================
+
+        if Percent < 0.55 then
+
+            OverlayTransparency = 0.55
+			BlurSize = 6
+
+        end
+
+			
+
+		--==============================================
+        -- BELOW 50%
+        -- RED EDGE 10%
+        --==============================================
+
+        if Percent < 0.50 then
+
+            OverlayTransparency = 0.50
+			BlurSize = 7
+
+        end
+
+			
+
+		--==============================================
+        -- BELOW 45%
+        -- RED EDGE 10%
+        --==============================================
+
+        if Percent < 0.45 then
+
+            OverlayTransparency = 0.45
+			BlurSize = 8
+
+        end
+
+			
+
+		--==============================================
+        -- BELOW 40%
+        -- RED EDGE 10%
+        --==============================================
+
+        if Percent < 0.40 then
+
+            OverlayTransparency = 0.40
+			BlurSize = 9
+
+        end
+
+			
+
 
         --==============================================
         -- BELOW 35%
