@@ -124,6 +124,27 @@ Event:FireServer(
 end,
 })
 
+local Button = MainTab:CreateButton({   Name = "Buy Speaker (750 money)(weak)",
+   Callback = function()
+
+
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Call Speakers"
+)
+end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Buy Bloxxer Cannon (3000 money)",
+   Callback = function()
+
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Call Bloxxer Cannon"
+)
+end,
+})
 
 local MainSection = MainTab:CreateSection("shop set (if not use the right unit it bug)")
 
@@ -175,32 +196,7 @@ local Button = MainTab:CreateButton({
     end,
 })
 
-local MainTab = Window:CreateTab("Main👍", nil)
-local MainSection = MainTab:CreateSection("buying thing🧿")
-
-local Button = MainTab:CreateButton({
-   Name = "Buy Speaker (750 money)(weak)",
-   Callback = function()
-
-
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Call Speakers"
-)
-end,
-})
-
-local Button = MainTab:CreateButton({
-   Name = "Buy Bloxxer Cannon (3000 money)",
-   Callback = function()
-
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Call Bloxxer Cannon"
-)
-end,
-})
-
+local MainTab = Window:CreateTab("Teleport", nil)
 local MainSection = MainTab:CreateSection("Teleport🤔")
 
 local Button = MainTab:CreateButton({
@@ -244,6 +240,7 @@ local Button = MainTab:CreateButton({
    end,
 })
 
+local MainTab = Window:CreateTab("Auto Thing🔫", nil)
 local MainSection = MainTab:CreateSection("Auto Thing🔫")
 
 local Running = false
@@ -437,6 +434,59 @@ MainTab:CreateToggle({
 
                         if rocketlaunchersEvent then
                             rocketlaunchersEvent:FireServer()
+                        end
+                    end
+                end
+
+                task.wait(0.1)
+            end
+        end)
+    end,
+})
+
+local StompRunning = false
+
+MainTab:CreateToggle({
+    Name = "Auto Stomp",
+    CurrentValue = false,
+    Flag = "AutoStomp",
+
+    Callback = function(Value)
+        StompRunning = Value
+
+        if not Value then
+            return
+        end
+
+        task.spawn(function()
+            local Players = game:GetService("Players")
+            local player = Players.LocalPlayer
+
+            while StompRunning do
+                local character = player.Character
+
+                if character then
+                    local abilities = character:FindFirstChild("Abilities")
+
+                    if abilities then
+                        local stomp = abilities:FindFirstChild("Stomp")
+                        local L = abilities:FindFirstChild("L")
+                        local R = abilities:FindFirstChild("R")
+
+                        local stompEvent = stomp and stomp:FindFirstChild("RemoteEvent")
+                        local LEvent = L and L:FindFirstChild("RemoteEvent")
+                        local REvent = R and R:FindFirstChild("RemoteEvent")
+
+                        if stompEvent then
+                            stompEvent:FireServer()
+                        end
+
+                        if LEvent then
+                            LEvent:FireServer()
+                        end
+
+                        if REvent then
+                            REvent:FireServer()
                         end
                     end
                 end
