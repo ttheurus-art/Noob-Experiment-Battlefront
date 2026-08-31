@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V3.3🔥",
+   Name = "Noob Experiment: Battlefront V3.4🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By 13 Years Old Kid",
    LoadingSubtitle = "Lil BrickBattler",
@@ -466,7 +466,6 @@ MainTab:CreateToggle({
                 local character = player.Character
 
                 if character then
-
                     local abilities =
                         character:FindFirstChild("Abilities")
 
@@ -474,11 +473,12 @@ MainTab:CreateToggle({
                         character:FindFirstChild("Animate")
 
                     if abilities then
-                        local stomp =
+                        local stompAbility =
                             abilities:FindFirstChild("Stomp")
 
                         local stompEvent =
-                            stomp and stomp:FindFirstChild("RemoteEvent")
+                            stompAbility
+                            and stompAbility:FindFirstChild("RemoteEvent")
 
                         if stompEvent then
                             stompEvent:FireServer()
@@ -490,8 +490,13 @@ MainTab:CreateToggle({
                             animate:FindFirstChild("Stomp")
 
                         if stomp then
-                            stomp:FireServer("L")
-                            stomp:FireServer("R")
+                            task.spawn(function()
+                                stomp:FireServer("L")
+                            end)
+
+                            task.spawn(function()
+                                stomp:FireServer("R")
+                            end)
                         end
                     end
                 end
