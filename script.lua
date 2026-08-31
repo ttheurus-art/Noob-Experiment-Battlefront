@@ -88,7 +88,7 @@ MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "information and tips",
-    Content = "ill let anyone upload my script if i got perm ban\n\n +Visual Stats Other (no money)\n +update(again) Low Health Visual\n +Update Wave Visualizer\n +Added New Music\n+Added Auto Stomp\n@Change Thing\n@fix Auto Stomp\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
+    Content = "ill let anyone upload my script if i got perm ban\n\n +Visual Stats Other (no money)\n +update(again) Low Health Visual\n +Update Wave Visualizer\n +Added New Music\n+Added Auto Stomp (Little Op With Tbb)\n@Change Thing\n@fix Auto Stomp\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
 })
 
 local MainTab = Window:CreateTab("Shop", nil)
@@ -1478,6 +1478,7 @@ local function SetupCharacter(Character)
 
             OverlayTransparency = 0.65
 			BlurSize = 5
+			SpeedMultiplier = 1
 
         end
 
