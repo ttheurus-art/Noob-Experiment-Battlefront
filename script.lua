@@ -1454,14 +1454,7 @@ local function SetupCharacter(Character)
 
         local OverlayTransparency = 1
         local BlurSize = -5
-		-- Speed mengikuti game/skill
-if SpeedMultiplier == 1 then
-    -- Jangan ubah Humanoid.WalkSpeed.
-    -- Game/skill seperti Jetpack bebas mengaturnya.
-else
-    Humanoid.WalkSpeed = NormalWalkSpeed * SpeedMultiplier
-			end
-
+		
 		--==============================================
         -- BELOW 65%
         -- RED EDGE 10%
@@ -1564,14 +1557,12 @@ else
         -- BELOW 25%
         -- RED EDGE 25%
         -- BLINK 1.7s
-        -- SPEED +100%
         --==============================================
 
         if Percent < 0.25 then
 
             OverlayTransparency = 0.25
 			BlurSize = 25
-            SpeedMultiplier = 2
 
 
             local Pulse =
@@ -1603,14 +1594,12 @@ else
         -- BELOW 10%
         -- RED EDGE 50%
         -- BLUR 35
-        -- SPEED +150%
         --==============================================
 
         if Percent < 0.10 then
 
             OverlayTransparency = 0.10
             BlurSize = 55
-            SpeedMultiplier = 2.50
 
         end
 
@@ -1620,7 +1609,6 @@ else
         -- RED LEBIH TEBAL
         -- FAST BLINK 0.75s
         -- BLUR 85
-        -- SPEED +250%
         --==============================================
 
         if Percent < 0.05 then
@@ -1629,9 +1617,6 @@ else
             OverlayTransparency = 0.05
 
             BlurSize = 85
-
-            -- +150% = 3.5x normal
-            SpeedMultiplier = 3.50
 
 
             local FastPulse =
