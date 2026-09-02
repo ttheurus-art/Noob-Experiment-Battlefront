@@ -6,8 +6,8 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Noob Experiment: Battlefront V3.4🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "Everything Made By 13 Years Old Kid",
-   LoadingSubtitle = "Lil BrickBattler",
+   LoadingTitle = "Everything Made By ?? Years Old Kid",
+   LoadingSubtitle = "???",
    Theme = "Ocean", -- Check https://docs.sirius.menu/rayfield/configuration/themes
 
    DisableRayfieldPrompts = false,
@@ -124,16 +124,10 @@ Event:FireServer(
 end,
 })
 
+local MainSection = MainTab:CreateSection("The Op item")
+
 local Button = MainTab:CreateButton({   Name = "Buy Speaker (750 money)(weak)",
    Callback = function()
-
-
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Call Speakers"
-)
-end,
-})
 
 local Button = MainTab:CreateButton({
    Name = "Buy Bloxxer Cannon (3000 money)",
@@ -142,6 +136,14 @@ local Button = MainTab:CreateButton({
 local Event = game:GetService("ReplicatedStorage").ItemsEvent
 Event:FireServer(
     "Call Bloxxer Cannon"
+)
+end,
+})
+
+
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Call Speakers"
 )
 end,
 })
