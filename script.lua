@@ -88,7 +88,7 @@ MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "information and tips",
-    Content = "ill let anyone upload my script if i got perm ban\n\n +Visual Stats Other (no money)\n +update(again) Low Health Visual\n +Update Wave Visualizer\n +Added New Music\n+Added Auto Stomp (Little Op With Tbb)\n@Change Thing :D\n@fix Auto Stomp\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
+    Content = "I make this script because I want to (I got banned in main)\n\n +Visual Stats Other (no money)\n +update(again) Low Health Visual\n +Update Wave Visualizer\n +Added New Music\n+Added Auto Stomp (Little Op With Tbb)\n@Change Thing :D\n@fix Auto Stomp\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
 })
 
 local MainTab = Window:CreateTab("Shop", nil)
@@ -126,9 +126,6 @@ end,
 
 local MainSection = MainTab:CreateSection("The Op item")
 
-local Button = MainTab:CreateButton({   Name = "Buy Speaker (750 money)(weak)",
-   Callback = function()
-
 local Button = MainTab:CreateButton({
    Name = "Buy Bloxxer Cannon (3000 money)",
    Callback = function()
@@ -140,6 +137,8 @@ Event:FireServer(
 end,
 })
 
+local Button = MainTab:CreateButton({   Name = "Buy Speaker (750 money)(weak)",
+   Callback = function()
 
 local Event = game:GetService("ReplicatedStorage").ItemsEvent
 Event:FireServer(
@@ -151,7 +150,7 @@ end,
 local MainSection = MainTab:CreateSection("shop set (if not use the right unit it bug)")
 
 local Button = MainTab:CreateButton({
-    Name = "Buy Blaster (250 money)",
+    Name = "Buy Blaster (500 money)",
 
     Callback = function()
 
@@ -175,7 +174,7 @@ local Button = MainTab:CreateButton({
 })
 
 local Button = MainTab:CreateButton({
-    Name = "Buy Jetpack (500 money or less idk)",
+    Name = "Buy Jetpack (100 money or less idk)",
 
     Callback = function()
 
@@ -187,7 +186,7 @@ local Button = MainTab:CreateButton({
 })
 
 local Button = MainTab:CreateButton({
-    Name = "Buy Bruh (250 money)",
+    Name = "Buy Bruh (50 money)",
 
     Callback = function()
 
