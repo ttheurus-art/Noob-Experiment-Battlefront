@@ -88,10 +88,27 @@ MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "information and tips",
-    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox\n\n +Visual Stats Other (no money)\n +update(again) Low Health Visual\n +Update Wave Visualizer\n +Added New Music\n+Added Auto Stomp (Little Op With Tbb)\n@Change Thing :D\n@fix Auto Stomp\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
+    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox\n\n +My Avatar Photo\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
 })
 
- 
+ -- Avatar Photo
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local gui = player:WaitForChild("PlayerGui")
+
+local ImageGui = Instance.new("ScreenGui")
+ImageGui.Name = "AvatarPhoto"
+ImageGui.ResetOnSpawn = false
+ImageGui.Parent = gui
+
+local Image = Instance.new("ImageLabel")
+Image.Name = "Avatar"
+Image.Size = UDim2.new(0, 180, 0, 180)
+Image.BackgroundTransparency = 1
+Image.Image = "rbxassetid://95199807152542"
+Image.ScaleType = Enum.ScaleType.Fit
+Image.Parent = ImageGui
 
 local MainTab = Window:CreateTab("Shop", nil)
 local MainSection = MainTab:CreateSection("You can buy thing")
