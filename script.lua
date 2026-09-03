@@ -88,10 +88,9 @@ MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "information and tips",
-    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox\n\n +My Avatar Photo\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe zone on main👍 then use Hook and wait a little until it fall to the void"
-})
+    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox\n\n +My Avatar Photo\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe Area on Teleport👍 then use Hook and wait a little until it got Vaporized by THE VOID" 
 
- task.defer(function()
+task.defer(function()
     local CoreGui = game:GetService("CoreGui")
 
     local paragraph
@@ -104,22 +103,42 @@ MainTab:CreateParagraph({
     end
 
     if not paragraph then
-        warn("Paragraph 'information and tips' tidak ditemukan")
+        warn("information and tips tidak ditemukan")
         return
     end
 
+    local page = paragraph.Parent
+
     local Image = Instance.new("ImageLabel")
     Image.Name = "AvatarImage"
-    Image.Size = UDim2.new(1, -10, 0, 180)
     Image.BackgroundTransparency = 1
+    Image.Size = UDim2.new(1, -10, 0, 180)
     Image.Image = "rbxassetid://95199807152542"
     Image.ScaleType = Enum.ScaleType.Fit
     Image.LayoutOrder = paragraph.LayoutOrder + 1
+    Image.Parent = page
 
-    -- Masuk ke container TAB yang sama
-    Image.Parent = paragraph.Parent
+    -- Paksa container mengikuti ukuran semua isinya
+    local layout = page:FindFirstChildOfClass("UIListLayout")
+    if layout then
+        layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            page.CanvasSize = UDim2.new(
+                0,
+                0,
+                0,
+                layout.AbsoluteContentSize.Y + 10
+            )
+        end)
+
+        page.CanvasSize = UDim2.new(
+            0,
+            0,
+            0,
+            layout.AbsoluteContentSize.Y + 10
+        )
+    end
 end)
-
+		
 local MainTab = Window:CreateTab("Shop", nil)
 local MainSection = MainTab:CreateSection("You can buy thing")
 
