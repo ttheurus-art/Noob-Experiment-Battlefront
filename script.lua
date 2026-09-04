@@ -1674,10 +1674,6 @@ elseif Blur.Size > BlurSize then
     Blur.Size = math.max(Blur.Size - 1, BlurSize)
 			end
 
-        Humanoid.WalkSpeed =
-            NormalWalkSpeed
-            * SpeedMultiplier
-
     end)
 
 end
