@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V3.4.2?🔥",
+   Name = "Noob Experiment: Battlefront V3.6🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By ?? Years Old Kid",
    LoadingSubtitle = "???",
@@ -88,56 +88,8 @@ MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "information and tips",
-    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox\n\n +My Avatar Photo\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe Area on Teleport👍 then use Hook and wait a little until it got Vaporized by THE VOID" 
+    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox, and yeah 2x2x2x2, it's me, I'm in your friend list\n\n +Special Window For Titan Noob\n +Added Repair On Shop\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe Area on Teleport👍 then use Hook and wait a little until it got Vaporized by THE VOID" 
 	})
-task.defer(function()
-    local CoreGui = game:GetService("CoreGui")
-
-    local paragraph
-
-    for _, obj in ipairs(CoreGui:GetDescendants()) do
-        if obj:IsA("TextLabel") and obj.Text == "information and tips" then
-            paragraph = obj.Parent
-            break
-        end
-    end
-
-    if not paragraph then
-        warn("information and tips tidak ditemukan")
-        return
-    end
-
-    local page = paragraph.Parent
-
-    local Image = Instance.new("ImageLabel")
-    Image.Name = "AvatarImage"
-    Image.BackgroundTransparency = 1
-    Image.Size = UDim2.new(1, -10, 0, 180)
-    Image.Image = "rbxassetid://95199807152542"
-    Image.ScaleType = Enum.ScaleType.Fit
-    Image.LayoutOrder = paragraph.LayoutOrder + 1
-    Image.Parent = page
-
-    -- Paksa container mengikuti ukuran semua isinya
-    local layout = page:FindFirstChildOfClass("UIListLayout")
-    if layout then
-        layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            page.CanvasSize = UDim2.new(
-                0,
-                0,
-                0,
-                layout.AbsoluteContentSize.Y + 10
-            )
-        end)
-
-        page.CanvasSize = UDim2.new(
-            0,
-            0,
-            0,
-            layout.AbsoluteContentSize.Y + 10
-        )
-    end
-end)
 		
 local MainTab = Window:CreateTab("Shop", nil)
 local MainSection = MainTab:CreateSection("You can buy thing")
@@ -195,7 +147,29 @@ Event:FireServer(
 end,
 })
 
-local MainSection = MainTab:CreateSection("shop set (if not use the right unit it bug)")
+local MainSection = MainTab:CreateSection("Repair Up")
+
+local Button = MainTab:CreateButton({   Name = "Repair For Titan Noob And Titan Noob 1.5 (only if you lose a life)",
+   Callback = function()
+
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Repair"
+)
+end,
+})
+
+local Button = MainTab:CreateButton({   Name = "Special Repair For Titan Brickbattler (only on Tired State or already use second life)",
+   Callback = function()
+
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Special Repair"
+)
+end,
+})
+
+local MainSection = MainTab:CreateSection("Fucking Useless")
 
 local Button = MainTab:CreateButton({
     Name = "Buy Blaster (500 money)",
@@ -2458,3 +2432,36 @@ task.spawn(function()
     end
 
 end)
+
+local MainTab = Window:CreateTab("Special For Titan Noob, NO 1.5 / ASTRO", nil)
+local MainSection = MainTab:CreateSection("Get Items")
+
+local Button = MainTab:CreateButton({   Name = "Get Astro Claw",
+   Callback = function()
+
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Titan Astro Claw"
+)
+end,
+})
+
+local Button = MainTab:CreateButton({   Name = "Get Laser Gun (Left Hand) (Cost 2500 money lol)",
+   Callback = function()
+
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Titan Laser Gun"
+)
+end,
+})
+
+local Button = MainTab:CreateButton({   Name = "Get Energy Sword",
+   Callback = function()
+
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Titan Energy Sword"
+)
+end,
+})
