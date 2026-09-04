@@ -2433,7 +2433,7 @@ task.spawn(function()
 
 end)
 
-local MainTab = Window:CreateTab("Special For Titan Noob, NO 1.5 / ASTRO", nil)
+local MainTab = Window:CreateTab("Special For Titan Noob", nil)
 local MainSection = MainTab:CreateSection("Get Items")
 
 local Button = MainTab:CreateButton({   Name = "Get Astro Claw",
