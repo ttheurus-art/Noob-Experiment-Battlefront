@@ -1385,9 +1385,6 @@ local function SetupCharacter(Character)
 
     Humanoid = NewHumanoid
 
-    NormalWalkSpeed =
-        NewHumanoid.WalkSpeed
-
     DeathRunning = false
 
     ResetEffects()
