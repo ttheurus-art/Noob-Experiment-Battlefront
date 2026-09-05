@@ -1306,7 +1306,6 @@ local function ResetEffects()
     DeathRunning = false
 
     end
-end
 
 
 --==================================================
