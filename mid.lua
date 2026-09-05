@@ -1094,7 +1094,6 @@ end
 local Enabled = false
 local Humanoid = nil
 
-local NormalWalkSpeed = 16
 local HealthConnection = nil
 
 local DeathRunning = false
@@ -1305,12 +1304,6 @@ local function ResetEffects()
     Blur.Size = 0
 
     DeathRunning = false
-
-    if Humanoid
-        and Humanoid.Parent then
-
-        Humanoid.WalkSpeed =
-            NormalWalkSpeed
 
     end
 end
