@@ -590,6 +590,19 @@ MainTab:CreateToggle({
     end,
 })
 
+MainTab:CreateToggle({
+    Name = "Auto Execute (for auto essence later)",
+    CurrentValue = false,
+    Flag = "AutoExecuteTeleport",
+    Callback = function(Value)
+        if Value and queue_on_teleport then
+            queue_on_teleport([[
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/script.lua"))()
+            ]])
+        end
+    end,
+})
+
 local MainTab = Window:CreateTab("Fun👁️", nil)
 local MainSection = MainTab:CreateSection("I dont know what I make")
 
