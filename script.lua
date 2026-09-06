@@ -417,7 +417,7 @@ MainTab:CreateToggle({
 						local rocketlauncher = abilities:FindFirstChild("Rocket Launcher")
 						local lasergun = abilities:FindFirstChild("Laser Gun")
 						local energylasergunleft = abilities:FindFirstChild("Energy Laser Gun Left")
-						local energylasergunRight = abilities:FindFirstChild("Energy Laser Gun Right")
+						local energylasergunright = abilities:FindFirstChild("Energy Laser Gun Right")
 						local corecannon = abilities:FindFirstChild("Core Cannon")
 
                         local blastersEvent = blasters and blasters:FindFirstChild("RemoteEvent")
