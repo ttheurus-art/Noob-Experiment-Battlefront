@@ -416,8 +416,8 @@ MainTab:CreateToggle({
                         local rocketlaunchers = abilities:FindFirstChild("Rocket Launchers")
 						local rocketlauncher = abilities:FindFirstChild("Rocket Launcher")
 						local lasergun = abilities:FindFirstChild("Laser Gun")
-						local energylasergunleft = abilities:FindFirstChild("Energy Laser Gun Left")
-						local energylasergunright = abilities:FindFirstChild("Energy Laser Gun Right")
+						local lasergunleft = abilities:FindFirstChild("Laser Gun Left")
+						local lasergunright = abilities:FindFirstChild("Laser Gun Right")
 						local corecannon = abilities:FindFirstChild("Core Cannon")
 
                         local blastersEvent = blasters and blasters:FindFirstChild("RemoteEvent")
@@ -427,20 +427,20 @@ MainTab:CreateToggle({
                         local rocketlaunchersEvent = rocketlaunchers and rocketlaunchers:FindFirstChild("RemoteEvent")
 						local rocketlauncherEvent = rocketlauncher and rocketlauncher:FindFirstChild("RemoteEvent")
 						local lasergunEvent = lasergun and lasergun:FindFirstChild("RemoteEvent")
-						local energylasergunrightEvent = energylasergunright and energylasergunright:FindFirstChild("RemoteEvent")
-						local energylasergunleftEvent = energylasergunleft and energylasergunleft:FindFirstChild("RemoteEvent")
+						local lasergunrightEvent = lasergunright and lasergunright:FindFirstChild("RemoteEvent")
+						local lasergunleftEvent = lasergunleft and lasergunleft:FindFirstChild("RemoteEvent")
 						local corecannonEvent = corecannon and corecannon:FindFirstChild("RemoteEvent")
 
                         if blastersEvent then
                             blastersEvent:FireServer()
                         end
 
-						if energylasergunleftEvent then
-                            energylasergunleftEvent:FireServer()
+						if lasergunleftEvent then
+                            lasergunleftEvent:FireServer()
 						end
 
-						if energylasergunrightEvent then
-                            energylasergunrightEvent:FireServer()
+						if lasergunrightEvent then
+                            lasergunrightEvent:FireServer()
 						end
 
 						if corecannonEvent then
