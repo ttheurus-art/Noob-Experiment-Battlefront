@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V3.6🔥",
+   Name = "Noob Experiment: Battlefront V3.7🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Everything Made By ?? Years Old Kid",
    LoadingSubtitle = "???",
@@ -88,7 +88,7 @@ MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "information and tips",
-    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox, and yeah 2x2x2x2, it's me, I'm in your friend list\n\nSCRIPT GOT REVIVE\n\n +Special Window For Titan Noob\n +Added Repair On Shop\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe Area on Teleport👍 then use Hook and wait a little until it got Vaporized by THE VOID" 
+    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox, and yeah 2x2x2x2, it's me, I'm in your friend list\n\n +Special Window For Titan Noob\n +Added Repair On Shop\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe Area on Teleport👍 then use Hook and wait a little until it got Vaporized by THE VOID" 
 	})
 		
 local MainTab = Window:CreateTab("Shop", nil)
@@ -482,7 +482,7 @@ MainTab:CreateToggle({
 local StompRunning = false
 
 MainTab:CreateToggle({
-    Name = "Auto Stomp",
+    Name = "Auto Stomp (kinda op with tbb)",
     CurrentValue = false,
     Flag = "AutoStomp",
 
