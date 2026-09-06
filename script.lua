@@ -416,7 +416,9 @@ MainTab:CreateToggle({
                         local rocketlaunchers = abilities:FindFirstChild("Rocket Launchers")
 						local rocketlauncher = abilities:FindFirstChild("Rocket Launcher")
 						local lasergun = abilities:FindFirstChild("Laser Gun")
-						local energylasergunleft = abilities:FindFirstChild("Energy Laser Gun Right")
+						local energylasergunleft = abilities:FindFirstChild("Energy Laser Gun Left")
+						local energylasergunRight = abilities:FindFirstChild("Energy Laser Gun Right")
+						local corecannon = abilities:FindFirstChild("Core Cannon")
 
                         local blastersEvent = blasters and blasters:FindFirstChild("RemoteEvent")
                         local blasterEvent = blaster and blaster:FindFirstChild("RemoteEvent")
@@ -426,13 +428,23 @@ MainTab:CreateToggle({
 						local rocketlauncherEvent = rocketlauncher and rocketlauncher:FindFirstChild("RemoteEvent")
 						local lasergunEvent = lasergun and lasergun:FindFirstChild("RemoteEvent")
 						local energylasergunrightEvent = energylasergunright and energylasergunright:FindFirstChild("RemoteEvent")
+						local energylasergunleftEvent = energylasergunleft and energylasergunleft:FindFirstChild("RemoteEvent")
+						local corecannonEvent = corecannon and corecannon:FindFirstChild("RemoteEvent")
 
                         if blastersEvent then
                             blastersEvent:FireServer()
                         end
 
 						if energylasergunleftEvent then
+                            energylasergunleftEvent:FireServer()
+						end
+
+						if energylasergunrightEvent then
                             energylasergunrightEvent:FireServer()
+						end
+
+						if corecannonEvent then
+                            corecannonEvent:FireServer()
 						end
 
 						if lasergunEvent then
@@ -2431,7 +2443,17 @@ Event:FireServer(
 end,
 })
 
-local Button = MainTab:CreateButton({   Name = "Get Laser Gun (Left Hand) (Cost 2500 money lol)",
+local Button = MainTab:CreateButton({   Name = "Get Energy Sword",
+   Callback = function()
+
+local Event = game:GetService("ReplicatedStorage").ItemsEvent
+Event:FireServer(
+    "Titan Energy Sword"
+)
+end,
+})
+
+local Button = MainTab:CreateButton({   Name = "Get Laser Gun (Left Hand) (Cost 1000 money lol)",
    Callback = function()
 
 local Event = game:GetService("ReplicatedStorage").ItemsEvent
@@ -2441,12 +2463,12 @@ Event:FireServer(
 end,
 })
 
-local Button = MainTab:CreateButton({   Name = "Get Energy Sword",
+local Button = MainTab:CreateButton({   Name = "Get Laser Gun (Right Hand)",
    Callback = function()
 
 local Event = game:GetService("ReplicatedStorage").ItemsEvent
 Event:FireServer(
-    "Titan Energy Sword"
+    "Titan Laser Gun2"
 )
 end,
 })
