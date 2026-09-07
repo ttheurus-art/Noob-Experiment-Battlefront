@@ -88,7 +88,7 @@ MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "information and tips",
-    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox, and yeah 2x2x2x2, it's me, I'm in your friend list\n\n +Added Auto Select Difficult\n +Added Auto Select Map\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe Area on Teleport👍 then use Hook and wait a little until it got Vaporized by THE VOID\n\n Future Update:\n@Auto Farm Keys\n@Auto Farm Time Essence\n@Auto Choose Difficult\n@Auto Choose Map" 
+    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox, and yeah 2x2x2x2, it's me, I'm in your friend list\n\n +Added Auto Select Difficult\n +Added Auto Select Map\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe Area on Teleport👍 then use Hook and wait a little until it got Vaporized by THE VOID\n\n Future Update:\n@Auto Farm Keys\n@Auto Farm Time Essence" 
 	})
 		
 local MainTab = Window:CreateTab("Shop", nil)
@@ -596,7 +596,7 @@ local SelectedMode = "Easy"
 local VotedEnabled = false
 
 MainTab:CreateToggle({
-    Name = "Voted",
+    Name = "Auto Vote Mode / Difficult",
     CurrentValue = false,
     Flag = "Voted",
 
@@ -629,6 +629,7 @@ MainTab:CreateDropdown({
         "Nightmare",
         "Incident",
         "Endless",
+		"Boss Rush",
         "Sandbox"
     },
     CurrentOption = {"Easy"},
@@ -644,7 +645,7 @@ local SelectedMap = "Roblox Hq"
 local MapVotedEnabled = false
 
 MainTab:CreateToggle({
-    Name = "MapVoted",
+    Name = "Auto Vote Map",
     CurrentValue = false,
     Flag = "MapVoted",
 
@@ -686,6 +687,35 @@ MainTab:CreateDropdown({
         SelectedMap = Option[1]
     end,
 })
+
+local SkipVotedEnabled = false
+
+MainTab:CreateToggle({
+    Name = "Auto Skip Vote",
+    CurrentValue = false,
+    Flag = "SkipVoted",
+
+    Callback = function(Value)
+        SkipVotedEnabled = Value
+
+        if Value then
+            task.spawn(function()
+                while SkipVotedEnabled do
+                    local Votes = game:GetService("ReplicatedStorage"):FindFirstChild("Votes")
+                    local Event = Votes and Votes:FindFirstChild("SkipVoted")
+
+                    if Event then
+                        Event:FireServer("Yes")
+                    end
+
+                    task.wait(1)
+                end
+            end)
+        end
+    end,
+})
+
+local MainSection = MainTab:CreateSection("Auto Farm (not complete)")
 
 MainTab:CreateToggle({
     Name = "Auto Execute (for auto essence later)",
