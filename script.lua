@@ -6,8 +6,8 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Noob Experiment: Battlefront V3.9🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "The Best Ne:b Script",
-   LoadingSubtitle = "Theurus_The_Creator",
+   LoadingTitle = "The Best Noob Experiment: Battlefront",
+   LoadingSubtitle = "By: Theurus_The_Creator",
    Theme = "Ocean", -- Check https://docs.sirius.menu/rayfield/configuration/themes
 
    DisableRayfieldPrompts = false,
