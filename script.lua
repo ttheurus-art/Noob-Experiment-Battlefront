@@ -2616,66 +2616,89 @@ end,
 local MainTab = Window:CreateTab("Esp Thing", nil)
 local MainSection = MainTab:CreateSection("          ")
 
+local EnemyESPEnabled = false
+local EnemyESPColor = Color3.fromRGB(200, 0, 0)
+local EnemyHighlights = {}
 
-local ESPEnabled = false
-local ESPHighlights = {}
-
-local function addESP(enemy)
-    if not enemy:IsA("Model") or ESPHighlights[enemy] then
+local function addEnemyESP(enemy)
+    if not enemy:IsA("Model") or EnemyHighlights[enemy] then
         return
     end
 
     local highlight = Instance.new("Highlight")
     highlight.Name = "EnemyESP"
-    highlight.FillColor = Color3.fromRGB(200, 0, 0)
-    highlight.OutlineColor = Color3.fromRGB(200, 0, 0)
+    highlight.FillColor = EnemyESPColor
+    highlight.OutlineColor = EnemyESPColor
     highlight.FillTransparency = 0.7
-    highlight.OutlineTransparency = 0.65
+    highlight.OutlineTransparency = 0.5
     highlight.Adornee = enemy
     highlight.Parent = enemy
 
-    ESPHighlights[enemy] = highlight
+    EnemyHighlights[enemy] = highlight
 end
 
-local function removeESP()
-    for enemy, highlight in pairs(ESPHighlights) do
+local function removeEnemyESP()
+    for enemy, highlight in pairs(EnemyHighlights) do
         if highlight then
             highlight:Destroy()
         end
-        ESPHighlights[enemy] = nil
+        EnemyHighlights[enemy] = nil
+    end
+end
+
+local function updateEnemyESPColor()
+    for _, highlight in pairs(EnemyHighlights) do
+        if highlight then
+            highlight.FillColor = EnemyESPColor
+            highlight.OutlineColor = EnemyESPColor
+        end
     end
 end
 
 MainTab:CreateToggle({
-    Name = "Esp Enemy",
+    Name = "Eso Enemy,
     CurrentValue = false,
     Flag = "EnemyESP",
 
     Callback = function(Value)
-        ESPEnabled = Value
+        EnemyESPEnabled = Value
+
+        local Enemies = workspace:FindFirstChild("Enemies")
+
+        if not Enemies then
+            return
+        end
 
         if Value then
-            local Enemies = workspace:FindFirstChild("Enemies")
-
-            if Enemies then
-                for _, enemy in ipairs(Enemies:GetChildren()) do
-                    addESP(enemy)
-                end
-
-                Enemies.ChildAdded:Connect(function(enemy)
-                    if ESPEnabled then
-                        task.wait()
-                        addESP(enemy)
-                    end
-                end)
+            for _, enemy in ipairs(Enemies:GetChildren()) do
+                addEnemyESP(enemy)
             end
+
+            Enemies.ChildAdded:Connect(function(enemy)
+                if EnemyESPEnabled then
+                    task.wait()
+                    addEnemyESP(enemy)
+                end
+            end)
         else
-            removeESP()
+            removeEnemyESP()
         end
     end,
 })
 
+MainTab:CreateColorPicker({
+    Name = "Enemy ESP Color",
+    Color = Color3.fromRGB(200, 0, 0),
+    Flag = "EnemyESPColor",
+
+    Callback = function(Value)
+        EnemyESPColor = Value
+        updateEnemyESPColor()
+    end,
+})
+
 local AlliesESPEnabled = false
+local AlliesESPColor = Color3.fromRGB(0, 200, 55)
 local AlliesHighlights = {}
 
 local function addAlliesESP(summon)
@@ -2685,10 +2708,10 @@ local function addAlliesESP(summon)
 
     local highlight = Instance.new("Highlight")
     highlight.Name = "AlliesESP"
-    highlight.FillColor = Color3.fromRGB(0, 255, 55)
-    highlight.OutlineColor = Color3.fromRGB(0, 255, 55)
+    highlight.FillColor = AlliesESPColor
+    highlight.OutlineColor = AlliesESPColor
     highlight.FillTransparency = 0.7
-    highlight.OutlineTransparency = 0.65
+    highlight.OutlineTransparency = 0.5
     highlight.Adornee = summon
     highlight.Parent = summon
 
@@ -2704,6 +2727,15 @@ local function removeAlliesESP()
     end
 end
 
+local function updateAlliesESPColor()
+    for _, highlight in pairs(AlliesHighlights) do
+        if highlight then
+            highlight.FillColor = AlliesESPColor
+            highlight.OutlineColor = AlliesESPColor
+        end
+    end
+end
+
 MainTab:CreateToggle({
     Name = "Esp Allies",
     CurrentValue = false,
@@ -2713,6 +2745,7 @@ MainTab:CreateToggle({
         AlliesESPEnabled = Value
 
         local Summons = workspace:FindFirstChild("Summons")
+
         if not Summons then
             return
         end
@@ -2731,6 +2764,17 @@ MainTab:CreateToggle({
         else
             removeAlliesESP()
         end
+    end,
+})
+
+MainTab:CreateColorPicker({
+    Name = "Allies ESP Color",
+    Color = Color3.fromRGB(0, 200, 55),
+    Flag = "AlliesESPColor",
+
+    Callback = function(Value)
+        AlliesESPColor = Value
+        updateAlliesESPColor()
     end,
 })
 
