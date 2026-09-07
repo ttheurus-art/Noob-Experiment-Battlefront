@@ -2877,7 +2877,7 @@ local function setupPlayer(player)
 end
 
 MainTab:CreateToggle({
-    Name = "Esp Someone That Use This Script Like You",
+    Name = "Esp Someone That The Same Script(This)",
     CurrentValue = false,
     Flag = "XTREMEESP",
 
