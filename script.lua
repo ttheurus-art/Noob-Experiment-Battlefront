@@ -2788,4 +2788,121 @@ if Event then
     )
 end
 
+local Players = game:GetService("Players")
+
+local XTREMEESPEnabled = false
+local XTREMEESPHighlights = {}
+
+local function removeESP(player)
+    local highlight = XTREMEESPHighlights[player]
+
+    if highlight then
+        highlight:Destroy()
+        XTREMEESPHighlights[player] = nil
+    end
+end
+
+local function addESP(player)
+    if player == Players.LocalPlayer then
+        return
+    end
+
+    removeESP(player)
+
+    local charsBought = player:FindFirstChild("charsBought")
+    local xtreme = charsBought and charsBought:FindFirstChild("X-TREME")
+
+    -- HANYA Value == true
+    if not xtreme or not xtreme:IsA("BoolValue") or xtreme.Value ~= true then
+        return
+    end
+
+    local character = player.Character
+
+    if not character then
+        return
+    end
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "X-TREME ESP"
+    highlight.FillColor = Color3.fromRGB(0, 0, 0)
+    highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0.4
+    highlight.Adornee = character
+    highlight.Parent = character
+
+    XTREMEESPHighlights[player] = highlight
+end
+
+local function refreshPlayer(player)
+    if XTREMEESPEnabled then
+        addESP(player)
+    else
+        removeESP(player)
+    end
+end
+
+local function setupPlayer(player)
+    if player == Players.LocalPlayer then
+        return
+    end
+
+    player.CharacterAdded:Connect(function()
+        task.wait(0.5)
+        refreshPlayer(player)
+    end)
+
+    local charsBought = player:FindFirstChild("charsBought")
+
+    if charsBought then
+        local xtreme = charsBought:FindFirstChild("X-TREME")
+
+        if xtreme and xtreme:IsA("BoolValue") then
+            xtreme:GetPropertyChangedSignal("Value"):Connect(function()
+                refreshPlayer(player)
+            end)
+        end
+
+        charsBought.ChildAdded:Connect(function(child)
+            if child.Name == "X-TREME" and child:IsA("BoolValue") then
+                child:GetPropertyChangedSignal("Value"):Connect(function()
+                    refreshPlayer(player)
+                end)
+
+                refreshPlayer(player)
+            end
+        end)
+    end
+end
+
+MainTab:CreateToggle({
+    Name = "Esp Someone That Use This Script Like You",
+    CurrentValue = false,
+    Flag = "XTREMEESP",
+
+    Callback = function(Value)
+        XTREMEESPEnabled = Value
+
+        if Value then
+            for _, player in ipairs(Players:GetPlayers()) do
+                setupPlayer(player)
+                addESP(player)
+            end
+        else
+            for player in pairs(XTREMEESPHighlights) do
+                removeESP(player)
+            end
+        end
+    end,
+})
+
+Players.PlayerAdded:Connect(function(player)
+    setupPlayer(player)
+end)
+
+for _, player in ipairs(Players:GetPlayers()) do
+    setupPlayer(player)
+end
+
 Rayfield:LoadConfiguration()
