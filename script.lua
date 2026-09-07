@@ -2647,7 +2647,7 @@ local function removeESP()
 end
 
 MainTab:CreateToggle({
-    Name = "Enemy ESP",
+    Name = "Esp Enemy",
     CurrentValue = false,
     Flag = "EnemyESP",
 
