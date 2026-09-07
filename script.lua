@@ -2629,7 +2629,7 @@ local function addESP(enemy)
     highlight.Name = "EnemyESP"
     highlight.FillColor = Color3.fromRGB(200, 0, 0)
     highlight.OutlineColor = Color3.fromRGB(200, 0, 0)
-    highlight.FillTransparency = 0.9
+    highlight.FillTransparency = 0.96
     highlight.OutlineTransparency = 0
     highlight.Adornee = enemy
     highlight.Parent = enemy
@@ -2671,6 +2671,65 @@ MainTab:CreateToggle({
             end
         else
             removeESP()
+        end
+    end,
+})
+
+local AlliesESPEnabled = false
+local AlliesHighlights = {}
+
+local function addAlliesESP(summon)
+    if not summon:IsA("Model") or AlliesHighlights[summon] then
+        return
+    end
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "AlliesESP"
+    highlight.FillColor = Color3.fromRGB(0, 255, 55
+    highlight.OutlineColor = Color3.fromRGB(0, 255, 55)
+    highlight.FillTransparency = 0.96
+    highlight.OutlineTransparency = 0
+    highlight.Adornee = summon
+    highlight.Parent = summon
+
+    AlliesHighlights[summon] = highlight
+end
+
+local function removeAlliesESP()
+    for summon, highlight in pairs(AlliesHighlights) do
+        if highlight then
+            highlight:Destroy()
+        end
+        AlliesHighlights[summon] = nil
+    end
+end
+
+MainTab:CreateToggle({
+    Name = "Esp Allies",
+    CurrentValue = false,
+    Flag = "EspAllies",
+
+    Callback = function(Value)
+        AlliesESPEnabled = Value
+
+        local Summons = workspace:FindFirstChild("Summons")
+        if not Summons then
+            return
+        end
+
+        if Value then
+            for _, summon in ipairs(Summons:GetChildren()) do
+                addAlliesESP(summon)
+            end
+
+            Summons.ChildAdded:Connect(function(summon)
+                if AlliesESPEnabled then
+                    task.wait()
+                    addAlliesESP(summon)
+                end
+            end)
+        else
+            removeAlliesESP()
         end
     end,
 })
