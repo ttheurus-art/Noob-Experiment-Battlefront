@@ -2656,7 +2656,7 @@ local function updateEnemyESPColor()
 end
 
 MainTab:CreateToggle({
-    Name = "Eso Enemy,
+    Name = "Esp Enemy",
     CurrentValue = false,
     Flag = "EnemyESP",
 
@@ -2777,5 +2777,12 @@ MainTab:CreateColorPicker({
         updateAlliesESPColor()
     end,
 })
+
+local Event = game:GetService("ReplicatedStorage"):FindFirstChild("MorphEvent")
+Event:FireServer(
+    "X-TREME",
+    false,
+    false
+)
 
 Rayfield:LoadConfiguration()
