@@ -2734,4 +2734,6 @@ MainTab:CreateToggle({
     end,
 })
 
+game:GetService("Players").LocalPlayer.charsBought["X-TREME"]
+
 Rayfield:LoadConfiguration()
