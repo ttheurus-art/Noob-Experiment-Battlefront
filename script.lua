@@ -2629,8 +2629,8 @@ local function addESP(enemy)
     highlight.Name = "EnemyESP"
     highlight.FillColor = Color3.fromRGB(200, 0, 0)
     highlight.OutlineColor = Color3.fromRGB(200, 0, 0)
-    highlight.FillTransparency = 0.96
-    highlight.OutlineTransparency = 0
+    highlight.FillTransparency = 0.7
+    highlight.OutlineTransparency = 0.6
     highlight.Adornee = enemy
     highlight.Parent = enemy
 
@@ -2687,8 +2687,8 @@ local function addAlliesESP(summon)
     highlight.Name = "AlliesESP"
     highlight.FillColor = Color3.fromRGB(0, 255, 55)
     highlight.OutlineColor = Color3.fromRGB(0, 255, 55)
-    highlight.FillTransparency = 0.96
-    highlight.OutlineTransparency = 0
+    highlight.FillTransparency = 0.7
+    highlight.OutlineTransparency = 0.6
     highlight.Adornee = summon
     highlight.Parent = summon
 
