@@ -2685,7 +2685,7 @@ local function addAlliesESP(summon)
 
     local highlight = Instance.new("Highlight")
     highlight.Name = "AlliesESP"
-    highlight.FillColor = Color3.fromRGB(0, 255, 55
+    highlight.FillColor = Color3.fromRGB(0, 255, 55)
     highlight.OutlineColor = Color3.fromRGB(0, 255, 55)
     highlight.FillTransparency = 0.96
     highlight.OutlineTransparency = 0
