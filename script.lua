@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V3.8🔥",
+   Name = "Noob Experiment: Battlefront V3.8,5🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "The Best Ne:b Script",
    LoadingSubtitle = "Theurus_The_Creator",
@@ -88,7 +88,7 @@ MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "information and tips",
-    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox, and yeah 2x2x2x2, it's me, I'm in your friend list\n\n +Added Auto Select Difficult\n +Added Auto Select Map\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe Area on Teleport👍 then use Hook and wait a little until it got Vaporized by THE VOID\n\n Future Update:\n@Auto Farm Keys\n@Auto Farm Time Essence" 
+    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox, and yeah 2x2x2x2, it's me, I'm in your friend list\n\n +Added Auto Select Difficult\n +Added Auto Select Map\n +Added Esp\n\nmake the audio in setting (in game not in script) to 0 if you want to use the music so you only hear 1 music\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe Area on Teleport👍 then use Hook and wait a little until it got Vaporized by THE VOID\n\n Future Update:\n@Auto Farm Keys\n@Auto Farm Time Essence" 
 	})
 		
 local MainTab = Window:CreateTab("Shop", nil)
@@ -2611,6 +2611,68 @@ Event:FireServer(
     "Titan Laser Gun2"
 )
 end,
+})
+
+local MainTab = Window:CreateTab("Esp Thing", nil)
+local MainSection = MainTab:CreateSection("          ")
+
+
+local ESPEnabled = false
+local ESPHighlights = {}
+
+local function addESP(enemy)
+    if not enemy:IsA("Model") or ESPHighlights[enemy] then
+        return
+    end
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "EnemyESP"
+    highlight.FillColor = Color3.fromRGB(255, 0, 0)
+    highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+    highlight.FillTransparency = 0.6
+    highlight.OutlineTransparency = 0
+    highlight.Adornee = enemy
+    highlight.Parent = enemy
+
+    ESPHighlights[enemy] = highlight
+end
+
+local function removeESP()
+    for enemy, highlight in pairs(ESPHighlights) do
+        if highlight then
+            highlight:Destroy()
+        end
+        ESPHighlights[enemy] = nil
+    end
+end
+
+MainTab:CreateToggle({
+    Name = "Enemy ESP",
+    CurrentValue = false,
+    Flag = "EnemyESP",
+
+    Callback = function(Value)
+        ESPEnabled = Value
+
+        if Value then
+            local Enemies = workspace:FindFirstChild("Enemies")
+
+            if Enemies then
+                for _, enemy in ipairs(Enemies:GetChildren()) do
+                    addESP(enemy)
+                end
+
+                Enemies.ChildAdded:Connect(function(enemy)
+                    if ESPEnabled then
+                        task.wait()
+                        addESP(enemy)
+                    end
+                end)
+            end
+        else
+            removeESP()
+        end
+    end,
 })
 
 Rayfield:LoadConfiguration()
