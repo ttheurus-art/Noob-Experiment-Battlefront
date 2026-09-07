@@ -675,7 +675,7 @@ MainTab:CreateDropdown({
         "Crossroad",
         "City",
         "Desert",
-        "Tundra Frozen",
+        "Frozen Tundra",
         "Battlefield"
     },
     CurrentOption = {"Roblox Hq"},
