@@ -2778,11 +2778,4 @@ MainTab:CreateColorPicker({
     end,
 })
 
-local Event = game:GetService("ReplicatedStorage"):FindFirstChild("MorphEvent")
-Event:FireServer(
-    "X-TREME",
-    false,
-    false
-)
-
 Rayfield:LoadConfiguration()
