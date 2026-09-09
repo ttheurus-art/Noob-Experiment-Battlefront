@@ -40,7 +40,7 @@ local Button = MainTab:CreateButton({
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
 
-      character:PivotTo(CFrame.new(here))
+      character:PivotTo(CFrame.new(-1010, 510, -1810))
    end,
 })
 
@@ -50,7 +50,7 @@ local Button = MainTab:CreateButton({
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
 
-      character:PivotTo(CFrame.new(1529, 377, -1726))
+      character:PivotTo(CFrame.new(1529, 380, -1726))
    end,
 })
 
@@ -60,7 +60,7 @@ local Button = MainTab:CreateButton({
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
 
-      character:PivotTo(CFrame.new(2796, 243, -1741))
+      character:PivotTo(CFrame.new(2796, 246, -1741))
    end,
 })
 
