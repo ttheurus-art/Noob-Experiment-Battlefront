@@ -38,7 +38,7 @@ local MainTab = Window:CreateTab("Teleport", 4483362458)
 
 -- Create parts
 
-local p = Instance.new("part")
+local p = Instance.new("Part")
 p.Size = Vector3.new(15, 3, 15)
 p.Position = Vector3.new(-2242, 457, -1774)
 p.Anchored = true
