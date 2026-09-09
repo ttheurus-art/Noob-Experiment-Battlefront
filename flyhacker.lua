@@ -123,7 +123,7 @@ local Button = MainTab:CreateButton({
 local MainSection = MainTab:CreateSection("Base")
 
 local Button = MainTab:CreateButton({
-   Name = "Tp to Red Base",
+   Name = "Tp to Blue Base",
    Callback = function()
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
@@ -132,7 +132,7 @@ local Button = MainTab:CreateButton({
 })
 
 local Button = MainTab:CreateButton({
-   Name = "Tp to Blue Base",
+   Name = "Tp to Red Base",
    Callback = function()
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
