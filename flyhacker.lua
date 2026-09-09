@@ -78,6 +78,11 @@ p4.CanCollide = true
 p4.Transparency = 0.3
 p4.Parent = workspace
 
+
+-- 218, 3, -2895 red base
+-- 250, 1, -642 blue base
+-- 334, 288, -1795 middle island
+-- 157, 3, -1804 weather machine
 -- Create buttons
 local Button = MainTab:CreateButton({
    Name = "Tp To Flag (island 1)",
@@ -112,5 +117,45 @@ local Button = MainTab:CreateButton({
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
       character:PivotTo(CFrame.new(2796, 246, -1741))
+   end,
+})
+
+local MainSection = MainTab:CreateSection("Base")
+
+local Button = MainTab:CreateButton({
+   Name = "Tp to Red Base",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      character:PivotTo(CFrame.new(218, 3, -2895))
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Tp to Blue Base",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      character:PivotTo(CFrame.new(250, 1, -642))
+   end,
+})
+
+local MainSection = MainTab:CreateSection("others")
+
+local Button = MainTab:CreateButton({
+   Name = "Tp to middle island",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      character:PivotTo(CFrame.new(334, 288, -1795))
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Tp to weather machine",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      character:PivotTo(CFrame.new(157, 3, -1804))
    end,
 })
