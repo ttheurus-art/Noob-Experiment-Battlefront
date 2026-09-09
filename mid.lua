@@ -1,5 +1,22 @@
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
+local Window = Rayfield:CreateWindow({
+   Name = "Red Vs Blue Plane Wars🔥",
+   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   LoadingTitle = "The Red Vs Blue Plane Wars Script!",
+   LoadingSubtitle = "By: Theurus_The_Creator",
+   Theme = "Ocean", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil, -- Create a custom folder for your hub/game
+      FileName = "RedVsBluePlaneWars"
+   },
+      
+
 local p = Instance.new("Part")
 p.Size = Vector3.new(15, 3, 15)
 p.Position = Vector3.new(2796, 243, -1741)
