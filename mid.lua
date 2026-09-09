@@ -24,13 +24,21 @@ p3.CanCollide = true
 p3.Transparency = 0.3
 p3.Parent = workspace
 
+local p = Instance.new("Part4")
+p4.Size = Vector3.new(15, 3, 15)
+p4.Position = Vector3.new(-1010, 507, -1810)
+p4.Anchored = true
+p4.CanCollide = true
+p4.Transparency = 0.3
+p4.Parent = workspace
+
 local Button = MainTab:CreateButton({
    Name = "Tp To Flag (island 1)",
    Callback = function()
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
 
-      character:PivotTo(CFrame.new(here))
+      character:PivotTo(CFrame.new(-2242, 460, -1774))
    end,
 })
 
