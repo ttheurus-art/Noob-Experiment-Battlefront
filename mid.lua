@@ -34,9 +34,18 @@ local Window = Rayfield:CreateWindow({
 })
 
 -- CREATE MAIN TAB
-local MainTab = Window:CreateTab("Main", 4483362458)
+local MainTab = Window:CreateTab("Teleport", 4483362458)
 
 -- Create parts
+
+local p = Instance.new("part")
+p.Size = Vector3.new(15, 3, 15)
+p.Position = Vector3.new(-2242, 457, -1774)
+p.Anchored = true
+p.CanCollide = true
+p.Transparency = 0.3
+p.Parent = workspace
+
 local p1 = Instance.new("Part")
 p1.Size = Vector3.new(15, 3, 15)
 p1.Position = Vector3.new(2796, 243, -1741)
