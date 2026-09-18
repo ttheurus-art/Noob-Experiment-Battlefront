@@ -88,7 +88,7 @@ MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "information and tips",
-    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox\n\nLike My Script For More Update hehe (in scriptblox)\n\n +Added Auto Select Difficult\n +Added Auto Select Map\n +Added Esp\n\njust use 'call titans / call special titans' if you lazy to go to intermission for titan\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe Area on Teleport👍 then use Hook and wait a little until it got Vaporized by THE VOID\n\n Future Update:\n@Auto Farm Keys\n@Auto Farm Time Essence" 
+    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox\n\nLike My Script For More Update hehe (in scriptblox)\n\n # Fix Esp People That Using This Script (ig)\n\njust use 'call titans / call special titans' if you lazy to go to intermission for titan\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe Area on Teleport👍 then use Hook and wait a little until it got Vaporized by THE VOID\n\n Future Update:\n@Auto Farm Keys\n@Auto Farm Time Essence" 
 	})
 		
 local MainTab = Window:CreateTab("Shop", nil)
@@ -2788,12 +2788,20 @@ if Event then
     )
 end
 
+--==================================================
+-- X-TREME ESP
+--==================================================
+
 local Players = game:GetService("Players")
 
 local XTREMEESPEnabled = false
 local XTREMEESPHighlights = {}
 
-local function removeESP(player)
+--==================================================
+-- REMOVE ONE ESP
+--==================================================
+
+local function removeXTREMEESP(player)
     local highlight = XTREMEESPHighlights[player]
 
     if highlight then
@@ -2802,18 +2810,45 @@ local function removeESP(player)
     end
 end
 
-local function addESP(player)
+--==================================================
+-- REMOVE ALL ESP
+--==================================================
+
+local function removeAllXTREMEESP()
+    for player, highlight in pairs(XTREMEESPHighlights) do
+        if highlight then
+            highlight:Destroy()
+        end
+
+        XTREMEESPHighlights[player] = nil
+    end
+end
+
+--==================================================
+-- ADD ESP
+--==================================================
+
+local function addXTREMEESP(player)
+
     if player == Players.LocalPlayer then
         return
     end
 
-    removeESP(player)
+    -- Remove old highlight first
+    removeXTREMEESP(player)
 
     local charsBought = player:FindFirstChild("charsBought")
-    local xtreme = charsBought and charsBought:FindFirstChild("X-TREME")
 
-    -- HANYA Value == true
-    if not xtreme or not xtreme:IsA("BoolValue") or xtreme.Value ~= true then
+    if not charsBought then
+        return
+    end
+
+    local xtreme = charsBought:FindFirstChild("X-TREME")
+
+    -- Only X-TREME == true
+    if not xtreme
+        or not xtreme:IsA("BoolValue")
+        or xtreme.Value ~= true then
         return
     end
 
@@ -2823,86 +2858,219 @@ local function addESP(player)
         return
     end
 
+    -- Create Highlight
     local highlight = Instance.new("Highlight")
+
     highlight.Name = "X-TREME ESP"
+
+    -- BLACK
     highlight.FillColor = Color3.fromRGB(0, 0, 0)
     highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
+
+    -- Same transparency
     highlight.FillTransparency = 0.5
     highlight.OutlineTransparency = 0.4
+
     highlight.Adornee = character
     highlight.Parent = character
 
     XTREMEESPHighlights[player] = highlight
 end
 
-local function refreshPlayer(player)
+--==================================================
+-- REFRESH PLAYER
+--==================================================
+
+local function refreshXTREMEESP(player)
+
     if XTREMEESPEnabled then
-        addESP(player)
+        addXTREMEESP(player)
     else
-        removeESP(player)
+        removeXTREMEESP(player)
     end
+
 end
 
-local function setupPlayer(player)
+--==================================================
+-- SETUP PLAYER
+--==================================================
+
+local function setupXTREMEPlayer(player)
+
     if player == Players.LocalPlayer then
         return
     end
 
+    -- Character respawn
     player.CharacterAdded:Connect(function()
+
         task.wait(0.5)
-        refreshPlayer(player)
+
+        refreshXTREMEESP(player)
+
     end)
 
     local charsBought = player:FindFirstChild("charsBought")
 
     if charsBought then
+
         local xtreme = charsBought:FindFirstChild("X-TREME")
 
         if xtreme and xtreme:IsA("BoolValue") then
+
             xtreme:GetPropertyChangedSignal("Value"):Connect(function()
-                refreshPlayer(player)
+
+                refreshXTREMEESP(player)
+
             end)
+
         end
 
+        -- If X-TREME gets added later
         charsBought.ChildAdded:Connect(function(child)
-            if child.Name == "X-TREME" and child:IsA("BoolValue") then
+
+            if child.Name == "X-TREME"
+                and child:IsA("BoolValue") then
+
                 child:GetPropertyChangedSignal("Value"):Connect(function()
-                    refreshPlayer(player)
+
+                    refreshXTREMEESP(player)
+
                 end)
 
-                refreshPlayer(player)
+                refreshXTREMEESP(player)
+
             end
+
         end)
+
     end
+
 end
+
+--==================================================
+-- RAYFIELD TOGGLE
+--==================================================
 
 MainTab:CreateToggle({
     Name = "Esp Someone That The Same Script(This)",
+
     CurrentValue = false,
+
     Flag = "XTREMEESP",
 
     Callback = function(Value)
+
         XTREMEESPEnabled = Value
 
         if Value then
+
+            -- Scan all current players
             for _, player in ipairs(Players:GetPlayers()) do
-                setupPlayer(player)
-                addESP(player)
+
+                if player ~= Players.LocalPlayer then
+
+                    setupXTREMEPlayer(player)
+                    addXTREMEESP(player)
+
+                end
+
             end
+
         else
-            for player in pairs(XTREMEESPHighlights) do
-                removeESP(player)
-            end
+
+            -- Turn off
+            removeAllXTREMEESP()
+
         end
+
     end,
 })
 
+--==================================================
+-- PLAYER ADDED
+--==================================================
+
 Players.PlayerAdded:Connect(function(player)
-    setupPlayer(player)
+
+    setupXTREMEPlayer(player)
+
+    if XTREMEESPEnabled then
+
+        task.wait(0.5)
+
+        addXTREMEESP(player)
+
+    end
+
 end)
 
+--==================================================
+-- INITIAL PLAYER SETUP
+--==================================================
+
 for _, player in ipairs(Players:GetPlayers()) do
-    setupPlayer(player)
+
+    setupXTREMEPlayer(player)
+
+end
+
+--==================================================
+-- AUTO REFRESH EVERY 1 MINUTE
+--==================================================
+
+task.spawn(function()
+
+    while task.wait(60) do
+
+        if XTREMEESPEnabled then
+
+            -- Remove old highlights
+            removeAllXTREMEESP()
+
+            -- Scan ALL players again
+            for _, player in ipairs(Players:GetPlayers()) do
+
+                if player ~= Players.LocalPlayer then
+
+                    addXTREMEESP(player)
+
+                end
+
+            end
+
+        end
+
+    end
+
+end)
+
+--==================================================
+-- CLEANUP WHEN SCRIPT IS RELOADED
+--==================================================
+
+local function cleanupXTREMEESP()
+
+    XTREMEESPEnabled = false
+
+    removeAllXTREMEESP()
+
+end
+
+if getgenv then
+
+    local env = getgenv()
+
+    -- Cleanup previous version
+    if env.__XTREME_ESP_CLEANUP then
+
+        pcall(env.__XTREME_ESP_CLEANUP)
+
+    end
+
+    -- Register current cleanup
+    env.__XTREME_ESP_CLEANUP = cleanupXTREMEESP
+
 end
 
 Rayfield:LoadConfiguration()
