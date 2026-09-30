@@ -2613,6 +2613,11 @@ Event:FireServer(
 end,
 })
 
+MainTab:CreateParagraph({
+    Title = "TIPS",
+    Content = "Astro Claw + Left Hand Blaster + Energy Sword (Replace Left Hand Blaster) + Left Hand Blaster Again + Right Hand Blaster + Phase 2 + Blue Orb = 115% Defense!" 
+	})
+
 local MainTab = Window:CreateTab("Esp Thing", nil)
 local MainSection = MainTab:CreateSection("          ")
 
