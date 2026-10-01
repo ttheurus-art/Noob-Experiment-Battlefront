@@ -108,10 +108,10 @@ local function UpdateParagraph()
     end
 
     Paragraph:Set({
-        Title = "Player That Use This Script",
+        Title = "Player That Use This Script (In This Server)",
         Content = #result > 0
             and table.concat(result, "\n")
-            or "No Player Use This Script (in this server)"
+            or "Scanning......"
     })
 end
 
