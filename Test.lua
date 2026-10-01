@@ -126,7 +126,7 @@ end)
 
 local PlayersFolder = workspace:FindFirstChild("Players")
 
-local Paragraph = Tab:CreateParagraph({
+local MorphParagraph = MainTab:CreateParagraph({
     Title = "Detect Morph That Exist In Battlefield",
     Content = "Checking..."
 })
@@ -136,33 +136,33 @@ task.spawn(function()
         PlayersFolder = workspace:FindFirstChild("Players")
 
         if not PlayersFolder then
-            Paragraph:Set({
+            MorphParagraph:Set({
                 Title = "Detect Morph That Exist In Battlefield",
                 Content = "workspace.Players not found."
             })
         else
-            local Objects = PlayersFolder:GetChildren()
+            local Morphs = PlayersFolder:GetChildren()
 
-            if #Objects == 0 then
-                Paragraph:Set({
+            if #Morphs == 0 then
+                MorphParagraph:Set({
                     Title = "Detect Morph That Exist In Battlefield",
                     Content = "No Morph Found"
                 })
             else
-                local Text = ""
+                local Result = {}
 
-                for _, Object in ipairs(Objects) do
-                    Text = Text .. Object.Name .. "\n"
+                for _, Morph in ipairs(Morphs) do
+                    table.insert(Result, Morph.Name)
                 end
 
-                Paragraph:Set({
+                MorphParagraph:Set({
                     Title = "Detect Morph That Exist In Battlefield",
-                    Content = Text
+                    Content = table.concat(Result, "\n")
                 })
             end
         end
 
-        task.wait(0.2)
+        task.wait(0.5)
     end
 end)
 
