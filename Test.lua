@@ -53,10 +53,10 @@ p2.CanCollide = true
 p2.Transparency = 1
 p2.Parent = workspace
 
-local MainTab = Window:CreateTab("Information", nil)
+local MainTab = Window:CreateTab("Stats", nil)
 
 local MoneyDisplay = MainTab:CreateParagraph({
-    Title = "Stats",
+    Title = "Currency💵",
     Content = "Keys: Loading...\nTime Essence: Loading...\nMoney: Loading..."
 })
 
@@ -84,11 +84,18 @@ task.spawn(function()
     end
 end)
 
+local MainTab = Window:CreateTab("Information", nil)
+
 MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
-    Title = "information and tips",
-    Content = "I make this script because I want to (I got banned in main)\nmy alt account display name is Call_Hitbox\n\nWho The Fuck Place My Script In Rscripts.net?\n\n # Fix Esp People That Using This Script (ig)\n\njust use 'call titans / call special titans' if you lazy to go to intermission for titan\n\n theres a trick that allow you to delete npc, you need titan builderman for this if you have it just teleport to safe Area on TeleportðŸ‘ then use Hook and wait a little until it got Vaporized by THE VOID\n\n Future Update:\n@Auto Farm Keys\n@Auto Farm Time Essence" 
+    Title = "information",
+    Content = "I make this script because I want too\nI never think to upload this script but i got banned from the game so i decide to upload the script"
+	})
+
+MainTab:CreateParagraph({
+	Title = "Tips",
+	Content = "You Can Delete Npc Like Erlking, Sus_Moogus, And Others With Titan Builderman.\nJust Use Titan Builderman Then Teleport To Safe Place In Teleport (Script) Then Use Hook, And The Npc Disappear (deleted / died)\n\nIf You Lazy Or Whatever, You Can Just Click ''Call Titans / Call Special Titans'' In Shop (Script) That Feature Is Soo Useful When You Do Nightmare Mode"
 	})
 		
 local MainTab = Window:CreateTab("Shop", nil)
@@ -866,6 +873,8 @@ MainTab:CreateToggle({
         end)
     end,
 })
+
+
 
 --// MUSIC
 
@@ -2608,7 +2617,7 @@ end,
 
 MainTab:CreateParagraph({
     Title = "TIPS",
-    Content = "Astro Claw + Left Hand Blaster + Energy Sword (Replace Left Hand Blaster) + Left Hand Blaster Again + Right Hand Blaster + Phase 2 + Blue Orb = 115% Defense!" 
+    Content = "Astro Claw + Left Hand Blaster + Energy Sword (Replace Left Hand Blaster) + Left Hand Blaster Again + Right Hand Blaster + Energy Sword + Phase 2 + Blue Orb = 115% Defense!" 
 	})
 
 local MainTab = Window:CreateTab("Esp Thing", nil)
@@ -2777,9 +2786,8 @@ MainTab:CreateColorPicker({
 })
 
 local Event = game:GetService("ReplicatedStorage"):FindFirstChild("MorphEvent")
-
-if Event then
-    Event:FireServer(
-        "X-TREME",
-        false,
-        false
+Event:FireServer(
+    "X-TREME",
+    false,
+    false
+)
