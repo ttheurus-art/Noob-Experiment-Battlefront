@@ -55,6 +55,8 @@ p2.Parent = workspace
 
 local MainTab = Window:CreateTab("Stats", nil)
 
+--// Currency Detector
+
 local MoneyDisplay = MainTab:CreateParagraph({
     Title = "Currency💵",
     Content = "Keys: Loading...\nTime Essence: Loading...\nMoney: Loading..."
@@ -83,6 +85,8 @@ task.spawn(function()
         task.wait(0.2)
     end
 end)
+
+--// Detect Player That Using The Same Script
 
 local Players = game:GetService("Players")
 
@@ -115,6 +119,50 @@ task.spawn(function()
     while true do
         UpdateParagraph()
         task.wait(0.5)
+    end
+end)
+
+--// Detect Morph That Exist In Battlefield
+
+local PlayersFolder = workspace:FindFirstChild("Players")
+
+local Paragraph = Tab:CreateParagraph({
+    Title = "Detect Morph That Exist In Battlefield",
+    Content = "Checking..."
+})
+
+task.spawn(function()
+    while true do
+        PlayersFolder = workspace:FindFirstChild("Players")
+
+        if not PlayersFolder then
+            Paragraph:Set({
+                Title = "Detect Morph That Exist In Battlefield",
+                Content = "workspace.Players not found."
+            })
+        else
+            local Objects = PlayersFolder:GetChildren()
+
+            if #Objects == 0 then
+                Paragraph:Set({
+                    Title = "Detect Morph That Exist In Battlefield",
+                    Content = "No Morph Found"
+                })
+            else
+                local Text = ""
+
+                for _, Object in ipairs(Objects) do
+                    Text = Text .. Object.Name .. "\n"
+                end
+
+                Paragraph:Set({
+                    Title = "Detect Morph That Exist In Battlefield",
+                    Content = Text
+                })
+            end
+        end
+
+        task.wait(0.2)
     end
 end)
 
