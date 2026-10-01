@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V3.9ðŸ”¥",
+   Name = "Noob Experiment: Battlefront V4.1🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "The Best Noob Experiment: Battlefront",
    LoadingSubtitle = "By: Theurus_The_Creator",
@@ -81,6 +81,40 @@ task.spawn(function()
         })
 
         task.wait(0.2)
+    end
+end)
+
+local Players = game:GetService("Players")
+
+local Paragraph = Tab:CreateParagraph({
+    Title = "Player That Use This Script",
+    Content = "Checking..."
+})
+
+local function UpdateParagraph()
+    local result = {}
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        local charsBought = player:FindFirstChild("charsBought")
+        local xtreme = charsBought and charsBought:FindFirstChild("X-TREME")
+
+        if xtreme and xtreme:IsA("BoolValue") and xtreme.Value == true then
+            table.insert(result, player.Name)
+        end
+    end
+
+    Paragraph:Set({
+        Title = "Player That Use This Script",
+        Content = #result > 0
+            and table.concat(result, "\n")
+            or "No Player Use This Script (in this server)"
+    })
+end
+
+task.spawn(function()
+    while true do
+        UpdateParagraph()
+        task.wait(0.5)
     end
 end)
 
