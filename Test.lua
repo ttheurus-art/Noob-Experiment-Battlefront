@@ -74,7 +74,7 @@ task.spawn(function()
         local keys = leaderstats:WaitForChild("Keys")
 
         MoneyDisplay:Set({
-            Title = "Stats",
+            Title = "Currency💵",
             Content = "Keys: " .. keys.Value
                 .. "\nTime Essence: " .. timeEssences.Value
                 .. "\nMoney: " .. moneyAmount.Text
@@ -96,6 +96,11 @@ MainTab:CreateParagraph({
 MainTab:CreateParagraph({
 	Title = "Tips",
 	Content = "You Can Delete Npc Like Erlking, Sus_Moogus, And Others With Titan Builderman.\nJust Use Titan Builderman Then Teleport To Safe Place In Teleport (Script) Then Use Hook, And The Npc Disappear (deleted / died)\n\nIf You Lazy Or Whatever, You Can Just Click ''Call Titans / Call Special Titans'' In Shop (Script) That Feature Is Soo Useful When You Do Nightmare Mode"
+	})
+
+MainTab:CreateParagraph({
+	Title = "Update Log",
+	Content = "- Esp Deleted\n+ Morph That Exist (Stats)\n• Information and stats has its own tab"
 	})
 		
 local MainTab = Window:CreateTab("Shop", nil)
@@ -227,10 +232,10 @@ local Button = MainTab:CreateButton({
 })
 
 local MainTab = Window:CreateTab("Teleport", nil)
-local MainSection = MainTab:CreateSection("TeleportðŸ¤”")
+local MainSection = MainTab:CreateSection("Teleport🧿")
 
 local Button = MainTab:CreateButton({
-   Name = "Teleport to safe areaðŸ‘¾ (not 100% safe)",
+   Name = "Teleport to safe area(not 100% safe)",
    Callback = function()
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
@@ -240,7 +245,7 @@ local Button = MainTab:CreateButton({
 })
 
 local Button = MainTab:CreateButton({
-   Name = "Teleport to lobby insideðŸ’  (No Titans)",
+   Name = "Teleport to lobby inside (No Titans)",
    Callback = function()
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
@@ -250,7 +255,7 @@ local Button = MainTab:CreateButton({
 })
 
 local Button = MainTab:CreateButton({
-   Name = "Teleport to lobby outsideðŸƒ",
+   Name = "Teleport to lobby outside",
    Callback = function()
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
@@ -270,8 +275,8 @@ local Button = MainTab:CreateButton({
    end,
 })
 
-local MainTab = Window:CreateTab("Auto ThingðŸ”«", nil)
-local MainSection = MainTab:CreateSection("Auto ThingðŸ”«")
+local MainTab = Window:CreateTab("Auto Thing", nil)
+local MainSection = MainTab:CreateSection("Auto Thing")
 
 local Running = false
 
@@ -735,7 +740,7 @@ MainTab:CreateToggle({
     end,
 })
 
-local MainTab = Window:CreateTab("FunðŸ‘ï¸", nil)
+local MainTab = Window:CreateTab("Fun", nil)
 local MainSection = MainTab:CreateSection("I dont know what I make")
 
 local Players = game:GetService("Players")
