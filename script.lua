@@ -178,7 +178,7 @@ MainTab:CreateParagraph({
 	})
 
 MainTab:CreateParagraph({
-	Title = "Massage From Owner Script"
+	Title = "Massage From Owner Script",
 	Content = "I cant make auto farm yet because I never made one before and I have school too (im grade 5, yea)\nBtw @rothanak9918 do you like my script? just asking :>"
 	})
 
