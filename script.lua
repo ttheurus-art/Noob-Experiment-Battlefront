@@ -85,8 +85,7 @@ task.spawn(function()
 end)
 
 local Players = game:GetService("Players")
-
-local Paragraph = Tab:CreateParagraph({
+local Paragraph = MainTab:CreateParagraph({
     Title = "Player That Use This Script",
     Content = "Checking..."
 })
