@@ -108,7 +108,7 @@ local function UpdateParagraph()
         Title = "Player That Use This Script",
         Content = #result > 0
             and table.concat(result, "\n")
-            or "No Player Use This Script (in this server)"
+            or "Checking..."
     })
 end
 
