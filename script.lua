@@ -311,7 +311,7 @@ local Button = MainTab:CreateButton({
 })
 
 local MainTab = Window:CreateTab("Teleport", nil)
-local MainSection = MainTab:CreateSection("TeleportðŸ§¿")
+local MainSection = MainTab:CreateSection("Teleport🧿")
 
 local Button = MainTab:CreateButton({
    Name = "Teleport to safe area(not 100% safe)",
