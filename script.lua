@@ -105,7 +105,7 @@ local function UpdateParagraph()
     end
 
     Paragraph:Set({
-        Title = "Player That Use This Script (in this server):\n========",
+        Title = "Player That Use This Script (in this server):\n================",
         Content = #result > 0
             and table.concat(result, "\n")
             or "Checking..."
@@ -142,7 +142,7 @@ task.spawn(function()
 
             if #Morphs == 0 then
                 MorphParagraph:Set({
-                    Title = "Army (Team) That Exist In Battlefield:\n========",
+                    Title = "Army (Team) That Exist In Battlefield:\n================",
                     Content = "No Army Detected..."
                 })
             else
