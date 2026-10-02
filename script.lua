@@ -88,7 +88,7 @@ end)
 
 local Players = game:GetService("Players")
 local Paragraph = MainTab:CreateParagraph({
-    Title = "Player That Use This Script",
+    Title = "Player That Use This Script (In this server):\n",
     Content = "Checking..."
 })
 
@@ -105,7 +105,7 @@ local function UpdateParagraph()
     end
 
     Paragraph:Set({
-        Title = "Player That Use This Script",
+        Title = "Player That Use This Script (in this server):\n",
         Content = #result > 0
             and table.concat(result, "\n")
             or "Checking..."
@@ -124,7 +124,7 @@ end)
 local PlayersFolder = workspace:FindFirstChild("Players")
 
 local MorphParagraph = MainTab:CreateParagraph({
-    Title = "Detect Morph That Exist In Battlefield",
+    Title = "Army (Team) That Exist In Battlefield:\n",
     Content = "Checking..."
 })
 
@@ -134,16 +134,16 @@ task.spawn(function()
 
         if not PlayersFolder then
             MorphParagraph:Set({
-                Title = "Detect Morph That Exist In Battlefield",
-                Content = "workspace.Players not found."
+                Title = "Army (Team) That Exist In Battlefield:\n",
+                Content = "No Army Detected..."
             })
         else
             local Morphs = PlayersFolder:GetChildren()
 
             if #Morphs == 0 then
                 MorphParagraph:Set({
-                    Title = "Detect Morph That Exist In Battlefield",
-                    Content = "No Morph Found"
+                    Title = "Army (Team) That Exist In Battlefield:\n",
+                    Content = "No Army Detected"
                 })
             else
                 local Result = {}
