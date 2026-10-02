@@ -88,7 +88,7 @@ end)
 
 local Players = game:GetService("Players")
 local Paragraph = MainTab:CreateParagraph({
-    Title = "Player That Use This Script (In this server):\n",
+    Title = "Player That Use This Script (In this server):\n========",
     Content = "Checking..."
 })
 
@@ -105,7 +105,7 @@ local function UpdateParagraph()
     end
 
     Paragraph:Set({
-        Title = "Player That Use This Script (in this server):\n",
+        Title = "Player That Use This Script (in this server):\n========",
         Content = #result > 0
             and table.concat(result, "\n")
             or "Checking..."
@@ -134,7 +134,7 @@ task.spawn(function()
 
         if not PlayersFolder then
             MorphParagraph:Set({
-                Title = "Army (Team) That Exist In Battlefield:\n",
+                Title = "Army (Team) That Exist In Battlefield:\n========",
                 Content = "No Army Detected..."
             })
         else
@@ -142,8 +142,8 @@ task.spawn(function()
 
             if #Morphs == 0 then
                 MorphParagraph:Set({
-                    Title = "Army (Team) That Exist In Battlefield:\n",
-                    Content = "No Army Detected"
+                    Title = "Army (Team) That Exist In Battlefield:\n========",
+                    Content = "No Army Detected..."
                 })
             else
                 local Result = {}
@@ -153,7 +153,7 @@ task.spawn(function()
                 end
 
                 MorphParagraph:Set({
-                    Title = "Army (Team) That Exist In Battlefield",
+                    Title = "Army (Team) That Exist In Battlefield\n========",
                     Content = table.concat(Result, "\n")
                 })
             end
@@ -184,7 +184,7 @@ MainTab:CreateParagraph({
 
 MainTab:CreateParagraph({
 	Title = "Update Log",
-	Content = "- Esp Deleted\n+ Morph That Exist (Stats)\n• Information and stats has its own tab\n•FIXED SCRIPT!"
+	Content = "- Esp Deleted\n+ Morph That Exist (Stats)\n• Information and stats has its own tab\n• FIXED SCRIPT NOT SHOW UP!"
 	})
 		
 local MainTab = Window:CreateTab("Shop", nil)
