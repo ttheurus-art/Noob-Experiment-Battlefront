@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V4.1🔥",
+   Name = "Noob Experiment: Battlefront V4.2🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "The Best Noob Experiment: Battlefront",
    LoadingSubtitle = "By: Theurus_The_Creator",
@@ -84,6 +84,8 @@ task.spawn(function()
     end
 end)
 
+--// Detect Player That Use This Script
+
 local Players = game:GetService("Players")
 local Paragraph = MainTab:CreateParagraph({
     Title = "Player That Use This Script",
@@ -117,6 +119,50 @@ task.spawn(function()
     end
 end)
 
+--// Detect Morph That Exist In Battlefield
+
+local PlayersFolder = workspace:FindFirstChild("Players")
+
+local MorphParagraph = MainTab:CreateParagraph({
+    Title = "Detect Morph That Exist In Battlefield",
+    Content = "Checking..."
+})
+
+task.spawn(function()
+    while true do
+        PlayersFolder = workspace:FindFirstChild("Players")
+
+        if not PlayersFolder then
+            MorphParagraph:Set({
+                Title = "Detect Morph That Exist In Battlefield",
+                Content = "workspace.Players not found."
+            })
+        else
+            local Morphs = PlayersFolder:GetChildren()
+
+            if #Morphs == 0 then
+                MorphParagraph:Set({
+                    Title = "Detect Morph That Exist In Battlefield",
+                    Content = "No Morph Found"
+                })
+            else
+                local Result = {}
+
+                for _, Morph in ipairs(Morphs) do
+                    table.insert(Result, Morph.Name)
+                end
+
+                MorphParagraph:Set({
+                    Title = "Detect Morph That Exist In Battlefield",
+                    Content = table.concat(Result, "\n")
+                })
+            end
+        end
+
+        task.wait(0.5)
+    end
+end)
+
 local MainTab = Window:CreateTab("Information", nil)
 
 MainTab:CreateSection("Information")
@@ -133,7 +179,7 @@ MainTab:CreateParagraph({
 
 MainTab:CreateParagraph({
 	Title = "Update Log",
-	Content = "- Esp Deleted\n+ Morph That Exist (Stats)\nâ€¢ Information and stats has its own tab"
+	Content = "- Esp Deleted\n+ Morph That Exist (Stats)\n• Information and stats has its own tab\n•FIXED SCRIPT!"
 	})
 		
 local MainTab = Window:CreateTab("Shop", nil)
