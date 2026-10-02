@@ -177,6 +177,11 @@ MainTab:CreateParagraph({
 	Content = "You Can Delete Npc Like Erlking, Sus_Moogus, And Others With Titan Builderman.\nJust Use Titan Builderman Then Teleport To Safe Place In Teleport (Script) Then Use Hook, And The Npc Disappear (deleted / died)\n\nIf You Lazy Or Whatever, You Can Just Click ''Call Titans / Call Special Titans'' In Shop (Script) That Feature Is Soo Useful When You Do Nightmare Mode"
 	})
 
+Maintab:CreateParagraph({
+	Title = "Massage From Owner Script"
+	Content = "I cant make auto farm yet because I never made one before and I have school too (im grade 5, yea)\nBtw @rothanak9918 do you like my script? just asking :>"
+	})
+
 MainTab:CreateParagraph({
 	Title = "Update Log",
 	Content = "- Esp Deleted\n+ Morph That Exist (Stats)\n• Information and stats has its own tab\n•FIXED SCRIPT!"
