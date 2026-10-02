@@ -153,7 +153,7 @@ task.spawn(function()
                 end
 
                 MorphParagraph:Set({
-                    Title = "Detect Morph That Exist In Battlefield",
+                    Title = "Army (Team) That Exist In Battlefield",
                     Content = table.concat(Result, "\n")
                 })
             end
