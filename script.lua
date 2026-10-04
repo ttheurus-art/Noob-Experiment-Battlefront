@@ -186,7 +186,7 @@ MainTab:CreateParagraph({
 
 MainTab:CreateParagraph({
 	Title = "Massage From Owner Script",
-	Content = "I cant make auto farm yet because I never made one before and I have school too (im grade 5, yea)\n\n WARNING, if the game updated, dont use this script! theres might be an anti cheat that ban you, so I will shut down this script and check if there any anti Cheat"
+	Content = "I cant make auto farm yet because I never made one before and I have school too (im grade 5, yea)\n\n ⚠️WARNING⚠️ if the game updated, dont use this script! theres might be an anti cheat that ban you, so I will shut down this script for a while when the game update and check if there any anti Cheat"
 	})
 
 MainTab:CreateParagraph({
