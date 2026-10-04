@@ -87,6 +87,7 @@ end)
 --// Detect Player That Use This Script
 
 local Players = game:GetService("Players")
+
 local Paragraph = MainTab:CreateParagraph({
     Title = "Player That Use This Script (In this server):\n================",
     Content = "Checking..."
@@ -100,7 +101,13 @@ local function UpdateParagraph()
         local xtreme = charsBought and charsBought:FindFirstChild("X-TREME")
 
         if xtreme and xtreme:IsA("BoolValue") and xtreme.Value == true then
-            table.insert(result, player.Name)
+
+            if player.Name == "kinds_eye" or player.Name == "Player_Yusup" then
+                table.insert(result, player.Name .. " (🔥OWNER SCRIPT🔥)")
+            else
+                table.insert(result, player.Name)
+            end
+
         end
     end
 
