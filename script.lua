@@ -88,7 +88,7 @@ end)
 
 local Players = game:GetService("Players")
 local Paragraph = MainTab:CreateParagraph({
-    Title = "Player That Use This Script (In this server):\n========",
+    Title = "Player That Use This Script (In this server):\n================",
     Content = "Checking..."
 })
 
@@ -134,7 +134,7 @@ task.spawn(function()
 
         if not PlayersFolder then
             MorphParagraph:Set({
-                Title = "Army (Team) That Exist In Battlefield:\n========",
+                Title = "Army (Team) That Exist In Battlefield:\n================",
                 Content = "No Army Detected..."
             })
         else
@@ -153,7 +153,7 @@ task.spawn(function()
                 end
 
                 MorphParagraph:Set({
-                    Title = "Army (Team) That Exist In Battlefield\n========",
+                    Title = "Army (Team) That Exist In Battlefield\n================",
                     Content = table.concat(Result, "\n")
                 })
             end
