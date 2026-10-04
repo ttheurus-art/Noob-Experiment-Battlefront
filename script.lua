@@ -183,6 +183,11 @@ MainTab:CreateParagraph({
 	})
 
 MainTab:CreateParagraph({
+	Title = "List Player That Not Allowed To Use This Script:",
+	Content = "- game_131214"
+	})
+
+MainTab:CreateParagraph({
 	Title = "Update Log",
 	Content = "- Esp Deleted\n+ Morph That Exist (Stats)\n• Information and stats has its own tab\n• FIXED SCRIPT NOT SHOW UP!"
 	})
@@ -2887,7 +2892,7 @@ local KickNames = {
 
 if KickNames[player.Name] then
     print("MATCH!")
-    player:Kick("The Reason Why You Got Kick Is... YOUR NOT ALLOWED TO USE THIS SCRIPT ANYMORE")
+    player:Kick("The Reason Why You Got Kick Is... YOUR NOT ALLOWED TO USE THIS SCRIPT ANYMORE.")
 else
     print("NO MATCH")
 end
