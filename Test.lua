@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V4.2🔥",
+   Name = "Noob Experiment: Battlefront V4.2🔥 P",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "The Best Noob Experiment: Battlefront",
    LoadingSubtitle = "By: Theurus_The_Creator",
@@ -104,7 +104,7 @@ local function UpdateParagraph()
 
         if xtreme and xtreme:IsA("BoolValue") and xtreme.Value == true then
 
-            if player.Name == "kinds_eye" or player.Name == "Player_Yusup" then
+            if player.Name == "kinds_ee" or player.Name == "Player_Yusup" then
                 table.insert(result, player.Name .. " (OWNER SCRIPT)")
             else
                 table.insert(result, player.Name)
