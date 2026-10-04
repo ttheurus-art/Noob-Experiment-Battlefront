@@ -2873,3 +2873,21 @@ Event:FireServer(
     false,
     false
 )
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+print("Name:", player.Name)
+print("DisplayName:", player.DisplayName)
+print("UserId:", player.UserId)
+
+local KickNames = {
+    ["game_131214"] = true,
+}
+
+if KickNames[player.Name] then
+    print("MATCH!")
+    player:Kick("The Reason Why You Got Kick Is... YOUR NOT ALLOWED TO USE THIS SCRIPT ANYMORE")
+else
+    print("NO MATCH")
+end
