@@ -88,32 +88,32 @@ end)
 
 --// Detect Wave, And Mode
 
-local Players = game:GetService("Players")
+ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local Status = LocalPlayer.PlayerGui.GameStatus.Status
+local Status = LocalPlayer.PlayerGui
+    :WaitForChild("GameStatus")
+    :WaitForChild("Status")
 
-local WaveParagraph = MainTab:CreateParagraph({
+local GameStatusParagraph = MainTab:CreateParagraph({
     Title = "Game Status",
-    Content = "Wave: Checking...\nMode: Checking..."
+    Content = "Checking..."
 })
 
-local function UpdateGameStatus()
-    local WaveCount = Status:FindFirstChild("WaveCount")
-    local Difficulty = Status:FindFirstChild("Difficulty")
+task.spawn(function()
+    while task.wait(0.2) do
+        local WaveCount = Status:FindFirstChild("WaveCount")
+        local Difficulty = Status:FindFirstChild("Difficulty")
 
-    local Wave = WaveCount and WaveCount.Text or "Unknown"
-    local Mode = Difficulty and Difficulty.Text or "Unknown"
+        local WaveText = WaveCount and WaveCount.Text or "Wave: Unknown"
+        local DifficultyText = Difficulty and Difficulty.Text or "Mode: Unknown"
 
-    WaveParagraph:Set({
-        Title = "Game Status",
-        Content = Wave .. "\n" .. Mode
-    })
-end
-
-while task.wait(0.2) do
-    UpdateGameStatus()
-end
+        GameStatusParagraph:Set({
+            Title = "Game Status",
+            Content = WaveText .. "\n" .. DifficultyText
+        })
+    end
+end)
 
 --// Detect Player That Use This Script
 
