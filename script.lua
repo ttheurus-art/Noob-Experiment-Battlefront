@@ -1150,7 +1150,7 @@ end
 --// SETTINGS
 --==================================================
 
-local VisualizerEnabled = true
+local VisualizerEnabled = false
 local VisualizerColor = Color3.fromRGB(200, 55, 255)
 
 local BAR_COUNT = 85
@@ -1319,7 +1319,7 @@ MainTab:CreateToggle({
 
         VisualizerEnabled = Value
 
-        VisualizerFrame.Visible = Value
+		VisualizerFrame.Visible = VisualizerEnabled
 
     end,
 
