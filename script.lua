@@ -1146,7 +1146,7 @@ end
 local VisualizerEnabled = true
 local VisualizerColor = Color3.fromRGB(200, 55, 255)
 
-local BAR_COUNT = 35
+local BAR_COUNT = 85
 local MAX_HEIGHT = 100
 
 local Bars = {}
@@ -1306,7 +1306,7 @@ MainTab:CreateToggle({
 
     Name = "Enable Wave Visualizer",
 
-    CurrentValue = true,
+    CurrentValue = false,
 
     Callback = function(Value)
 
