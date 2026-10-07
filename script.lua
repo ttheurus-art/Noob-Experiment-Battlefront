@@ -1216,7 +1216,7 @@ for i = 1, BAR_COUNT do
     Bar.Size =
         UDim2.new(
             1 / BAR_COUNT,
-            -4,
+            0,
             0,
             5
         )
@@ -1281,7 +1281,7 @@ VisualizerConnection =
         Bar.Size =
             UDim2.new(
                 1 / BAR_COUNT,
-                -4,
+                0,
                 0,
                 math.clamp(
                     Height,
