@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V4.3🔥",
+   Name = "Noob Experiment: Battlefront V4.4🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "The Best Noob Experiment: Battlefront",
    LoadingSubtitle = "By: Theurus_The_Creator",
@@ -227,7 +227,7 @@ MainTab:CreateParagraph({
 
 MainTab:CreateParagraph({
 	Title = "Update Log",
-	Content = "- Esp Deleted\n+ Morph That Exist (Stats)\n• Information and stats has its own tab\n• FIXED SCRIPT NOT SHOW UP!"
+	Content = "+ Game Status\n+ Wave Visualizer Have 85 Block Now (kinda lag on mobile)\n@ Future Update Is Auto Reset Health (Titan Only)"
 	})
 		
 local MainTab = Window:CreateTab("Shop", nil)
@@ -472,7 +472,8 @@ MainTab:CreateToggle({
 						local hit = abilities:FindFirstChild("Hit")
                         local energysword = abilities:FindFirstChild("Energy Sword")
 						local knife = abilities:FindFirstChild("Knife")
-								
+						local hammer = abilities:FindFirstChild("Hammer")
+                         
                         local slashEvent = slash and slash:FindFirstChild("RemoteEvent")
                         local punchEvent = punch and punch:FindFirstChild("RemoteEvent")
                         local swordEvent = sword and sword:FindFirstChild("RemoteEvent")
@@ -481,17 +482,23 @@ MainTab:CreateToggle({
 						local hitEvent = hit and hit:FindFirstChild("RemoteEvent")
                         local energyswordEvent = energysword and energysword:FindFirstChild("RemoteEvent")
 						local knifeEvent = knife and knife:FindFirstChild("RemoteEvent")
+						local hammerEvent = hammer and hammer:FindFirstChild("RemoteEvent")
 								
                         if slashEvent then
                             slashEvent:FireServer()
-                end
-                                        if punchEvent then
+                                end
+
+					    if hammerEvent then
+                            hammerEvent:FireServer()
+								end
+								
+                        if punchEvent then
                             punchEvent:FireServer()
-                        end
+                                end
 
                         if swordEvent then
                             swordEvent:FireServer()
-                        end
+                                end
 								
 						if knifeEvent then
                             knifeEvent:FireServer()
