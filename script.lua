@@ -53,6 +53,8 @@ p2.CanCollide = true
 p2.Transparency = 1
 p2.Parent = workspace
 
+--// Detect All Currency
+
 local MainTab = Window:CreateTab("Stats", nil)
 
 local MoneyDisplay = MainTab:CreateParagraph({
@@ -83,6 +85,35 @@ task.spawn(function()
         task.wait(0.2)
     end
 end)
+
+--// Detect Wave, And Mode
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local Status = LocalPlayer.PlayerGui.GameStatus.Status
+
+local WaveParagraph = MainTab:CreateParagraph({
+    Title = "Game Status",
+    Content = "Wave: Checking...\nMode: Checking..."
+})
+
+local function UpdateGameStatus()
+    local WaveCount = Status:FindFirstChild("WaveCount")
+    local Difficulty = Status:FindFirstChild("Difficulty")
+
+    local Wave = WaveCount and WaveCount.Text or "Unknown"
+    local Mode = Difficulty and Difficulty.Text or "Unknown"
+
+    WaveParagraph:Set({
+        Title = "Game Status",
+        Content = Wave .. "\n" .. Mode
+    })
+end
+
+while task.wait(0.2) do
+    UpdateGameStatus()
+end
 
 --// Detect Player That Use This Script
 
