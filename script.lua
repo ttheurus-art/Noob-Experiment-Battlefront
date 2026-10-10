@@ -1024,31 +1024,28 @@ local Threshold = 15
 local AutoRepair = false
 local AlreadyRepaired = false
 
--- Cari unit milik pemain di battlefield
-local function GetTitanHealth()
+-- Cari Humanoid Titan
+local function GetTitanHumanoid()
     local Folder = workspace:FindFirstChild("Players")
     if not Folder then
         return nil
     end
 
-    -- Cari unit yang dimiliki pemain lokal
+    -- Cari unit yang namanya sama dengan karakter lokal
+    local Character = Folder:FindFirstChild(LocalPlayer.Name)
+    if Character then
+        return Character:FindFirstChildWhichIsA(
+            "Humanoid", true
+        )
+    end
+
+    -- Jika struktur unit berbeda, cari Humanoid dalam folder
     for _, Unit in ipairs(Folder:GetChildren()) do
-        if Unit:GetAttribute("Owner") == LocalPlayer.Name
-            or Unit:GetAttribute("OwnerUserId") == LocalPlayer.UserId then
-
-            local Humanoid = Unit:FindFirstChildWhichIsA(
-                "Humanoid", true
-            )
-
-            if Humanoid then
-                return Humanoid.Health
-            end
-
-            local HP = Unit:FindFirstChild("Health", true)
-            if HP and (HP:IsA("NumberValue")
-                or HP:IsA("IntValue")) then
-                return HP.Value
-            end
+        local Humanoid = Unit:FindFirstChildWhichIsA(
+            "Humanoid", true
+        )
+        if Humanoid then
+            return Humanoid
         end
     end
 
@@ -1057,7 +1054,7 @@ end
 
 -- Toggle
 MainTab:CreateToggle({
-    Name = "Auto Repair (maybe theres a bug)",
+    Name = "Auto Repair",
     CurrentValue = false,
     Flag = "AutoRepair",
     Callback = function(Value)
@@ -1088,16 +1085,19 @@ task.spawn(function()
             continue
         end
 
-        local Health = GetTitanHealth()
-
-        if Health == nil then
+        local Humanoid = GetTitanHumanoid()
+        if not Humanoid then
             continue
         end
 
+        local Health = Humanoid.Health
+
+        -- Jangan repair saat mati
         if Health <= 0 then
             continue
         end
 
+        -- Siapkan siklus berikutnya
         if Health >= Threshold then
             AlreadyRepaired = false
         elseif not AlreadyRepaired then
@@ -1117,8 +1117,6 @@ task.spawn(function()
         end
     end
 end)
-
-
 
 --// MUSIC
 
