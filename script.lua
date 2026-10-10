@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V4.4💠",
+   Name = "Noob Experiment: Battlefront V4.5💠",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "The Best Noob Experiment: Battlefront",
    LoadingSubtitle = "By: Theurus_The_Creator",
@@ -227,7 +227,7 @@ MainTab:CreateParagraph({
 
 MainTab:CreateParagraph({
 	Title = "Update Log",
-	Content = "+ Game Status\n+ Wave Visualizer Have 85 Block Now (kinda lag on mobile)\n@ Future Update Is Auto Reset Health (Titan Only)"
+	Content = "+Auto Repair (Recommend For Titan)"
 	})
 		
 local MainTab = Window:CreateTab("Shop", nil)
@@ -1010,6 +1010,88 @@ MainTab:CreateToggle({
         end)
     end,
 })
+
+--// AUTO HEATLH RESET
+
+-- Auto Repair
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Player = Players.LocalPlayer
+local RepairEvent = ReplicatedStorage:WaitForChild("ItemsEvent")
+
+local Threshold = 15
+local AutoRepair = false
+local AlreadyRepaired = false
+
+-- Toggle
+MainTab:CreateToggle({
+    Name = "Auto Repair (Not Complete)",
+    CurrentValue = false,
+    Flag = "AutoRepair",
+    Callback = function(Value)
+        AutoRepair = Value
+
+        if not Value then
+            AlreadyRepaired = false
+        end
+    end,
+})
+
+-- Slider di bawah toggle
+MainTab:CreateSlider({
+    Name = "Repair Health Threshold",
+    Range = {5, 25},
+    Increment = 1,
+    Suffix = " HP",
+    CurrentValue = 15,
+    Flag = "RepairHealthThreshold",
+    Callback = function(Value)
+        Threshold = Value
+    end,
+})
+
+-- Auto Repair Loop
+task.spawn(function()
+    while task.wait(0.1) do
+        local Character = Player.Character
+        local Humanoid = Character
+            and Character:FindFirstChildOfClass("Humanoid")
+
+        if not AutoRepair or not Humanoid then
+            continue
+        end
+
+        local Health = Humanoid.Health
+
+        -- HP 0 atau minus: jangan repair
+        if Health <= 0 then
+            continue
+        end
+
+        -- Reset jika HP pulih
+        if Health >= Threshold then
+            AlreadyRepaired = false
+        end
+
+        -- Repair sekali
+        if Health < Threshold and not AlreadyRepaired then
+            AlreadyRepaired = true
+
+            local Success = pcall(function()
+                RepairEvent:FireServer("Repair")
+            end)
+
+            if Success then
+                Rayfield:Notify({
+                    Title = "Auto Repair",
+                    Content = "Titan Has Been Repair!",
+                    Duration = 3,
+                })
+            end
+        end
+    end
+end)
 
 
 
