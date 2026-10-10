@@ -1013,50 +1013,21 @@ MainTab:CreateToggle({
 
 --// AUTO HEATLH RESET
 
--- Auto Repair Titan
+-- Auto Repair
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local LocalPlayer = Players.LocalPlayer
+local Player = Players.LocalPlayer
 local RepairEvent = ReplicatedStorage:WaitForChild("ItemsEvent")
 
 local Threshold = 15
 local AutoRepair = false
 local AlreadyRepaired = false
 
--- Cari Humanoid Titan
-local function GetTitanHumanoid()
-    local Folder = workspace:FindFirstChild("Players")
-    if not Folder then
-        return nil
-    end
-
-    -- Cari unit yang namanya sama dengan karakter lokal
-    local Character = Folder:FindFirstChild(LocalPlayer.Name)
-    if Character then
-        return Character:FindFirstChildWhichIsA(
-            "Humanoid", true
-        )
-    end
-
-    -- Jika struktur unit berbeda, cari Humanoid dalam folder
-    for _, Unit in ipairs(Folder:GetChildren()) do
-        local Humanoid = Unit:FindFirstChildWhichIsA(
-            "Humanoid", true
-        )
-        if Humanoid then
-            return Humanoid
-        end
-    end
-
-    return nil
-end
-
 -- Toggle
 MainTab:CreateToggle({
     Name = "Auto Repair",
     CurrentValue = false,
-    Flag = "AutoRepair",
     Callback = function(Value)
         AutoRepair = Value
         if not Value then
@@ -1072,48 +1043,46 @@ MainTab:CreateSlider({
     Increment = 1,
     Suffix = " HP",
     CurrentValue = 15,
-    Flag = "RepairHealthThreshold",
     Callback = function(Value)
         Threshold = Value
     end,
 })
 
--- Loop
+-- Cek Humanoid.Health langsung
 task.spawn(function()
     while task.wait(0.1) do
         if not AutoRepair then
             continue
         end
 
-        local Humanoid = GetTitanHumanoid()
+        local Character = Player.Character
+        local Humanoid = Character
+            and Character:FindFirstChildOfClass("Humanoid")
+
         if not Humanoid then
             continue
         end
 
         local Health = Humanoid.Health
 
-        -- Jangan repair saat mati
+        -- HP 0 atau minus: jangan repair
         if Health <= 0 then
             continue
         end
 
-        -- Siapkan siklus berikutnya
+        -- Reset siklus saat HP pulih
         if Health >= Threshold then
             AlreadyRepaired = false
         elseif not AlreadyRepaired then
             AlreadyRepaired = true
 
-            local Success = pcall(function()
-                RepairEvent:FireServer("Repair")
-            end)
+            RepairEvent:FireServer("Repair")
 
-            if Success then
-                Rayfield:Notify({
-                    Title = "Auto Repair",
-                    Content = "Titan Has Been Repair!",
-                    Duration = 3,
-                })
-            end
+            Rayfield:Notify({
+                Title = "Auto Repair",
+                Content = "Titan Has Been Repair!",
+                Duration = 3,
+            })
         end
     end
 end)
