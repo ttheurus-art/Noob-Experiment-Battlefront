@@ -117,6 +117,7 @@ end)
 
 --// Detect Player That Use This Script
 
+
 local Players = game:GetService("Players")
 
 local Paragraph = MainTab:CreateParagraph({
@@ -131,22 +132,20 @@ local function UpdateParagraph()
         local charsBought = player:FindFirstChild("charsBought")
         local xtreme = charsBought and charsBought:FindFirstChild("X-TREME")
 
-		if player.Name == "kinds_eye" or player.Name == "Player_Yusup" then
+        if xtreme and xtreme:IsA("BoolValue") and xtreme.Value == true then
+            if player.Name == "kinds_eye" or player.Name == "Player_Yusup" then
                 table.insert(result, player.Name .. " (🔥OWNER SCRIPT🔥)")
             else
                 table.insert(result, player.Name)
             end
-
         end
-end
-
-        if xtreme and xtreme:IsA("BoolValue") and xtreme.Value == true then
+    end
 
     Paragraph:Set({
-        Title = "Player That Use This Script (in this server):\n================",
+        Title = "Player That Use This Script (In this server):\n================",
         Content = #result > 0
             and table.concat(result, "\n")
-            or "Checking..."
+            or "No Player Use This Script (in this server)"
     })
 end
 
@@ -156,6 +155,7 @@ task.spawn(function()
         task.wait(0.5)
     end
 end)
+
 
 --// Detect Morph That Exist In Battlefield
 
