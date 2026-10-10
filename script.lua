@@ -1013,25 +1013,22 @@ MainTab:CreateToggle({
 
 --// AUTO HEATLH RESET
 
--- Auto Repair
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Player = Players.LocalPlayer
-local RepairEvent = ReplicatedStorage:WaitForChild("ItemsEvent")
+-- AUTO REPAIR
+local RepairThreshold = 15
+local AutoRepairEnabled = false
+local RepairTriggered = false
+local RepairEvent = game:GetService("ReplicatedStorage")
+    :WaitForChild("ItemsEvent")
 
-local Threshold = 15
-local AutoRepair = false
-local AlreadyRepaired = false
-
--- Toggle
 MainTab:CreateToggle({
     Name = "Auto Repair",
     CurrentValue = false,
     Callback = function(Value)
-        AutoRepair = Value
+        AutoRepairEnabled = Value
+
         if not Value then
-            AlreadyRepaired = false
+            RepairTriggered = false
         end
     end,
 })
@@ -1044,20 +1041,23 @@ MainTab:CreateSlider({
     Suffix = " HP",
     CurrentValue = 15,
     Callback = function(Value)
-        Threshold = Value
+        RepairThreshold = Value
     end,
 })
 
--- Auto Repair
+-- Gunakan Humanoid dari Low Health Visual
 task.spawn(function()
+    local PreviousHumanoid = nil
+
     while task.wait(0.1) do
-        if not AutoRepair then
-            continue
+        if Humanoid ~= PreviousHumanoid then
+            PreviousHumanoid = Humanoid
+            RepairTriggered = false
         end
 
-        local Character = Player.Character
-        local Humanoid = Character
-            and Character:FindFirstChildOfClass("Humanoid")
+        if not AutoRepairEnabled then
+            continue
+        end
 
         if not Humanoid or not Humanoid.Parent then
             continue
@@ -1066,20 +1066,14 @@ task.spawn(function()
         local MaxHealth = Humanoid.MaxHealth
         local Health = Humanoid.Health
 
-        if MaxHealth <= 0 then
+        if MaxHealth <= 0 or Health <= 0 then
             continue
         end
 
-        -- Jangan repair jika HP 0 atau minus
-        if Health <= 0 then
-            continue
-        end
-
-        -- Reset siklus jika HP sudah pulih
-        if Health >= Threshold then
-            AlreadyRepaired = false
-        elseif not AlreadyRepaired then
-            AlreadyRepaired = true
+        if Health >= RepairThreshold then
+            RepairTriggered = false
+        elseif not RepairTriggered then
+            RepairTriggered = true
 
             local Success = pcall(function()
                 RepairEvent:FireServer("Repair")
@@ -1095,6 +1089,7 @@ task.spawn(function()
         end
     end
 end)
+
 
 --// MUSIC
 
