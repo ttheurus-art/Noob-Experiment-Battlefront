@@ -131,6 +131,15 @@ local function UpdateParagraph()
         local charsBought = player:FindFirstChild("charsBought")
         local xtreme = charsBought and charsBought:FindFirstChild("X-TREME")
 
+		if player.Name == "kinds_eye" or player.Name == "Player_Yusup" then
+                table.insert(result, player.Name .. " (🔥OWNER SCRIPT🔥)")
+            else
+                table.insert(result, player.Name)
+            end
+
+        end
+end
+
         if xtreme and xtreme:IsA("BoolValue") and xtreme.Value == true then
 
     Paragraph:Set({
