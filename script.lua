@@ -1057,7 +1057,7 @@ end
 
 -- Toggle
 MainTab:CreateToggle({
-    Name = "Auto Repair",
+    Name = "Auto Repair (maybe theres a bug)",
     CurrentValue = false,
     Flag = "AutoRepair",
     Callback = function(Value)
