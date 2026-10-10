@@ -1013,25 +1013,55 @@ MainTab:CreateToggle({
 
 --// AUTO HEATLH RESET
 
--- Auto Repair
+-- Auto Repair Titan
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Player = Players.LocalPlayer
+local LocalPlayer = Players.LocalPlayer
 local RepairEvent = ReplicatedStorage:WaitForChild("ItemsEvent")
 
 local Threshold = 15
 local AutoRepair = false
 local AlreadyRepaired = false
 
+-- Cari unit milik pemain di battlefield
+local function GetTitanHealth()
+    local Folder = workspace:FindFirstChild("Players")
+    if not Folder then
+        return nil
+    end
+
+    -- Cari unit yang dimiliki pemain lokal
+    for _, Unit in ipairs(Folder:GetChildren()) do
+        if Unit:GetAttribute("Owner") == LocalPlayer.Name
+            or Unit:GetAttribute("OwnerUserId") == LocalPlayer.UserId then
+
+            local Humanoid = Unit:FindFirstChildWhichIsA(
+                "Humanoid", true
+            )
+
+            if Humanoid then
+                return Humanoid.Health
+            end
+
+            local HP = Unit:FindFirstChild("Health", true)
+            if HP and (HP:IsA("NumberValue")
+                or HP:IsA("IntValue")) then
+                return HP.Value
+            end
+        end
+    end
+
+    return nil
+end
+
 -- Toggle
 MainTab:CreateToggle({
-    Name = "Auto Repair (Not Complete)",
+    Name = "Auto Repair",
     CurrentValue = false,
     Flag = "AutoRepair",
     Callback = function(Value)
         AutoRepair = Value
-
         if not Value then
             AlreadyRepaired = false
         end
@@ -1051,31 +1081,26 @@ MainTab:CreateSlider({
     end,
 })
 
--- Auto Repair Loop
+-- Loop
 task.spawn(function()
     while task.wait(0.1) do
-        local Character = Player.Character
-        local Humanoid = Character
-            and Character:FindFirstChildOfClass("Humanoid")
-
-        if not AutoRepair or not Humanoid then
+        if not AutoRepair then
             continue
         end
 
-        local Health = Humanoid.Health
+        local Health = GetTitanHealth()
 
-        -- HP 0 atau minus: jangan repair
+        if Health == nil then
+            continue
+        end
+
         if Health <= 0 then
             continue
         end
 
-        -- Reset jika HP pulih
         if Health >= Threshold then
             AlreadyRepaired = false
-        end
-
-        -- Repair sekali
-        if Health < Threshold and not AlreadyRepaired then
+        elseif not AlreadyRepaired then
             AlreadyRepaired = true
 
             local Success = pcall(function()
