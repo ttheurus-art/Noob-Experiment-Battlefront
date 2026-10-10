@@ -2,6 +2,14 @@ local URL = "https://raw.githubusercontent.com/ttheurus-art/Creator/refs/heads/m
 
 local Nauter = loadstring(game:HttpGet(URL))()
 
+local Window = Nauter:CreateWindow({
+    Name = "Noob Experiment: Battlefront"
+})
+
+local MainTab = Window:CreateTab({
+    Name = "Stats"
+})
+
 local p = Instance.new("Part")
 p.Size = Vector3.new(500, 15, 500)
 p.Position = Vector3.new(1575, -469, 555)
@@ -17,8 +25,6 @@ p2.Anchored = true
 p2.CanCollide = true
 p2.Transparency = 1
 p2.Parent = workspace
-
-local MainTab = Window:CreateTab("Stats", nil)
 
 --// Currency Detector
 
