@@ -133,15 +133,6 @@ local function UpdateParagraph()
 
         if xtreme and xtreme:IsA("BoolValue") and xtreme.Value == true then
 
-            if player.Name == "kinds_eye" or player.Name == "Player_Yusup" then
-                table.insert(result, player.Name .. " (🔥OWNER SCRIPT🔥)")
-            else
-                table.insert(result, player.Name)
-            end
-
-        end
-    end
-
     Paragraph:Set({
         Title = "Player That Use This Script (in this server):\n================",
         Content = #result > 0
