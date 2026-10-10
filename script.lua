@@ -1048,7 +1048,7 @@ MainTab:CreateSlider({
     end,
 })
 
--- Cek Humanoid.Health langsung
+-- Auto Repair
 task.spawn(function()
     while task.wait(0.1) do
         if not AutoRepair then
@@ -1059,30 +1059,39 @@ task.spawn(function()
         local Humanoid = Character
             and Character:FindFirstChildOfClass("Humanoid")
 
-        if not Humanoid then
+        if not Humanoid or not Humanoid.Parent then
             continue
         end
 
+        local MaxHealth = Humanoid.MaxHealth
         local Health = Humanoid.Health
 
-        -- HP 0 atau minus: jangan repair
+        if MaxHealth <= 0 then
+            continue
+        end
+
+        -- Jangan repair jika HP 0 atau minus
         if Health <= 0 then
             continue
         end
 
-        -- Reset siklus saat HP pulih
+        -- Reset siklus jika HP sudah pulih
         if Health >= Threshold then
             AlreadyRepaired = false
         elseif not AlreadyRepaired then
             AlreadyRepaired = true
 
-            RepairEvent:FireServer("Repair")
+            local Success = pcall(function()
+                RepairEvent:FireServer("Repair")
+            end)
 
-            Rayfield:Notify({
-                Title = "Auto Repair",
-                Content = "Titan Has Been Repair!",
-                Duration = 3,
-            })
+            if Success then
+                Rayfield:Notify({
+                    Title = "Auto Repair",
+                    Content = "Titan Has Been Repair!",
+                    Duration = 3,
+                })
+            end
         end
     end
 end)
