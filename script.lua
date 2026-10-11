@@ -227,7 +227,7 @@ MainTab:CreateParagraph({
 
 MainTab:CreateParagraph({
 	Title = "Update Log",
-	Content = "+Auto Repair (Recommend For Titan)"
+	Content = "+Tips How To Be Invisible And Invincible Forever\nThanks For @wallance_editzz That Figure It Out And Tell Me"
 	})
 		
 local MainTab = Window:CreateTab("Shop", nil)
