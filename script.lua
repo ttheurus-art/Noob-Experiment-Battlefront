@@ -212,7 +212,7 @@ MainTab:CreateParagraph({
 
 MainTab:CreateParagraph({
 	Title = "Tips",
-	Content = "You Can Delete Npc Like Erlking, Sus_Moogus, And Others With Titan Builderman.\nJust Use Titan Builderman Then Teleport To Safe Place In Teleport (Script) Then Use Hook, And The Npc Disappear (deleted / died)\n\nIf You Lazy Or Whatever, You Can Just Click ''Call Titans / Call Special Titans'' In Shop (Script) That Feature Is Soo Useful When You Do Nightmare Mode\n\nYou Can Be Invisible And Invincible Forever By Using Any Titan/Unit That Has Teleport Skill\nFirst, Use Teleport, Then Use ''Buy Cannon Bloxxer/Speaker''\nHere The List\nTitan Guest, Use Teleport Then Buy Speaker\nMultiverse Titan Guest, Use Teleport Then Buy Bloxxer Cannon\nTitan John Doe, Use Teleport Then Buy Speaker\nTitan Bloxxer, Use Teleport(animation must be gone) Then Buy Speaker"
+	Content = "You Can Delete Npc Like Erlking, Sus_Moogus, And Others With Titan Builderman.\nJust Use Titan Builderman Then Teleport To Safe Place In Teleport (Script) Then Use Hook, And The Npc Disappear (deleted / died)\n\nIf You Lazy Or Whatever, You Can Just Click ''Call Titans / Call Special Titans'' In Shop (Script) That Feature Is Soo Useful When You Do Nightmare Mode\n\nYou Can Be Invisible And Invincible Forever By Using Any Titan/Unit That Has Teleport Skill\nFirst, Use Teleport, Then Use ''Buy Cannon Bloxxer/Speaker''\nHere The List\n\n•Titan Guest, Use Teleport Then Buy Speaker\n•Multiverse Titan Guest, Use Teleport Then Buy Bloxxer Cannon\n•Titan John Doe, Use Teleport Then Buy Speaker\n•Titan Bloxxer, Use Teleport(animation must be gone) Then Buy Speaker"
 	})
 
 MainTab:CreateParagraph({
