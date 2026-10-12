@@ -64,7 +64,7 @@ MainTab:CreateToggle({
 
 -- AUTO REJOIN
 MainTab:CreateToggle({
-    Name = "Auto Execute (for auto essence later)",
+    Name = "Auto Execute",
     CurrentValue = true,
     Flag = "AutoExecuteTeleport",
     Callback = function(Value)
