@@ -64,14 +64,13 @@ MainTab:CreateToggle({
 
 -- AUTO REJOIN
 MainTab:CreateToggle({
-    Name = "Auto Rejoin",
+    Name = "Auto Execute (for auto essence later)",
     CurrentValue = true,
-    Flag = "AutoRejoin",
+    Flag = "AutoExecuteTeleport",
     Callback = function(Value)
-        Flags.AutoRejoin = Value
-    end
+        Flags.AutoReExecute = Value
+    end,
 })
-
 -- AUTO REEXECUTE
 MainTab:CreateToggle({
     Name = "Auto ReExecute",
