@@ -1,0 +1,218 @@
+-- SERVICES
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local Player = Players.LocalPlayer
+
+local Flags = {
+    AutoPunch = true,
+    AutoMinigame = true,
+    AutoRejoin = true,
+    AutoReExecute = true
+}
+
+local ScriptURL = "" -- ISI LINK NANTI
+
+local SequenceStarted = false
+local ItrappedSeen = false
+local RejoinStarted = false
+
+-- RAYFIELD
+local Rayfield = loadstring(game:HttpGet(
+    "https://sirius.menu/rayfield"
+))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "Auto Minigame",
+    LoadingTitle = "Auto Minigame",
+    LoadingSubtitle = "Automation Panel",
+    ConfigurationSaving = {
+        Enabled = false
+    }
+})
+
+local MainTab = Window:CreateTab("Main", 4483362458)
+
+-- HEALTH PARAGRAPH
+local HealthParagraph = MainTab:CreateParagraph({
+    Title = "Itrapped Health",
+    Content = "Waiting for Itrapped..."
+})
+
+-- AUTO PUNCH
+MainTab:CreateToggle({
+    Name = "Auto Punch",
+    CurrentValue = true,
+    Flag = "AutoPunch",
+    Callback = function(Value)
+        Flags.AutoPunch = Value
+    end
+})
+
+-- AUTO MINIGAME
+MainTab:CreateToggle({
+    Name = "Auto Minigame",
+    CurrentValue = true,
+    Flag = "AutoMinigame",
+    Callback = function(Value)
+        Flags.AutoMinigame = Value
+
+        if Value then
+            SequenceStarted = false
+        end
+    end
+})
+
+-- AUTO REJOIN
+MainTab:CreateToggle({
+    Name = "Auto Rejoin",
+    CurrentValue = true,
+    Flag = "AutoRejoin",
+    Callback = function(Value)
+        Flags.AutoRejoin = Value
+    end
+})
+
+-- AUTO REEXECUTE
+MainTab:CreateToggle({
+    Name = "Auto ReExecute",
+    CurrentValue = true,
+    Flag = "AutoReExecute",
+    Callback = function(Value)
+        Flags.AutoReExecute = Value
+    end
+})
+
+-- AUTO PUNCH LOOP
+task.spawn(function()
+    while task.wait(0.1) do
+        if Flags.AutoPunch then
+            local Character = Player.Character
+            local Punch = Character
+                and Character:FindFirstChild("Punch")
+            local Event = Punch
+                and Punch:FindFirstChild("RemoteEvent")
+
+            if Event and Event:IsA("RemoteEvent") then
+                pcall(function()
+                    Event:FireServer()
+                end)
+            end
+        end
+    end
+end)
+
+-- TELEPORT HELPER
+local function TeleportTo(Position)
+    local Character = Player.Character
+        or Player.CharacterAdded:Wait()
+
+    local Root = Character:WaitForChild("HumanoidRootPart")
+    Root.CFrame = CFrame.new(Position)
+end
+
+-- AUTO MINIGAME LOOP
+task.spawn(function()
+    while task.wait(0.1) do
+        if not Flags.AutoMinigame then
+            SequenceStarted = false
+            continue
+        end
+
+        if not SequenceStarted then
+            SequenceStarted = true
+
+            task.spawn(function()
+                task.wait(18)
+
+                if not Flags.AutoMinigame then
+                    SequenceStarted = false
+                    return
+                end
+
+                TeleportTo(Vector3.new(99, -18, 193))
+
+                task.wait(8)
+
+                if not Flags.AutoMinigame then
+                    SequenceStarted = false
+                    return
+                end
+
+                TeleportTo(Vector3.new(85, -16, 59))
+
+                while Flags.AutoMinigame do
+                    local Target = workspace:FindFirstChild("Itrapped")
+                    local TargetRoot = Target
+                        and Target:FindFirstChild("HumanoidRootPart")
+                    local Humanoid = Target
+                        and Target:FindFirstChildOfClass("Humanoid")
+
+                    local Character = Player.Character
+                    local Root = Character
+                        and Character:FindFirstChild("HumanoidRootPart")
+
+                    if Target and TargetRoot and Humanoid then
+                        ItrappedSeen = true
+
+                        if Root then
+                            Root.CFrame = TargetRoot.CFrame
+                                * CFrame.new(0, 0, 3)
+                            Root.AssemblyLinearVelocity = Vector3.zero
+                            Root.AssemblyAngularVelocity = Vector3.zero
+                        end
+
+                        HealthParagraph:Set({
+                            Title = "Itrapped Health",
+                            Content = "Health: "
+                                .. math.floor(Humanoid.Health)
+                                .. " / "
+                                .. math.floor(Humanoid.MaxHealth)
+                        })
+                    else
+                        HealthParagraph:Set({
+                            Title = "Itrapped Health",
+                            Content = "Waiting for Itrapped..."
+                        })
+                    end
+
+                    task.wait()
+                end
+
+                SequenceStarted = false
+            end)
+        end
+    end
+end)
+
+-- AUTO REJOIN WHEN ITRAPPED DISAPPEARS
+task.spawn(function()
+    while task.wait(0.2) do
+        local Target = workspace:FindFirstChild("Itrapped")
+
+        if Target then
+            ItrappedSeen = true
+        elseif ItrappedSeen and Flags.AutoRejoin and not RejoinStarted then
+            RejoinStarted = true
+
+            pcall(function()
+                TeleportService:Teleport(game.PlaceId, Player)
+            end)
+
+            break
+        end
+    end
+end)
+
+-- AUTO REEXECUTE PLACEHOLDER
+-- Isi ScriptURL nanti.
+-- Auto-reexecute membutuhkan dukungan executor untuk
+-- menjalankan ulang script setelah masuk server baru.
+task.spawn(function()
+    while task.wait(1) do
+        if Flags.AutoReExecute and ScriptURL ~= "" then
+            -- URL belum dijalankan otomatis di sini.
+            -- Sambungkan sesuai executor yang kamu gunakan.
+            break
+        end
+    end
+end)
