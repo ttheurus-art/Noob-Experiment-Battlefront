@@ -63,22 +63,29 @@ MainTab:CreateToggle({
 })
 
 -- AUTO REJOIN
+local AutoTimeEssenceEnabled = false
+
+local AutoTimeEssenceURL = "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessence"
+
 MainTab:CreateToggle({
-    Name = "Auto Execute",
-    CurrentValue = true,
-    Flag = "AutoExecuteTeleport",
+    Name = "Auto Time Essence",
+    CurrentValue = false,
+    Flag = "AutoTimeEssence",
     Callback = function(Value)
-        Flags.AutoReExecute = Value
+        AutoTimeEssenceEnabled = Value
+
+        if Value then
+            task.spawn(function()
+                local Success, Error = pcall(function()
+                    loadstring(game:HttpGet(AutoTimeEssenceURL))()
+                end)
+
+                if not Success then
+                    warn("Auto Time Essence Error:", Error)
+                end
+            end)
+        end
     end,
-})
--- AUTO REEXECUTE
-MainTab:CreateToggle({
-    Name = "Auto ReExecute",
-    CurrentValue = true,
-    Flag = "AutoReExecute",
-    Callback = function(Value)
-        Flags.AutoReExecute = Value
-    end
 })
 
 -- AUTO PUNCH LOOP
