@@ -10,7 +10,7 @@ local Flags = {
     AutoReExecute = true
 }
 
-local ScriptURL = "" -- ISI LINK NANTI
+local ScriptURL = "https://raw.githubusercontent.com/ttheurus-art/Creator/refs/heads/main/autotimeessence"
 
 local SequenceStarted = false
 local ItrappedSeen = false
