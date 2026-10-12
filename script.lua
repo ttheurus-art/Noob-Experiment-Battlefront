@@ -207,7 +207,7 @@ MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "information",
-    Content = "I make this script because I want too\nI never think to upload this script but i got banned from the game so i decide to upload the script"
+    Content = "I make this script for fun, but the dev ban me, so I decided to upload it and keep updating, For Revenge!"
 	})
 
 MainTab:CreateParagraph({
