@@ -131,7 +131,7 @@ task.spawn(function()
 
                 TeleportTo(Vector3.new(99, -18, 193))
 
-                task.wait(8)
+                task.wait(9)
 
                 if not Flags.AutoMinigame then
                     SequenceStarted = false
