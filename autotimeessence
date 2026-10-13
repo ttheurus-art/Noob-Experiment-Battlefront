@@ -14,6 +14,7 @@ local Flags = {
 local SequenceStarted = false
 local ItrappedSeen = false
 local RejoinStarted = false
+local AutoExecuteEnabled = true
 
 -- RAYFIELD
 local Rayfield = loadstring(game:HttpGet(
@@ -72,35 +73,48 @@ MainTab:CreateToggle({
 })
 
 -- AUTO EXECUTE
+local function QueueAutoExecute()
+    local QueueFunction =
+        queue_on_teleport
+        or (syn and syn.queue_on_teleport)
+        or (fluxus and fluxus.queue_on_teleport)
+
+    if not QueueFunction then
+        return false
+    end
+
+    return pcall(function()
+        QueueFunction([[
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessence"))()
+        ]])
+    end)
+end
+
 MainTab:CreateToggle({
     Name = "Auto Execute",
-    CurrentValue = false,
+    CurrentValue = true,
     Flag = "AutoExecuteTeleport",
     Callback = function(Value)
-        if Value then
-            local QueueFunction =
-                queue_on_teleport
-                or (syn and syn.queue_on_teleport)
-                or (fluxus and fluxus.queue_on_teleport)
+        AutoExecuteEnabled = Value
 
-            if QueueFunction then
-                pcall(function()
-                    QueueFunction([[
-                        loadstring(game:HttpGet(
-                            "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/script.lua"
-                        ))()
-                    ]])
-                end)
-            else
+        if Value then
+            local Success = QueueAutoExecute()
+
+            if not Success then
                 Rayfield:Notify({
                     Title = "Auto Execute",
-                    Content = "Queue-on-teleport is not supported by this executor.",
+                    Content = "Queue-on-teleport is unavailable.",
                     Duration = 5
                 })
             end
         end
     end
 })
+
+-- QUEUE ON INITIAL EXECUTION
+if AutoExecuteEnabled then
+    QueueAutoExecute()
+end
 
 -- AUTO PUNCH LOOP
 task.spawn(function()
@@ -127,7 +141,6 @@ local function TeleportTo(Position)
         or Player.CharacterAdded:Wait()
 
     local Root = Character:WaitForChild("HumanoidRootPart")
-
     Root.CFrame = CFrame.new(Position)
 end
 
@@ -218,57 +231,65 @@ task.spawn(function()
         if Target then
             ItrappedSeen = true
         elseif ItrappedSeen then
-            RejoinStarted = true
+            task.wait(1.4)
 
-            pcall(function()
-                TeleportService:Teleport(game.PlaceId, Player)
-            end)
-
-            break
-        end
-    end
-end)
-
--- REJOIN IF BATTLEFIELD DOESN'T BECOME FROZEN TUNDRA
-task.spawn(function()
-    while task.wait(1) do
-        if not Flags.AutoRejoin or RejoinStarted then
-            continue
-        end
-
-        local Battlefield = workspace:FindFirstChild("Battlefield")
-
-        if Battlefield then
-            local StartTime = os.clock()
-            local Changed = false
-
-            while os.clock() - StartTime < 25 do
-                if not Flags.AutoRejoin or RejoinStarted then
-                    break
-                end
-
-                local Current = workspace:FindFirstChild("Battlefield")
-
-                if Current and Current.Name == "Frozen Tundra" then
-                    Changed = true
-                    break
-                end
-
-                task.wait(0.2)
-            end
-
-            if not Changed
-                and Flags.AutoRejoin
-                and not RejoinStarted then
+            -- Confirm Itrapped is still missing
+            if Flags.AutoRejoin
+                and not RejoinStarted
+                and not workspace:FindFirstChild("Itrapped") then
 
                 RejoinStarted = true
 
                 pcall(function()
                     TeleportService:Teleport(game.PlaceId, Player)
                 end)
+            end
 
+            break
+        end
+    end
+end)
+
+-- AUTO REJOIN IF FROZEN TUNDRA IS NOT DETECTED WITHIN 80 SECONDS
+task.spawn(function()
+    local StartTime = os.clock()
+    local FrozenTundraDetected = false
+
+    while os.clock() - StartTime < 80 do
+        if not Flags.AutoRejoin or RejoinStarted then
+            return
+        end
+
+        -- Check Battlefield and descendants for the map name
+        local Battlefield = workspace:FindFirstChild("Battlefield")
+
+        if Battlefield then
+            if Battlefield.Name == "Frozen Tundra"
+                or Battlefield:FindFirstChild("Frozen Tundra", true) then
+
+                FrozenTundraDetected = true
                 break
             end
         end
+
+        -- Also check workspace in case the map is a direct child
+        if workspace:FindFirstChild("Frozen Tundra") then
+            FrozenTundraDetected = true
+            break
+        end
+
+        task.wait(0.2)
+    end
+
+    if FrozenTundraDetected then
+        return
+    end
+
+    if Flags.AutoRejoin and not RejoinStarted then
+        RejoinStarted = true
+
+        pcall(function()
+            TeleportService:Teleport(game.PlaceId, Player)
+        end)
     end
 end)
