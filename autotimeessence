@@ -334,6 +334,11 @@ end)
 -- TP 3: FOLLOW ITRAPPED EVERY FRAME
 --==================================================
 
+--==================================================
+-- TP 3: FOLLOW ITRAPPED EVERY FRAME
+-- DISTANCE: 3 STUDS
+--==================================================
+
 RunService.Heartbeat:Connect(function()
     if not Flags.AutoMinigame then
         return
@@ -357,7 +362,8 @@ RunService.Heartbeat:Connect(function()
     end
 
     pcall(function()
-        PlayerRoot.CFrame = TargetRoot.CFrame
+        PlayerRoot.CFrame =
+            TargetRoot.CFrame * CFrame.new(0, 0, 3)
     end)
 end)
 
