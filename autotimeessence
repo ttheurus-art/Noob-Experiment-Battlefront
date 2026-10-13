@@ -1,4 +1,6 @@
+
 -- AUTO MINIGAME - FULL SCRIPT
+-- 6 INDEPENDENT TOGGLES
 
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
@@ -10,6 +12,7 @@ local PlayerGui = Player:WaitForChild("PlayerGui")
 
 -- SINGLE INSTANCE GUARD
 local Env
+
 pcall(function()
     if getgenv then
         Env = getgenv()
@@ -20,6 +23,7 @@ if Env then
     if Env.AutoMinigameCleanup then
         pcall(Env.AutoMinigameCleanup)
     end
+
     Env.AutoMinigameRunning = false
 end
 
@@ -28,6 +32,7 @@ local RenderName = "AutoMinigameFace_" .. Player.UserId
 
 local function Cleanup()
     Running = false
+
     pcall(function()
         RunService:UnbindFromRenderStep(RenderName)
     end)
@@ -47,7 +52,9 @@ end
 -- REMOVE OLD GUI
 for _, Container in ipairs({PlayerGui, CoreGui}) do
     for _, Gui in ipairs(Container:GetChildren()) do
-        if Gui.Name == "Rayfield" or Gui.Name == "Auto Minigame" then
+        if Gui.Name == "Rayfield"
+            or Gui.Name == "Auto Minigame" then
+
             pcall(function()
                 Gui:Destroy()
             end)
@@ -64,47 +71,62 @@ local Window = Rayfield:CreateWindow({
     Name = "Auto Minigame",
     LoadingTitle = "Auto Minigame",
     LoadingSubtitle = "Auto TP System",
+
     ConfigurationSaving = {
         Enabled = true,
         FolderName = "AutoMinigame",
         FileName = "Config"
     },
+
     KeySystem = false
 })
 
 local MainTab = Window:CreateTab("Main", 4483362458)
 
+-- EACH TOGGLE HAS ITS OWN FLAG
 local Flags = {
     AutoPunch = true,
     AutoMinigame = true,
     AutoRejoin = true,
     AutoExecute = true,
-    FaceItrapped = true
+    FaceItrapped = true,
+    AutoDetectFrozenTundra = false
 }
 
 local SequenceStarted = false
 local RejoinStarted = false
-local InitialScanFinished = false
 local InitialRejoinTriggered = false
 local ItrappedSeen = false
 local LastEssenceValue = nil
 
+-- The initial scan is now controlled by its own toggle.
+local InitialScanFinished = true
+
+local AutoDetectRejoinStarted = false
+local AutoDetectScanId = 0
+
+-- CHARACTER HELPERS
 local function GetCharacter()
     return Player.Character
 end
 
 local function GetRoot()
     local Character = GetCharacter()
-    return Character and Character:FindFirstChild("HumanoidRootPart")
+
+    return Character
+        and Character:FindFirstChild("HumanoidRootPart")
 end
 
 local function GetHumanoid()
     local Character = GetCharacter()
-    return Character and Character:FindFirstChildOfClass("Humanoid")
+
+    return Character
+        and Character:FindFirstChildOfClass("Humanoid")
 end
 
 local function GetEssences()
     local Leaderstats = Player:FindFirstChild("leaderstats")
+
     local Essences = Leaderstats
         and Leaderstats:FindFirstChild("Time Essences")
 
@@ -113,6 +135,7 @@ end
 
 local function TeleportTo(Position)
     local Root = GetRoot()
+
     if not Root then
         return false
     end
@@ -124,8 +147,7 @@ local function TeleportTo(Position)
     end)
 end
 
--- QUEUE SCRIPT ON TELEPORT
--- This URL runs the existing autotimeessence script.
+-- QUEUE EXISTING AUTO EXECUTE SCRIPT
 local function QueueAutoExecute()
     local QueueFunction
 
@@ -166,7 +188,7 @@ local function RequestRejoin(ShouldAutoExecute)
 
     RejoinStarted = true
 
-    -- Stop all active loops before teleport.
+    -- Stop active loops without deleting GUI toggles.
     Flags.AutoPunch = false
     Flags.AutoMinigame = false
     Flags.FaceItrapped = false
@@ -180,93 +202,149 @@ local function RequestRejoin(ShouldAutoExecute)
     end)
 end
 
--- HEALTH AT TOP
+-- HEALTH DISPLAY
 local HealthParagraph = MainTab:CreateParagraph({
     Title = "Itrapped Health",
     Content = "Waiting for Itrapped..."
 })
 
--- TOGGLES
+-- TOGGLE 1: AUTO PUNCH
 MainTab:CreateToggle({
     Name = "Auto Punch",
     CurrentValue = true,
     Flag = "AutoPunch",
+
     Callback = function(Value)
         Flags.AutoPunch = Value
     end
 })
 
+-- TOGGLE 2: AUTO MINIGAME
 MainTab:CreateToggle({
     Name = "Auto Minigame",
     CurrentValue = true,
     Flag = "AutoMinigame",
+
     Callback = function(Value)
         Flags.AutoMinigame = Value
+
         if not Value then
             SequenceStarted = false
         end
     end
 })
 
+-- TOGGLE 3: AUTO REJOIN
 MainTab:CreateToggle({
     Name = "Auto Rejoin",
     CurrentValue = true,
     Flag = "AutoRejoin",
+
     Callback = function(Value)
         Flags.AutoRejoin = Value
     end
 })
 
+-- TOGGLE 4: AUTO EXECUTE
 MainTab:CreateToggle({
     Name = "Auto Execute",
     CurrentValue = true,
     Flag = "AutoExecute",
+
     Callback = function(Value)
         Flags.AutoExecute = Value
     end
 })
 
+-- TOGGLE 5: ALWAYS FACE ITRAPPED
 MainTab:CreateToggle({
     Name = "Always Face Itrapped",
     CurrentValue = true,
     Flag = "FaceItrapped",
+
     Callback = function(Value)
         Flags.FaceItrapped = Value
 
-        local Humanoid = GetHumanoid()
-        if Humanoid and not Value then
-            Humanoid.AutoRotate = true
+        if not Value then
+            local Humanoid = GetHumanoid()
+
+            if Humanoid then
+                Humanoid.AutoRotate = true
+            end
         end
     end
 })
 
--- INITIAL SCAN: MAXIMUM 5 SECONDS
-task.spawn(function()
-    local StartTime = os.clock()
+-- TOGGLE 6: AUTO DETECT FROZEN TUNDRA
+-- Independent from the five existing toggles.
+MainTab:CreateToggle({
+    Name = "Auto Detect Frozen Tundra",
+    CurrentValue = false,
+    Flag = "AutoDetectFrozenTundra",
 
-    while os.clock() - StartTime < 5 do
-        if not IsCurrentInstance() then
+    Callback = function(Value)
+        Flags.AutoDetectFrozenTundra = Value
+
+        -- Invalidate any previous scan.
+        AutoDetectScanId += 1
+        local ThisScanId = AutoDetectScanId
+
+        if not Value then
             return
         end
 
-        if workspace:FindFirstChild("Frozen Tundra") then
-            InitialRejoinTriggered = true
-            InitialScanFinished = true
-
-            Flags.AutoPunch = false
-            Flags.AutoMinigame = false
-            Flags.AutoRejoin = false
-            Flags.FaceItrapped = false
-
-            RequestRejoin(true)
+        if AutoDetectRejoinStarted or RejoinStarted then
             return
         end
 
-        task.wait(0.1)
+        task.spawn(function()
+            local StartTime = os.clock()
+
+            while os.clock() - StartTime < 5 do
+                if not IsCurrentInstance() then
+                    return
+                end
+
+                if ThisScanId ~= AutoDetectScanId
+                    or not Flags.AutoDetectFrozenTundra then
+                    return
+                end
+
+                if AutoDetectRejoinStarted or RejoinStarted then
+                    return
+                end
+
+                if workspace:FindFirstChild("Frozen Tundra") then
+                    AutoDetectRejoinStarted = true
+                    InitialRejoinTriggered = true
+
+                    -- Disable the other toggle behaviors.
+                    -- The toggles remain in the GUI.
+                    Flags.AutoPunch = false
+                    Flags.AutoMinigame = false
+                    Flags.AutoRejoin = false
+                    Flags.AutoExecute = Flags.AutoExecute
+                    Flags.FaceItrapped = false
+
+                    SequenceStarted = false
+
+                    local Humanoid = GetHumanoid()
+
+                    if Humanoid then
+                        Humanoid.AutoRotate = true
+                    end
+
+                    -- Use the existing single rejoin handler.
+                    -- Auto Execute keeps its own independent setting.
+                    RequestRejoin(true)
+                    return
+                end
+
+                task.wait(0.1)
+            end
+        end)
     end
-
-    InitialScanFinished = true
-end)
+})
 
 -- AUTO PUNCH LOOP
 task.spawn(function()
@@ -279,8 +357,11 @@ task.spawn(function()
 
         if Flags.AutoPunch then
             local Character = GetCharacter()
-            local Punch = Character and Character:FindFirstChild("Punch")
-            local Remote = Punch and Punch:FindFirstChild("RemoteEvent")
+            local Punch = Character
+                and Character:FindFirstChild("Punch")
+
+            local Remote = Punch
+                and Punch:FindFirstChild("RemoteEvent")
 
             if Remote then
                 pcall(function()
@@ -292,8 +373,8 @@ task.spawn(function()
 end)
 
 -- HEALTH / DEFEAT MONITOR
--- Health = 0 DOES NOT trigger rejoin.
--- Rejoin happens only after Itrapped disappears from workspace.
+-- Health reaching zero alone does not trigger rejoin.
+-- Rejoin is checked when Itrapped disappears.
 task.spawn(function()
     while task.wait(0.2) do
         if not IsCurrentInstance()
@@ -303,7 +384,8 @@ task.spawn(function()
         end
 
         local Target = workspace:FindFirstChild("Itrapped")
-        local Humanoid = Target and Target:FindFirstChildOfClass("Humanoid")
+        local Humanoid = Target
+            and Target:FindFirstChildOfClass("Humanoid")
 
         if Target then
             ItrappedSeen = true
@@ -314,6 +396,7 @@ task.spawn(function()
                 pcall(function()
                     HealthParagraph:Set({
                         Title = "Itrapped Health",
+
                         Content = string.format(
                             "Health: %d / %d",
                             math.floor(Humanoid.Health),
@@ -322,7 +405,6 @@ task.spawn(function()
                     })
                 end)
             end
-
         elseif ItrappedSeen then
             ItrappedSeen = false
 
@@ -366,7 +448,7 @@ task.spawn(function()
             end)
 
             if Flags.AutoRejoin then
-                -- Do not queue another auto-execute here.
+                -- Do not queue Auto Execute for this rejoin.
                 RequestRejoin(false)
                 return
             end
@@ -374,19 +456,8 @@ task.spawn(function()
     end
 end)
 
--- TP SEQUENCE: START AFTER INITIAL SCAN
+-- AUTO MINIGAME TELEPORT SEQUENCE
 task.spawn(function()
-    while not InitialScanFinished do
-        if not IsCurrentInstance() then
-            return
-        end
-        task.wait(0.05)
-    end
-
-    if InitialRejoinTriggered then
-        return
-    end
-
     while task.wait(0.2) do
         if not IsCurrentInstance()
             or InitialRejoinTriggered
@@ -402,14 +473,19 @@ task.spawn(function()
 
                 if not IsCurrentInstance()
                     or not Flags.AutoMinigame
-                    or RejoinStarted then
+                    or RejoinStarted
+                    or InitialRejoinTriggered then
+
                     SequenceStarted = false
                     return
                 end
 
-                -- TP1 UNTIL BATTLEFIELD IS GONE
-                -- AND FROZEN TUNDRA EXISTS
-                while Flags.AutoMinigame and not RejoinStarted do
+                -- TP1: wait for Battlefield to disappear
+                -- while Frozen Tundra exists.
+                while Flags.AutoMinigame
+                    and not RejoinStarted
+                    and not InitialRejoinTriggered do
+
                     local Battlefield =
                         workspace:FindFirstChild("Battlefield")
 
@@ -424,16 +500,23 @@ task.spawn(function()
                     task.wait(0.2)
                 end
 
-                if not Flags.AutoMinigame or RejoinStarted then
+                if not Flags.AutoMinigame
+                    or RejoinStarted
+                    or InitialRejoinTriggered then
+
                     SequenceStarted = false
                     return
                 end
 
-                -- TP2 UNTIL ITRAPPED APPEARS
-                while Flags.AutoMinigame and not RejoinStarted do
+                -- TP2: wait for Itrapped to appear.
+                while Flags.AutoMinigame
+                    and not RejoinStarted
+                    and not InitialRejoinTriggered do
+
                     local Target = workspace:FindFirstChild("Itrapped")
-                    local TargetRoot =
-                        Target and Target:FindFirstChild("HumanoidRootPart")
+
+                    local TargetRoot = Target
+                        and Target:FindFirstChild("HumanoidRootPart")
 
                     if TargetRoot then
                         break
@@ -444,10 +527,15 @@ task.spawn(function()
                 end
 
                 -- FOLLOW ITRAPPED FROM BEHIND
-                while Flags.AutoMinigame and not RejoinStarted do
+                while Flags.AutoMinigame
+                    and not RejoinStarted
+                    and not InitialRejoinTriggered do
+
                     local Target = workspace:FindFirstChild("Itrapped")
-                    local TargetRoot =
-                        Target and Target:FindFirstChild("HumanoidRootPart")
+
+                    local TargetRoot = Target
+                        and Target:FindFirstChild("HumanoidRootPart")
+
                     local Root = GetRoot()
 
                     if not TargetRoot or not Root then
@@ -475,6 +563,7 @@ end)
 RunService:BindToRenderStep(
     RenderName,
     Enum.RenderPriority.Character.Value + 1,
+
     function()
         if not IsCurrentInstance()
             or not Flags.FaceItrapped
@@ -493,13 +582,15 @@ RunService:BindToRenderStep(
             and Character:FindFirstChildOfClass("Humanoid")
 
         local Target = workspace:FindFirstChild("Itrapped")
-        local TargetRoot =
-            Target and Target:FindFirstChild("HumanoidRootPart")
+
+        local TargetRoot = Target
+            and Target:FindFirstChild("HumanoidRootPart")
 
         if not Root or not Humanoid or not TargetRoot then
             if Humanoid then
                 Humanoid.AutoRotate = true
             end
+
             return
         end
 
@@ -515,11 +606,15 @@ RunService:BindToRenderStep(
         )
 
         if (FlatTarget - MyPosition).Magnitude > 0.01 then
-            Root.CFrame = CFrame.lookAt(MyPosition, FlatTarget)
+            Root.CFrame = CFrame.lookAt(
+                MyPosition,
+                FlatTarget
+            )
         end
     end
 )
 
+-- LOADED NOTIFICATION
 Rayfield:Notify({
     Title = "Auto Minigame",
     Content = "Script loaded!",
