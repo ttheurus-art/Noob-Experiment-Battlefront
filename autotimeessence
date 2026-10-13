@@ -164,7 +164,7 @@ task.spawn(function()
 
             task.spawn(function()
                 -- Initial wait before first TP
-                task.wait(18)
+                task.wait(22)
 
                 if not Flags.AutoMinigame then
                     SequenceStarted = false
