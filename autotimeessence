@@ -1,7 +1,9 @@
 
--- AUTO MINIGAME - FULL SCRIPT
+-- AUTO MINIGAME - FULL FIXED SCRIPT
 -- 6 INDEPENDENT TOGGLES
--- REJOIN FIX: TeleportToPlaceInstance + retry
+-- FIXED: DUPLICATE REJOIN FUNCTION
+-- FIXED: AUTO EXECUTE QUEUE
+-- FIXED: TELEPORT RETRY
 
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
@@ -20,10 +22,11 @@ pcall(function()
     end
 end)
 
+if Env and Env.AutoMinigameCleanup then
+    pcall(Env.AutoMinigameCleanup)
+end
+
 if Env then
-    if Env.AutoMinigameCleanup then
-        pcall(Env.AutoMinigameCleanup)
-    end
     Env.AutoMinigameRunning = false
 end
 
@@ -32,6 +35,7 @@ local RenderName = "AutoMinigameFace_" .. Player.UserId
 
 local function Cleanup()
     Running = false
+
     pcall(function()
         RunService:UnbindFromRenderStep(RenderName)
     end)
@@ -51,7 +55,8 @@ end
 -- REMOVE OLD GUI
 for _, Container in ipairs({PlayerGui, CoreGui}) do
     for _, Gui in ipairs(Container:GetChildren()) do
-        if Gui.Name == "Rayfield" or Gui.Name == "Auto Minigame" then
+        if Gui.Name == "Rayfield"
+            or Gui.Name == "Auto Minigame" then
             pcall(function()
                 Gui:Destroy()
             end)
@@ -68,11 +73,13 @@ local Window = Rayfield:CreateWindow({
     Name = "Auto Minigame",
     LoadingTitle = "Auto Minigame",
     LoadingSubtitle = "Auto TP System",
+
     ConfigurationSaving = {
         Enabled = true,
         FolderName = "AutoMinigame",
         FileName = "Config"
     },
+
     KeySystem = false
 })
 
@@ -137,7 +144,6 @@ local function TeleportTo(Position)
     end)
 end
 
-
 -- QUEUE AUTO EXECUTE
 local function QueueAutoExecute()
     local QueueFunction
@@ -195,66 +201,18 @@ local function QueueAutoExecute()
     return true
 end
 
--- NORMAL AUTO REJOIN
-local function RequestRejoin(ShouldAutoExecute)
-    if RejoinStarted or not IsCurrentInstance() then
-        return
-    end
-
-    RejoinStarted = true
-
-    Flags.AutoPunch = false
-    Flags.AutoMinigame = false
-    Flags.FaceItrapped = false
-
-    local Humanoid = GetHumanoid()
-    if Humanoid then
-        Humanoid.AutoRotate = true
-    end
-
-    if ShouldAutoExecute and Flags.AutoExecute then
-        QueueAutoExecute()
-        task.wait(0.5)
-    end
-
-    task.spawn(function()
-        for Attempt = 1, 5 do
-            if not IsCurrentInstance() then
-                return
-            end
-
-            local Success, ErrorMessage = pcall(function()
-                TeleportService:Teleport(game.PlaceId, Player)
-            end)
-
-            if Success then
-                return
-            end
-
-            warn(
-                "Rejoin attempt " .. Attempt .. " failed:",
-                ErrorMessage
-            )
-
-            task.wait(2)
-        end
-
-        warn("Auto Rejoin: all attempts failed.")
-        RejoinStarted = false
-    end)
-end
-
-
--- TELEPORT ATTEMPT
+-- REJOIN STATE
 local AttemptTeleport
 
+-- TELEPORT ATTEMPT
 AttemptTeleport = function()
     if not IsCurrentInstance() or not RejoinStarted then
         return
     end
 
     if TeleportAttempts >= MaxTeleportAttempts then
-        warn("Auto Rejoin: maximum teleport attempts reached.")
+        warn("Auto Rejoin: maximum attempts reached.")
+
         RejoinStarted = false
         TeleportRetryScheduled = false
         return
@@ -263,16 +221,14 @@ AttemptTeleport = function()
     TeleportAttempts += 1
     TeleportRetryScheduled = false
 
+    -- Rejoin the same Roblox experience.
+    -- Roblox chooses an available server.
     local Success, ErrorMessage = pcall(function()
-        TeleportService:TeleportToPlaceInstance(
-            game.PlaceId,
-            game.JobId,
-            Player
-        )
+        TeleportService:Teleport(game.PlaceId, Player)
     end)
 
     if not Success then
-        warn("Auto Rejoin attempt failed:", ErrorMessage)
+        warn("Teleport attempt failed:", ErrorMessage)
 
         if not TeleportRetryScheduled then
             TeleportRetryScheduled = true
@@ -286,17 +242,15 @@ AttemptTeleport = function()
     end
 end
 
--- RETRY WHEN TELEPORT INITIATION FAILS
+-- RETRY WHEN ROBLOX REPORTS TELEPORT FAILURE
 TeleportService.TeleportInitFailed:Connect(function(
     FailedPlayer,
     TeleportResult,
     ErrorMessage
 )
-    if FailedPlayer ~= Player or not RejoinStarted then
-        return
-    end
-
-    if not IsCurrentInstance() then
+    if FailedPlayer ~= Player
+        or not RejoinStarted
+        or not IsCurrentInstance() then
         return
     end
 
@@ -317,8 +271,8 @@ TeleportService.TeleportInitFailed:Connect(function(
     end
 end)
 
--- COMMON REJOIN FUNCTION
-local function RequestRejoin(ShouldAutoExecute)
+-- ONE COMMON REJOIN FUNCTION
+local function RequestRejoin()
     if RejoinStarted or not IsCurrentInstance() then
         return
     end
@@ -336,7 +290,8 @@ local function RequestRejoin(ShouldAutoExecute)
         Humanoid.AutoRotate = true
     end
 
-    if ShouldAutoExecute and Flags.AutoExecute then
+    -- Queue Auto Execute before teleporting.
+    if Flags.AutoExecute then
         QueueAutoExecute()
         task.wait(0.5)
     end
@@ -359,6 +314,7 @@ MainTab:CreateToggle({
     Name = "Auto Punch",
     CurrentValue = true,
     Flag = "AutoPunch",
+
     Callback = function(Value)
         Flags.AutoPunch = Value
     end
@@ -369,8 +325,10 @@ MainTab:CreateToggle({
     Name = "Auto Minigame",
     CurrentValue = true,
     Flag = "AutoMinigame",
+
     Callback = function(Value)
         Flags.AutoMinigame = Value
+
         if not Value then
             SequenceStarted = false
         end
@@ -382,6 +340,7 @@ MainTab:CreateToggle({
     Name = "Auto Rejoin",
     CurrentValue = true,
     Flag = "AutoRejoin",
+
     Callback = function(Value)
         Flags.AutoRejoin = Value
     end
@@ -392,6 +351,7 @@ MainTab:CreateToggle({
     Name = "Auto Execute",
     CurrentValue = true,
     Flag = "AutoExecute",
+
     Callback = function(Value)
         Flags.AutoExecute = Value
     end
@@ -402,11 +362,13 @@ MainTab:CreateToggle({
     Name = "Always Face Itrapped",
     CurrentValue = true,
     Flag = "FaceItrapped",
+
     Callback = function(Value)
         Flags.FaceItrapped = Value
 
         if not Value then
             local Humanoid = GetHumanoid()
+
             if Humanoid then
                 Humanoid.AutoRotate = true
             end
@@ -460,7 +422,7 @@ MainTab:CreateToggle({
                         Duration = 2
                     })
 
-                    RequestRejoin(true)
+                    RequestRejoin()
                     return
                 end
 
@@ -567,7 +529,7 @@ task.spawn(function()
             end)
 
             if Flags.AutoRejoin then
-                RequestRejoin(false)
+                RequestRejoin()
                 return
             end
         end
