@@ -10,11 +10,8 @@ local Flags = {
     AutoReExecute = true
 }
 
-local ScriptURL = "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessence"
-
 local SequenceStarted = false
 local ItrappedSeen = false
-local RejoinStarted = false
 
 -- RAYFIELD
 local Rayfield = loadstring(game:HttpGet(
@@ -65,25 +62,15 @@ MainTab:CreateToggle({
 -- AUTO REJOIN
 local AutoTimeEssenceEnabled = false
 
-local AutoTimeEssenceURL = "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessence"
-
 MainTab:CreateToggle({
-    Name = "Auto Time Essence",
+    Name = "Auto Execute (for auto essence later)",
     CurrentValue = false,
-    Flag = "AutoTimeEssence",
+    Flag = "AutoExecuteTeleport",
     Callback = function(Value)
-        AutoTimeEssenceEnabled = Value
-
-        if Value then
-            task.spawn(function()
-                local Success, Error = pcall(function()
-                    loadstring(game:HttpGet(AutoTimeEssenceURL))()
-                end)
-
-                if not Success then
-                    warn("Auto Time Essence Error:", Error)
-                end
-            end)
+        if Value and queue_on_teleport then
+            queue_on_teleport([[
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessence"))()
+            ]])
         end
     end,
 })
