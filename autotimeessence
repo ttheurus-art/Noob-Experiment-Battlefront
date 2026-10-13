@@ -70,7 +70,7 @@ local Rayfield = loadstring(game:HttpGet(
 local Window = Rayfield:CreateWindow({
     Name = "Auto Minigame",
     LoadingTitle = "Auto Minigame",
-    LoadingSubtitle = "Auto TP System",
+    LoadingSubtitle = "Still Beta Expect Bug!",
     ConfigurationSaving = {
         Enabled = true,
         FolderName = "AutoMinigame",
@@ -198,6 +198,8 @@ local function QueueAutoExecute()
 end
 
 -- REJOIN SYSTEM
+
+-- REJOIN SYSTEM
 local AttemptTeleport
 
 local function StopAutomationForRejoin()
@@ -218,15 +220,13 @@ AttemptTeleport = function()
     end
 
     if TeleportAttempts >= MaxTeleportAttempts then
-        warn("Rejoin: maximum attempts reached.")
+        warn("Auto Rejoin: maximum attempts reached.")
         RejoinStarted = false
         TeleportRetryScheduled = false
         return
     end
 
     TeleportAttempts += 1
-    TeleportRetryScheduled = false
-
     local AttemptNumber = TeleportAttempts
     local DelayTime = math.min(AttemptNumber * 5, 30)
 
@@ -237,18 +237,14 @@ AttemptTeleport = function()
             return
         end
 
-        local Options = Instance.new("TeleportOptions")
+        TeleportRetryScheduled = false
 
         local Success, ErrorMessage = pcall(function()
-            TeleportService:TeleportAsync(
-                game.PlaceId,
-                {Player},
-                Options
-            )
+            TeleportService:Teleport(game.PlaceId)
         end)
 
         if not Success then
-            warn("Rejoin attempt failed:", ErrorMessage)
+            warn("Rejoin attempt failed:", tostring(ErrorMessage))
 
             if AttemptNumber < MaxTeleportAttempts
                 and not TeleportRetryScheduled then
@@ -312,12 +308,11 @@ local function RequestRejoin()
         task.wait(0.5)
     end
 
-    if not IsCurrentInstance() then
-        return
+    if IsCurrentInstance() then
+        AttemptTeleport()
     end
-
-    AttemptTeleport()
 end
+
 
 -- HEALTH DISPLAY
 local HealthParagraph = MainTab:CreateParagraph({
