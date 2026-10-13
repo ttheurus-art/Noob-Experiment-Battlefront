@@ -1,8 +1,7 @@
-
--- AUTO MINIGAME - FULL FIXED SCRIPT
--- Auto Detect Frozen Tundra: scan 5 seconds once
--- Auto Rejoin: 1.7 seconds after Itrapped disappears
--- Auto Execute: queue before teleport
+-- AUTO MINIGAME - REVISED FULL SCRIPT
+-- Frozen Tundra: scan once for 5 seconds
+-- Itrapped disappears: wait 1.7 seconds, then rejoin
+-- Auto Execute: queue before teleport when supported
 -- Teleport: retry with increasing delays
 
 local Players = game:GetService("Players")
@@ -11,22 +10,23 @@ local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
 
 local Player = Players.LocalPlayer
+if not Player then
+    return
+end
+
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 -- CLEANUP OLD INSTANCE
 local Env
+
 pcall(function()
-    if getgenv then
+    if type(getgenv) == "function" then
         Env = getgenv()
     end
 end)
 
-if Env and Env.AutoMinigameCleanup then
+if Env and type(Env.AutoMinigameCleanup) == "function" then
     pcall(Env.AutoMinigameCleanup)
-end
-
-if Env then
-    Env.AutoMinigameRunning = false
 end
 
 local Running = true
@@ -34,6 +34,7 @@ local RenderName = "AutoMinigameFace_" .. Player.UserId
 
 local function Cleanup()
     Running = false
+
     pcall(function()
         RunService:UnbindFromRenderStep(RenderName)
     end)
@@ -62,15 +63,23 @@ for _, Container in ipairs({PlayerGui, CoreGui}) do
     end
 end
 
--- RAYFIELD
-local Rayfield = loadstring(game:HttpGet(
-    "https://sirius.menu/rayfield"
-))()
+-- LOAD RAYFIELD
+local RayfieldSuccess, Rayfield = pcall(function()
+    return loadstring(game:HttpGet(
+        "https://sirius.menu/rayfield"
+    ))()
+end)
+
+if not RayfieldSuccess or not Rayfield then
+    warn("Auto Minigame: Rayfield failed to load.")
+    Cleanup()
+    return
+end
 
 local Window = Rayfield:CreateWindow({
     Name = "Auto Minigame",
     LoadingTitle = "Auto Minigame",
-    LoadingSubtitle = "Still Beta Expect Bug!",
+    LoadingSubtitle = "Auto TP System",
     ConfigurationSaving = {
         Enabled = true,
         FolderName = "AutoMinigame",
@@ -95,7 +104,6 @@ local SequenceStarted = false
 local RejoinStarted = false
 local InitialRejoinTriggered = false
 local ItrappedSeen = false
-local LastEssenceValue = nil
 
 local FrozenScanFinished = false
 local FrozenRejoinTriggered = false
@@ -103,6 +111,13 @@ local FrozenRejoinTriggered = false
 local TeleportAttempts = 0
 local MaxTeleportAttempts = 10
 local TeleportRetryScheduled = false
+
+local Connections = {}
+
+local function TrackConnection(Connection)
+    table.insert(Connections, Connection)
+    return Connection
+end
 
 -- CHARACTER HELPERS
 local function GetCharacter()
@@ -173,7 +188,7 @@ local function QueueAutoExecute()
         return false
     end
 
-    local Queued, ErrorMessage = pcall(function()
+    local QueueSuccess, QueueError = pcall(function()
         QueueFunction([[
             task.wait(2)
 
@@ -184,34 +199,61 @@ local function QueueAutoExecute()
             end)
 
             if not Success then
-                warn("Auto Execute failed:", ErrorMessage)
+                warn("Auto Execute failed:", tostring(ErrorMessage))
             end
         ]])
     end)
 
-    if not Queued then
-        warn("Auto Execute queue failed:", ErrorMessage)
+    if not QueueSuccess then
+        warn("Auto Execute queue failed:", tostring(QueueError))
         return false
     end
 
     return true
 end
 
--- REJOIN SYSTEM
-
--- REJOIN SYSTEM
-local AttemptTeleport
-
+-- STOP AUTOMATION BEFORE REJOIN
 local function StopAutomationForRejoin()
     Flags.AutoPunch = false
     Flags.AutoMinigame = false
     Flags.FaceItrapped = false
+
     SequenceStarted = false
 
     local Humanoid = GetHumanoid()
     if Humanoid then
         Humanoid.AutoRotate = true
     end
+end
+
+-- REJOIN SYSTEM
+local AttemptTeleport
+
+local function ScheduleTeleportRetry()
+    if not IsCurrentInstance()
+        or not RejoinStarted
+        or TeleportRetryScheduled then
+        return
+    end
+
+    if TeleportAttempts >= MaxTeleportAttempts then
+        warn("Auto Rejoin: maximum attempts reached.")
+        RejoinStarted = false
+        TeleportRetryScheduled = false
+        return
+    end
+
+    TeleportRetryScheduled = true
+
+    task.delay(2, function()
+        if not IsCurrentInstance() or not RejoinStarted then
+            TeleportRetryScheduled = false
+            return
+        end
+
+        TeleportRetryScheduled = false
+        AttemptTeleport()
+    end)
 end
 
 AttemptTeleport = function()
@@ -227,6 +269,7 @@ AttemptTeleport = function()
     end
 
     TeleportAttempts += 1
+
     local AttemptNumber = TeleportAttempts
     local DelayTime = math.min(AttemptNumber * 5, 30)
 
@@ -237,60 +280,39 @@ AttemptTeleport = function()
             return
         end
 
-        TeleportRetryScheduled = false
-
         local Success, ErrorMessage = pcall(function()
+            -- Client/executor support varies.
             TeleportService:Teleport(game.PlaceId)
         end)
 
         if not Success then
-            warn("Rejoin attempt failed:", tostring(ErrorMessage))
+            warn(
+                "Rejoin attempt " .. AttemptNumber .. " failed:",
+                tostring(ErrorMessage)
+            )
 
-            if AttemptNumber < MaxTeleportAttempts
-                and not TeleportRetryScheduled then
-
-                TeleportRetryScheduled = true
-
-                task.delay(2, function()
-                    if IsCurrentInstance() and RejoinStarted then
-                        AttemptTeleport()
-                    end
-                end)
-            else
-                RejoinStarted = false
-                TeleportRetryScheduled = false
-            end
+            ScheduleTeleportRetry()
         end
     end)
 end
 
-TeleportService.TeleportInitFailed:Connect(function(
-    FailedPlayer,
-    TeleportResult,
-    ErrorMessage
-)
-    if FailedPlayer ~= Player
-        or not RejoinStarted
-        or not IsCurrentInstance() then
-        return
+TrackConnection(TeleportService.TeleportInitFailed:Connect(
+    function(FailedPlayer, TeleportResult, ErrorMessage)
+        if FailedPlayer ~= Player
+            or not RejoinStarted
+            or not IsCurrentInstance() then
+            return
+        end
+
+        warn(
+            "Teleport failed:",
+            tostring(TeleportResult),
+            tostring(ErrorMessage)
+        )
+
+        ScheduleTeleportRetry()
     end
-
-    warn(
-        "Teleport failed:",
-        tostring(TeleportResult),
-        tostring(ErrorMessage)
-    )
-
-    if not TeleportRetryScheduled then
-        TeleportRetryScheduled = true
-
-        task.delay(2, function()
-            if IsCurrentInstance() and RejoinStarted then
-                AttemptTeleport()
-            end
-        end)
-    end
-end)
+))
 
 local function RequestRejoin()
     if RejoinStarted or not IsCurrentInstance() then
@@ -305,14 +327,14 @@ local function RequestRejoin()
 
     if Flags.AutoExecute then
         QueueAutoExecute()
-        task.wait(0.5)
     end
 
-    if IsCurrentInstance() then
+    task.wait(0.5)
+
+    if IsCurrentInstance() and RejoinStarted then
         AttemptTeleport()
     end
 end
-
 
 -- HEALTH DISPLAY
 local HealthParagraph = MainTab:CreateParagraph({
@@ -382,18 +404,16 @@ MainTab:CreateToggle({
 })
 
 -- TOGGLE 6: FROZEN TUNDRA DETECTOR
--- ON FROM START; SCAN FOR 5 SECONDS ONLY
 MainTab:CreateToggle({
     Name = "Auto Detect Frozen Tundra",
     CurrentValue = true,
     Flag = "AutoDetectFrozenTundra",
     Callback = function(Value)
-        -- Toggle is a display/control only after initial scan.
-        -- Turning it ON again does not restart the 5-second scan.
         Flags.AutoDetectFrozenTundra = Value
     end
 })
 
+-- FROZEN TUNDRA SCAN: ONCE, MAXIMUM 5 SECONDS
 task.spawn(function()
     local StartTime = os.clock()
 
@@ -410,8 +430,6 @@ task.spawn(function()
 
             StopAutomationForRejoin()
 
-            Flags.AutoRejoin = false
-
             Rayfield:Notify({
                 Title = "Frozen Tundra Detected",
                 Content = "Rejoining...",
@@ -425,16 +443,13 @@ task.spawn(function()
         task.wait(0.1)
     end
 
-    -- Toggle remains ON; scanning stops permanently.
     FrozenScanFinished = true
 end)
 
 -- AUTO PUNCH LOOP
 task.spawn(function()
-    while task.wait(0.1) do
-        if not IsCurrentInstance()
-            or InitialRejoinTriggered
-            or RejoinStarted then
+    while IsCurrentInstance() do
+        if InitialRejoinTriggered or RejoinStarted then
             return
         end
 
@@ -449,16 +464,15 @@ task.spawn(function()
                 end)
             end
         end
+
+        task.wait(0.1)
     end
 end)
 
 -- HEALTH / DEFEAT MONITOR
--- If Itrapped disappears, wait 1.7 seconds then rejoin.
 task.spawn(function()
-    while task.wait(0.2) do
-        if not IsCurrentInstance()
-            or InitialRejoinTriggered
-            or RejoinStarted then
+    while IsCurrentInstance() do
+        if InitialRejoinTriggered or RejoinStarted then
             return
         end
 
@@ -470,8 +484,6 @@ task.spawn(function()
             ItrappedSeen = true
 
             if Humanoid then
-                LastEssenceValue = GetEssences()
-
                 pcall(function()
                     HealthParagraph:Set({
                         Title = "Itrapped Health",
@@ -483,7 +495,6 @@ task.spawn(function()
                     })
                 end)
             end
-
         elseif ItrappedSeen then
             ItrappedSeen = false
 
@@ -505,24 +516,24 @@ task.spawn(function()
             if Flags.AutoRejoin then
                 RequestRejoin()
                 return
+            else
+                pcall(function()
+                    HealthParagraph:Set({
+                        Title = "Itrapped Health",
+                        Content = "Itrapped disappeared. Auto Rejoin is OFF."
+                    })
+                end)
             end
-
-            pcall(function()
-                HealthParagraph:Set({
-                    Title = "Itrapped Health",
-                    Content = "Itrapped disappeared. Auto Rejoin is OFF."
-                })
-            end)
         end
+
+        task.wait(0.2)
     end
 end)
 
 -- AUTO MINIGAME TELEPORT SEQUENCE
 task.spawn(function()
-    while task.wait(0.2) do
-        if not IsCurrentInstance()
-            or InitialRejoinTriggered
-            or RejoinStarted then
+    while IsCurrentInstance() do
+        if InitialRejoinTriggered or RejoinStarted then
             return
         end
 
@@ -541,15 +552,13 @@ task.spawn(function()
                 end
 
                 -- TP1
-                while Flags.AutoMinigame
+                while IsCurrentInstance()
+                    and Flags.AutoMinigame
                     and not RejoinStarted
                     and not InitialRejoinTriggered do
 
-                    local Battlefield =
-                        workspace:FindFirstChild("Battlefield")
-
-                    local FrozenTundra =
-                        workspace:FindFirstChild("Frozen Tundra")
+                    local Battlefield = workspace:FindFirstChild("Battlefield")
+                    local FrozenTundra = workspace:FindFirstChild("Frozen Tundra")
 
                     if not Battlefield and FrozenTundra then
                         break
@@ -559,7 +568,8 @@ task.spawn(function()
                     task.wait(0.2)
                 end
 
-                if not Flags.AutoMinigame
+                if not IsCurrentInstance()
+                    or not Flags.AutoMinigame
                     or RejoinStarted
                     or InitialRejoinTriggered then
                     SequenceStarted = false
@@ -567,7 +577,8 @@ task.spawn(function()
                 end
 
                 -- TP2
-                while Flags.AutoMinigame
+                while IsCurrentInstance()
+                    and Flags.AutoMinigame
                     and not RejoinStarted
                     and not InitialRejoinTriggered do
 
@@ -584,7 +595,8 @@ task.spawn(function()
                 end
 
                 -- FOLLOW ITRAPPED
-                while Flags.AutoMinigame
+                while IsCurrentInstance()
+                    and Flags.AutoMinigame
                     and not RejoinStarted
                     and not InitialRejoinTriggered do
 
@@ -599,9 +611,7 @@ task.spawn(function()
                     end
 
                     pcall(function()
-                        Root.CFrame =
-                            TargetRoot.CFrame * CFrame.new(0, 0, 3)
-
+                        Root.CFrame = TargetRoot.CFrame * CFrame.new(0, 0, 3)
                         Root.AssemblyLinearVelocity = Vector3.zero
                         Root.AssemblyAngularVelocity = Vector3.zero
                     end)
@@ -612,6 +622,8 @@ task.spawn(function()
                 SequenceStarted = false
             end)
         end
+
+        task.wait(0.2)
     end
 end)
 
@@ -627,9 +639,7 @@ RunService:BindToRenderStep(
             return
         end
 
-        local Character =
-            workspace:FindFirstChild(Player.Name) or GetCharacter()
-
+        local Character = GetCharacter()
         local Root = Character
             and Character:FindFirstChild("HumanoidRootPart")
 
