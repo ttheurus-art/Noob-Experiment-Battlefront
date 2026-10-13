@@ -9,39 +9,50 @@ local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 -- SINGLE INSTANCE GUARD
-if getgenv then
-    local Env = getgenv()
-
-    if Env.AutoMinigameRunning then
-        Env.AutoMinigameRunning = false
+local Env
+pcall(function()
+    if getgenv then
+        Env = getgenv()
     end
+end)
 
+if Env then
+    if Env.AutoMinigameCleanup then
+        pcall(Env.AutoMinigameCleanup)
+    end
+    Env.AutoMinigameRunning = false
+end
+
+local Running = true
+local RenderName = "AutoMinigameFace_" .. Player.UserId
+
+local function Cleanup()
+    Running = false
+    pcall(function()
+        RunService:UnbindFromRenderStep(RenderName)
+    end)
+end
+
+if Env then
     Env.AutoMinigameRunning = true
+    Env.AutoMinigameCleanup = Cleanup
 end
 
 local function IsCurrentInstance()
-    if not getgenv then
-        return true
-    end
-
-    return getgenv().AutoMinigameRunning == true
+    return Running and (
+        not Env or Env.AutoMinigameRunning == true
+    )
 end
 
--- CLEAN OLD GUI
+-- REMOVE OLD GUI
 for _, Container in ipairs({PlayerGui, CoreGui}) do
-    pcall(function()
-        local Old = Container:FindFirstChild("Rayfield")
-        if Old then
-            Old:Destroy()
+    for _, Gui in ipairs(Container:GetChildren()) do
+        if Gui.Name == "Rayfield" or Gui.Name == "Auto Minigame" then
+            pcall(function()
+                Gui:Destroy()
+            end)
         end
-    end)
-
-    pcall(function()
-        local Old = Container:FindFirstChild("Auto Minigame")
-        if Old then
-            Old:Destroy()
-        end
-    end)
+    end
 end
 
 -- RAYFIELD
@@ -113,7 +124,8 @@ local function TeleportTo(Position)
     end)
 end
 
--- QUEUE AUTO EXECUTE ONCE PER REJOIN REQUEST
+-- QUEUE SCRIPT ON TELEPORT
+-- This URL runs the existing autotimeessence script.
 local function QueueAutoExecute()
     local QueueFunction
 
@@ -146,15 +158,15 @@ local function QueueAutoExecute()
     end)
 end
 
--- SINGLE REJOIN HANDLER
+-- ONE REJOIN HANDLER
 local function RequestRejoin(ShouldAutoExecute)
-    if RejoinStarted then
+    if RejoinStarted or not IsCurrentInstance() then
         return
     end
 
     RejoinStarted = true
 
-    -- Stop loops before requesting teleport.
+    -- Stop all active loops before teleport.
     Flags.AutoPunch = false
     Flags.AutoMinigame = false
     Flags.FaceItrapped = false
@@ -168,7 +180,7 @@ local function RequestRejoin(ShouldAutoExecute)
     end)
 end
 
--- HEALTH PARAGRAPH AT TOP
+-- HEALTH AT TOP
 local HealthParagraph = MainTab:CreateParagraph({
     Title = "Itrapped Health",
     Content = "Waiting for Itrapped..."
@@ -190,7 +202,6 @@ MainTab:CreateToggle({
     Flag = "AutoMinigame",
     Callback = function(Value)
         Flags.AutoMinigame = Value
-
         if not Value then
             SequenceStarted = false
         end
@@ -229,7 +240,7 @@ MainTab:CreateToggle({
     end
 })
 
--- INITIAL SCAN: 5 SECONDS ONLY
+-- INITIAL SCAN: MAXIMUM 5 SECONDS
 task.spawn(function()
     local StartTime = os.clock()
 
@@ -242,7 +253,6 @@ task.spawn(function()
             InitialRejoinTriggered = true
             InitialScanFinished = true
 
-            -- Disable everything before the rejoin.
             Flags.AutoPunch = false
             Flags.AutoMinigame = false
             Flags.AutoRejoin = false
@@ -258,14 +268,12 @@ task.spawn(function()
     InitialScanFinished = true
 end)
 
--- AUTO PUNCH
+-- AUTO PUNCH LOOP
 task.spawn(function()
     while task.wait(0.1) do
-        if not IsCurrentInstance() then
-            return
-        end
-
-        if InitialRejoinTriggered or RejoinStarted then
+        if not IsCurrentInstance()
+            or InitialRejoinTriggered
+            or RejoinStarted then
             return
         end
 
@@ -284,8 +292,10 @@ task.spawn(function()
 end)
 
 -- HEALTH / DEFEAT MONITOR
+-- Health = 0 DOES NOT trigger rejoin.
+-- Rejoin happens only after Itrapped disappears from workspace.
 task.spawn(function()
-    while task.wait(0.25) do
+    while task.wait(0.2) do
         if not IsCurrentInstance()
             or InitialRejoinTriggered
             or RejoinStarted then
@@ -295,31 +305,39 @@ task.spawn(function()
         local Target = workspace:FindFirstChild("Itrapped")
         local Humanoid = Target and Target:FindFirstChildOfClass("Humanoid")
 
-        if Humanoid and Humanoid.Health > 0 then
+        if Target then
             ItrappedSeen = true
-            LastEssenceValue = GetEssences()
 
-            pcall(function()
-                HealthParagraph:Set({
-                    Title = "Itrapped Health",
-                    Content = string.format(
-                        "Health: %d / %d",
-                        math.floor(Humanoid.Health),
-                        math.floor(Humanoid.MaxHealth)
-                    )
-                })
-            end)
+            if Humanoid then
+                LastEssenceValue = GetEssences()
+
+                pcall(function()
+                    HealthParagraph:Set({
+                        Title = "Itrapped Health",
+                        Content = string.format(
+                            "Health: %d / %d",
+                            math.floor(Humanoid.Health),
+                            math.floor(Humanoid.MaxHealth)
+                        )
+                    })
+                end)
+            end
 
         elseif ItrappedSeen then
             ItrappedSeen = false
 
-            Rayfield:Notify({
-                Title = "Itrapped Has Been Defeated",
-                Content = "Checking Time Essence reward...",
-                Duration = 4
-            })
+            pcall(function()
+                HealthParagraph:Set({
+                    Title = "Itrapped Health",
+                    Content = "Itrapped disappeared. Checking reward..."
+                })
+            end)
 
             task.wait(1)
+
+            if not IsCurrentInstance() then
+                return
+            end
 
             local CurrentEssences = GetEssences()
 
@@ -347,9 +365,8 @@ task.spawn(function()
                 })
             end)
 
-            -- Defeat rejoin uses its own path.
-            -- It does not queue another auto-execute here.
             if Flags.AutoRejoin then
+                -- Do not queue another auto-execute here.
                 RequestRejoin(false)
                 return
             end
@@ -426,12 +443,11 @@ task.spawn(function()
                     task.wait(0.2)
                 end
 
-                -- FOLLOW ITRAPPED
+                -- FOLLOW ITRAPPED FROM BEHIND
                 while Flags.AutoMinigame and not RejoinStarted do
                     local Target = workspace:FindFirstChild("Itrapped")
                     local TargetRoot =
                         Target and Target:FindFirstChild("HumanoidRootPart")
-
                     local Root = GetRoot()
 
                     if not TargetRoot or not Root then
@@ -457,7 +473,7 @@ end)
 
 -- ALWAYS FACE ITRAPPED
 RunService:BindToRenderStep(
-    "AutoMinigameFaceItrapped",
+    RenderName,
     Enum.RenderPriority.Character.Value + 1,
     function()
         if not IsCurrentInstance()
