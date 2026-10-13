@@ -1,4 +1,5 @@
--- SERVICES
+(
+                game.-- SERVICES
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 
@@ -8,7 +9,8 @@ local Player = Players.LocalPlayer
 local Flags = {
     AutoPunch = true,
     AutoMinigame = true,
-    AutoRejoin = true
+    AutoRejoin = true,
+    AutoExecuteTeleport = true
 }
 
 local SequenceStarted = false
@@ -31,7 +33,7 @@ local Window = Rayfield:CreateWindow({
 
 local MainTab = Window:CreateTab("Main", 4483362458)
 
--- NOTIFICATION HELPER
+-- NOTIFICATION
 local function Notify(Title, Content)
     Rayfield:Notify({
         Title = Title,
@@ -40,7 +42,7 @@ local function Notify(Title, Content)
     })
 end
 
--- HEALTH PARAGRAPH
+-- HEALTH DISPLAY
 local HealthParagraph = MainTab:CreateParagraph({
     Title = "Itrapped Health",
     Content = "Waiting for Itrapped..."
@@ -63,10 +65,6 @@ MainTab:CreateToggle({
     Flag = "AutoMinigame",
     Callback = function(Value)
         Flags.AutoMinigame = Value
-
-        if Value then
-            SequenceStarted = false
-        end
     end
 })
 
@@ -87,7 +85,7 @@ local function QueueAutoExecute()
         or (syn and syn.queue_on_teleport)
         or (fluxus and fluxus.queue_on_teleport)
 
-    if not QueueFunction then
+    if type(QueueFunction) ~= "function" then
         return false
     end
 
@@ -103,6 +101,8 @@ MainTab:CreateToggle({
     CurrentValue = true,
     Flag = "AutoExecuteTeleport",
     Callback = function(Value)
+        Flags.AutoExecuteTeleport = Value
+
         if Value then
             local Success = QueueAutoExecute()
 
@@ -116,8 +116,27 @@ MainTab:CreateToggle({
     end
 })
 
--- QUEUE ON INITIAL EXECUTION
-QueueAutoExecute()
+if Flags.AutoExecuteTeleport then
+    QueueAutoExecute()
+end
+
+-- TELEPORT HELPER
+local function TeleportTo(Position)
+    local Character = Player.Character
+        or Player.CharacterAdded:Wait()
+
+    local Root = Character:WaitForChild("HumanoidRootPart", 5)
+
+    if not Root then
+        return false
+    end
+
+    local Success = pcall(function()
+        Root.CFrame = CFrame.new(Position)
+    end)
+
+    return Success
+end
 
 -- AUTO PUNCH LOOP
 task.spawn(function()
@@ -138,27 +157,14 @@ task.spawn(function()
     end
 end)
 
--- TELEPORT HELPER
-local function TeleportTo(Position)
-    local Character = Player.Character
-        or Player.CharacterAdded:Wait()
-
-    local Root = Character:WaitForChild("HumanoidRootPart")
-    Root.CFrame = CFrame.new(Position)
-end
-
--- AUTO MINIGAME LOOP
+-- AUTO MINIGAME / TP RETRY
 task.spawn(function()
-    while task.wait(0.1) do
-        if not Flags.AutoMinigame then
-            SequenceStarted = false
-            continue
-        end
-
-        if not SequenceStarted then
+    while task.wait(0.2) do
+        if Flags.AutoMinigame and not SequenceStarted then
             SequenceStarted = true
 
             task.spawn(function()
+                -- Initial wait before first TP
                 task.wait(18)
 
                 if not Flags.AutoMinigame then
@@ -166,54 +172,69 @@ task.spawn(function()
                     return
                 end
 
-                TeleportTo(Vector3.new(99, -18, 193))
+                local MaxAttempts = 3
+                local Success = false
 
-                task.wait(9)
-
-                if not Flags.AutoMinigame then
-                    SequenceStarted = false
-                    return
-                end
-
-                TeleportTo(Vector3.new(85, -16, 59))
-
-                while Flags.AutoMinigame do
-                    local Target = workspace:FindFirstChild("Itrapped")
-                    local TargetRoot = Target
-                        and Target:FindFirstChild("HumanoidRootPart")
-                    local Humanoid = Target
-                        and Target:FindFirstChildOfClass("Humanoid")
-
-                    local Character = Player.Character
-                    local Root = Character
-                        and Character:FindFirstChild("HumanoidRootPart")
-
-                    if Target and TargetRoot and Humanoid then
-                        ItrappedSeen = true
-
-                        if Root then
-                            Root.CFrame = TargetRoot.CFrame
-                                * CFrame.new(0, 0, 3)
-
-                            Root.AssemblyLinearVelocity = Vector3.zero
-                            Root.AssemblyAngularVelocity = Vector3.zero
-                        end
-
-                        HealthParagraph:Set({
-                            Title = "Itrapped Health",
-                            Content = "Health: "
-                                .. math.floor(Humanoid.Health)
-                                .. " / "
-                                .. math.floor(Humanoid.MaxHealth)
-                        })
-                    else
-                        HealthParagraph:Set({
-                            Title = "Itrapped Health",
-                            Content = "Waiting for Itrapped..."
-                        })
+                for Attempt = 1, MaxAttempts do
+                    if not Flags.AutoMinigame then
+                        break
                     end
 
-                    task.wait()
+                    -- First TP
+                    TeleportTo(Vector3.new(99, -18, 193))
+
+                    -- Wait 7 seconds for the map to change
+                    task.wait(7)
+
+                    if not Flags.AutoMinigame then
+                        break
+                    end
+
+                    -- Frozen Tundra means the transition succeeded
+                    if workspace:FindFirstChild("Frozen Tundra") then
+                        Success = true
+                        break
+                    end
+
+                    -- Battlefield still exists: retry the TP sequence
+                    if workspace:FindFirstChild("Battlefield") then
+                        -- Second TP
+                        TeleportTo(Vector3.new(85, -16, 59))
+
+                        task.wait(7)
+
+                        if workspace:FindFirstChild("Frozen Tundra") then
+                            Success = true
+                            break
+                        end
+                    else
+                        -- Check whether the map changed during the attempt
+                        if workspace:FindFirstChild("Frozen Tundra") then
+                            Success = true
+                        end
+
+                        break
+                    end
+                end
+
+                if not Success
+                    and Flags.AutoRejoin
+                    and not RejoinStarted then
+
+                    Notify(
+                        "Auto Minigame",
+                        "The Game Or The Tp Mechanism Is Not Working"
+                    )
+
+                    RejoinStarted = true
+                    task.wait(1)
+
+                    pcall(function()
+                        TeleportService:Teleport(
+                            game.PlaceId,
+                            Player
+                        )
+                    end)
                 end
 
                 SequenceStarted = false
@@ -238,20 +259,36 @@ local function GetTimeEssence()
     return nil
 end
 
--- AUTO REJOIN WHEN ITRAPPED DISAPPEARS
+-- ITRAPPED DEFEAT DETECTION
 task.spawn(function()
-    while task.wait(0.2) do
-        if not Flags.AutoRejoin or RejoinStarted then
-            continue
-        end
+    local LastEssenceValue = GetTimeEssence()
 
+    while task.wait(0.2) do
         local Target = workspace:FindFirstChild("Itrapped")
 
         if Target then
             ItrappedSeen = true
+
+            -- Keep the most recent essence count while the target exists
+            local CurrentEssence = GetTimeEssence()
+
+            if CurrentEssence ~= nil then
+                LastEssenceValue = CurrentEssence
+            end
+
+            local Humanoid = Target:FindFirstChildOfClass("Humanoid")
+
+            if Humanoid then
+                HealthParagraph:Set({
+                    Title = "Itrapped Health",
+                    Content = "Health: "
+                        .. math.floor(Humanoid.Health)
+                        .. " / "
+                        .. math.floor(Humanoid.MaxHealth)
+                })
+            end
         elseif ItrappedSeen then
-            -- Capture essence count before checking reward
-            local EssenceBefore = GetTimeEssence()
+            ItrappedSeen = false
 
             Notify(
                 "Minigame",
@@ -261,15 +298,13 @@ task.spawn(function()
             task.wait(1.4)
 
             if not workspace:FindFirstChild("Itrapped") then
-                -- Allow leaderboard to update
+                -- Give the leaderboard time to update
                 task.wait(0.5)
 
                 local EssenceAfter = GetTimeEssence()
 
-                if EssenceBefore ~= nil
-                    and EssenceAfter ~= nil then
-
-                    if EssenceAfter > EssenceBefore then
+                if LastEssenceValue ~= nil and EssenceAfter ~= nil then
+                    if EssenceAfter > LastEssenceValue then
                         Notify(
                             "Time Essence",
                             "You Got Time Essence! (25% drop)"
@@ -287,16 +322,17 @@ task.spawn(function()
                     )
                 end
 
-                RejoinStarted = true
+                if Flags.AutoRejoin and not RejoinStarted then
+                    RejoinStarted = true
+                    task.wait(1)
 
-                pcall(function()
-                    TeleportService:Teleport(
-                        game.PlaceId,
-                        Player
-                    )
-                end)
-
-                break
+                    pcall(function()
+                        TeleportService:Teleport(
+                            game.PlaceId,
+                            Player
+                        )
+                    end)
+                end
             end
         end
     end
@@ -314,7 +350,7 @@ task.spawn(function()
         return workspace:FindFirstChild("Frozen Tundra") ~= nil
     end
 
-    -- Frozen Tundra exists at startup without Battlefield
+    -- Frozen Tundra exists immediately, with no Battlefield
     if HasFrozenTundra() and not HasBattlefield() then
         Notify(
             "Auto Rejoin",
@@ -337,12 +373,12 @@ task.spawn(function()
 
     -- Wait up to 5 seconds for Battlefield
     while os.clock() - StartTime < 5 do
-        if not Flags.AutoRejoin or RejoinStarted then
+        if RejoinStarted or not Flags.AutoRejoin then
             return
         end
 
         if HasBattlefield() then
-            -- Battlefield detected: wait for Frozen Tundra
+            -- Battlefield appeared; do not rejoin during transition
             while Flags.AutoRejoin and not RejoinStarted do
                 if HasFrozenTundra() then
                     return
@@ -377,7 +413,7 @@ task.spawn(function()
         task.wait(0.2)
     end
 
-    -- Rejoin if neither map appeared within 5 seconds
+    -- Neither map appeared within 5 seconds
     if not HasBattlefield()
         and not HasFrozenTundra()
         and Flags.AutoRejoin
