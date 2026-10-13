@@ -116,6 +116,26 @@ end
 -- AUTO REJOIN
 --==================================================
 
+--==================================================
+-- INFINITE YIELD REJOIN
+--==================================================
+
+local IYLoaded = false
+
+task.spawn(function()
+    local Success, ErrorMessage = pcall(function()
+        loadstring(game:HttpGet(
+            "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
+        ))()
+    end)
+
+    IYLoaded = Success
+
+    if not Success then
+        warn("Infinite Yield failed: " .. tostring(ErrorMessage))
+    end
+end)
+
 local function AutoRejoin()
     if not Flags.AutoRejoin or Rejoining then
         return
@@ -124,57 +144,52 @@ local function AutoRejoin()
     Rejoining = true
 
     task.spawn(function()
-        while Flags.AutoRejoin
-            and RejoinAttempts < MAX_RETRIES do
-
-            RejoinAttempts += 1
-
-            Notify(
-                "Auto Rejoin",
-                "Attempt " .. RejoinAttempts .. "/" .. MAX_RETRIES
-            )
-
-            if Flags.AutoExecuteTeleport then
-                QueueAutoExecute()
-            end
-
-            task.wait(REJOIN_DELAY)
-
-            local Success, ErrorMessage = pcall(function()
-                TeleportService:Teleport(game.PlaceId, Player)
-            end)
-
-            if not Success then
-                warn("Rejoin failed: " .. tostring(ErrorMessage))
-            end
-
-            task.wait(5)
+        if Flags.AutoExecuteTeleport then
+            QueueAutoExecute()
         end
 
-        Rejoining = false
+        task.wait(1)
+
+        if IYLoaded then
+            local Success = pcall(function()
+                Player:Chat(";rejoin")
+            end)
+
+            if Success then
+                return
+            end
+        end
+
+        -- Fallback if the IY command cannot be triggered.
+        local Success, ErrorMessage = pcall(function()
+            TeleportService:Teleport(game.PlaceId, Player)
+        end)
+
+        if not Success then
+            warn("Rejoin failed: " .. tostring(ErrorMessage))
+            Rejoining = false
+        end
     end)
 end
 
-TeleportService.TeleportInitFailed:Connect(function(
-    TeleportPlayer,
-    TeleportResult,
-    ErrorMessage
-)
-    if TeleportPlayer ~= Player then
-        return
+--==================================================
+-- INITIAL JOIN CHECK
+-- ONLY RUN ONCE AFTER JOIN
+--==================================================
+
+task.spawn(function()
+    local StartTime = os.clock()
+
+    while os.clock() - StartTime < 5 do
+        if workspace:FindFirstChild("Frozen Tundra") then
+            return
+        end
+
+        task.wait(0.1)
     end
 
-    warn(
-        "Teleport failed: "
-            .. tostring(TeleportResult)
-            .. " | "
-            .. tostring(ErrorMessage)
-    )
-
-    if Flags.AutoRejoin then
-        Rejoining = false
-        task.delay(1, AutoRejoin)
-    end
+    -- The initial 5-second check ends here.
+    -- Other automation loops continue running.
 end)
 
 --==================================================
