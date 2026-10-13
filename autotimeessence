@@ -1,8 +1,6 @@
 
-
 -- AUTO MINIGAME - FULL SCRIPT
 -- 6 INDEPENDENT TOGGLES
--- Frozen Tundra detection: Kick with "Rejoining..."
 
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
@@ -34,7 +32,6 @@ local RenderName = "AutoMinigameFace_" .. Player.UserId
 
 local function Cleanup()
     Running = false
-
     pcall(function()
         RunService:UnbindFromRenderStep(RenderName)
     end)
@@ -84,7 +81,7 @@ local Window = Rayfield:CreateWindow({
 
 local MainTab = Window:CreateTab("Main", 4483362458)
 
--- TOGGLE FLAGS
+-- FLAGS
 local Flags = {
     AutoPunch = true,
     AutoMinigame = true,
@@ -198,10 +195,6 @@ local function RequestRejoin(ShouldAutoExecute)
             else
                 task.wait(2)
             end
-
-            if not IsCurrentInstance() then
-                return
-            end
         end
 
         warn("Auto Rejoin: teleport attempts finished.")
@@ -219,7 +212,6 @@ MainTab:CreateToggle({
     Name = "Auto Punch",
     CurrentValue = true,
     Flag = "AutoPunch",
-
     Callback = function(Value)
         Flags.AutoPunch = Value
     end
@@ -230,10 +222,8 @@ MainTab:CreateToggle({
     Name = "Auto Minigame",
     CurrentValue = true,
     Flag = "AutoMinigame",
-
     Callback = function(Value)
         Flags.AutoMinigame = Value
-
         if not Value then
             SequenceStarted = false
         end
@@ -245,7 +235,6 @@ MainTab:CreateToggle({
     Name = "Auto Rejoin",
     CurrentValue = true,
     Flag = "AutoRejoin",
-
     Callback = function(Value)
         Flags.AutoRejoin = Value
     end
@@ -256,7 +245,6 @@ MainTab:CreateToggle({
     Name = "Auto Execute",
     CurrentValue = true,
     Flag = "AutoExecute",
-
     Callback = function(Value)
         Flags.AutoExecute = Value
     end
@@ -267,10 +255,8 @@ MainTab:CreateToggle({
     Name = "Always Face Itrapped",
     CurrentValue = true,
     Flag = "FaceItrapped",
-
     Callback = function(Value)
         Flags.FaceItrapped = Value
-
         if not Value then
             local Humanoid = GetHumanoid()
             if Humanoid then
@@ -329,24 +315,7 @@ MainTab:CreateToggle({
                         QueueAutoExecute()
                     end
 
-                    -- Kick with the requested message.
-                    -- Kick itself does not automatically rejoin.
-                    
--- REJOIN
-if Flags.AutoExecute then
-    QueueAutoExecute()
-end
-
-Player:Kick("Rejoining...")
-
-task.delay(2, function()
-    pcall(function()
-        TeleportService:Teleport(game.PlaceId, Player)
-    end)
-end)
-
-return
-
+                    Player:Kick("Rejoining...")
                     return
                 end
 
@@ -430,7 +399,6 @@ task.spawn(function()
             if CurrentEssences ~= nil
                 and LastEssenceValue ~= nil
                 and CurrentEssences > LastEssenceValue then
-
                 Rayfield:Notify({
                     Title = "Time Essence",
                     Content = "You Got Time Essence!",
@@ -602,6 +570,6 @@ RunService:BindToRenderStep(
 -- LOADED NOTIFICATION
 Rayfield:Notify({
     Title = "Auto Minigame",
-    Content = "Script loaded!",
+    Content = "Steve Bro Raaaan",
     Duration = 4
 })
