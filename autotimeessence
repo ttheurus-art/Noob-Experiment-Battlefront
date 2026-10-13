@@ -1,5 +1,4 @@
-(
-                game.-- SERVICES
+-- SERVICES
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 
@@ -165,7 +164,7 @@ task.spawn(function()
 
             task.spawn(function()
                 -- Initial wait before first TP
-                task.wait(22)
+                task.wait(18)
 
                 if not Flags.AutoMinigame then
                     SequenceStarted = false
