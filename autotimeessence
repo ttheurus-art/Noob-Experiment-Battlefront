@@ -1,3 +1,6 @@
+-- BY THEURUS_THE_CREATOR
+-- SUB TO CHANNEL THELASTCLONED
+
 -- SERVICES
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
