@@ -204,14 +204,15 @@ end
 -- REJOIN STATE
 local AttemptTeleport
 
--- TELEPORT ATTEMPT
+
+-- REJOIN WITH LONG RETRY
 AttemptTeleport = function()
     if not IsCurrentInstance() or not RejoinStarted then
         return
     end
 
-    if TeleportAttempts >= MaxTeleportAttempts then
-        warn("Auto Rejoin: maximum attempts reached.")
+    if TeleportAttempts >= 10 then
+        warn("Rejoin: maximum attempts reached.")
 
         RejoinStarted = false
         TeleportRetryScheduled = false
@@ -221,26 +222,46 @@ AttemptTeleport = function()
     TeleportAttempts += 1
     TeleportRetryScheduled = false
 
-    -- Rejoin the same Roblox experience.
-    -- Roblox chooses an available server.
-    local Success, ErrorMessage = pcall(function()
-        TeleportService:Teleport(game.PlaceId, Player)
-    end)
+    local AttemptNumber = TeleportAttempts
 
-    if not Success then
-        warn("Teleport attempt failed:", ErrorMessage)
+    task.spawn(function()
+        -- Beri Roblox waktu mencari server yang tersedia.
+        local DelayTime = math.min(AttemptNumber * 5, 30)
+        task.wait(DelayTime)
 
-        if not TeleportRetryScheduled then
-            TeleportRetryScheduled = true
-
-            task.delay(2, function()
-                if IsCurrentInstance() and RejoinStarted then
-                    AttemptTeleport()
-                end
-            end)
+        if not IsCurrentInstance() or not RejoinStarted then
+            return
         end
-    end
+
+        local Options = Instance.new("TeleportOptions")
+
+        local Success, ErrorMessage = pcall(function()
+            TeleportService:TeleportAsync(
+                game.PlaceId,
+                {Player},
+                Options
+            )
+        end)
+
+        if not Success then
+            warn("Rejoin attempt failed:", ErrorMessage)
+
+            if AttemptNumber < 10 and not TeleportRetryScheduled then
+                TeleportRetryScheduled = true
+
+                task.delay(2, function()
+                    if IsCurrentInstance() and RejoinStarted then
+                        AttemptTeleport()
+                    end
+                end)
+            else
+                RejoinStarted = false
+                TeleportRetryScheduled = false
+            end
+        end
+    end)
 end
+
 
 -- RETRY WHEN ROBLOX REPORTS TELEPORT FAILURE
 TeleportService.TeleportInitFailed:Connect(function(
@@ -379,7 +400,7 @@ MainTab:CreateToggle({
 -- TOGGLE 6: AUTO DETECT FROZEN TUNDRA
 MainTab:CreateToggle({
     Name = "Auto Detect Frozen Tundra",
-    CurrentValue = false,
+    CurrentValue = true,
     Flag = "AutoDetectFrozenTundra",
 
     Callback = function(Value)
