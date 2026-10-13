@@ -5,6 +5,24 @@ local TeleportService = game:GetService("TeleportService")
 local RunService = game:GetService("RunService")
 
 local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+-- REMOVE OLD GUI
+for _, Container in ipairs({PlayerGui, game:GetService("CoreGui")}) do
+    pcall(function()
+        local Old = Container:FindFirstChild("Rayfield")
+        if Old then
+            Old:Destroy()
+        end
+    end)
+
+    pcall(function()
+        local Old = Container:FindFirstChild("Auto Minigame")
+        if Old then
+            Old:Destroy()
+        end
+    end)
+end
 
 -- RAYFIELD
 local Rayfield = loadstring(game:HttpGet(
@@ -29,14 +47,14 @@ local Flags = {
     AutoPunch = true,
     AutoMinigame = true,
     AutoRejoin = true,
-    AutoExecute = true
+    AutoExecute = true,
+    FaceItrapped = true
 }
 
 local SequenceStarted = false
 local RejoinStarted = false
 local ItrappedSeen = false
 local LastEssenceValue = nil
-local PunchConnection = nil
 
 local function GetCharacter()
     return Player.Character
@@ -47,38 +65,51 @@ local function GetRoot()
     return Character and Character:FindFirstChild("HumanoidRootPart")
 end
 
+local function GetHumanoid()
+    local Character = GetCharacter()
+    return Character and Character:FindFirstChildOfClass("Humanoid")
+end
+
 local function GetEssences()
     local Leaderstats = Player:FindFirstChild("leaderstats")
-    local Essences = Leaderstats and Leaderstats:FindFirstChild("Time Essences")
+    local Essences = Leaderstats
+        and Leaderstats:FindFirstChild("Time Essences")
 
-    if Essences then
-        return Essences.Value
-    end
-
-    return nil
+    return Essences and Essences.Value or nil
 end
 
 local function TeleportTo(Position)
     local Root = GetRoot()
-
     if not Root then
         return false
     end
 
-    local Success = pcall(function()
+    return pcall(function()
         Root.CFrame = CFrame.new(Position)
         Root.AssemblyLinearVelocity = Vector3.zero
         Root.AssemblyAngularVelocity = Vector3.zero
     end)
-
-    return Success
 end
 
+-- QUEUE AUTO EXECUTE
 local function QueueAutoExecute()
-    local QueueFunction =
-        queue_on_teleport
-        or (syn and syn.queue_on_teleport)
-        or (fluxus and fluxus.queue_on_teleport)
+    local QueueFunction
+
+    pcall(function()
+        QueueFunction = queue_on_teleport
+    end)
+
+    if not QueueFunction then
+        pcall(function()
+            QueueFunction = syn.queue_on_teleport
+        end)
+    end
+
+    if not QueueFunction then
+        pcall(function()
+            QueueFunction = fluxus.queue_on_teleport
+        end)
+    end
 
     if not QueueFunction then
         return false
@@ -93,7 +124,13 @@ local function QueueAutoExecute()
     end)
 end
 
--- AUTO PUNCH
+-- HEALTH AT TOP
+local HealthParagraph = MainTab:CreateParagraph({
+    Title = "Itrapped Health",
+    Content = "Waiting for Itrapped..."
+})
+
+-- TOGGLES
 MainTab:CreateToggle({
     Name = "Auto Punch",
     CurrentValue = true,
@@ -103,6 +140,60 @@ MainTab:CreateToggle({
     end
 })
 
+MainTab:CreateToggle({
+    Name = "Auto Minigame",
+    CurrentValue = true,
+    Flag = "AutoMinigame",
+    Callback = function(Value)
+        Flags.AutoMinigame = Value
+
+        if not Value then
+            SequenceStarted = false
+        end
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "Auto Rejoin",
+    CurrentValue = true,
+    Flag = "AutoRejoin",
+    Callback = function(Value)
+        Flags.AutoRejoin = Value
+
+        if not Value then
+            RejoinStarted = false
+        end
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "Auto Execute",
+    CurrentValue = true,
+    Flag = "AutoExecute",
+    Callback = function(Value)
+        Flags.AutoExecute = Value
+
+        if Value then
+            QueueAutoExecute()
+        end
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "Always Face Itrapped",
+    CurrentValue = true,
+    Flag = "FaceItrapped",
+    Callback = function(Value)
+        Flags.FaceItrapped = Value
+
+        local Humanoid = GetHumanoid()
+        if Humanoid and not Value then
+            Humanoid.AutoRotate = true
+        end
+    end
+})
+
+-- AUTO PUNCH LOOP
 task.spawn(function()
     while task.wait(0.1) do
         if Flags.AutoPunch then
@@ -119,56 +210,13 @@ task.spawn(function()
     end
 end)
 
--- AUTO MINIGAME
-MainTab:CreateToggle({
-    Name = "Auto Minigame",
-    CurrentValue = true,
-    Flag = "AutoMinigame",
-    Callback = function(Value)
-        Flags.AutoMinigame = Value
-
-        if not Value then
-            SequenceStarted = false
-        end
-    end
-})
-
--- AUTO REJOIN
-MainTab:CreateToggle({
-    Name = "Auto Rejoin",
-    CurrentValue = true,
-    Flag = "AutoRejoin",
-    Callback = function(Value)
-        Flags.AutoRejoin = Value
-    end
-})
-
--- AUTO EXECUTE ON TELEPORT
-MainTab:CreateToggle({
-    Name = "Auto Execute",
-    CurrentValue = true,
-    Flag = "AutoExecute",
-    Callback = function(Value)
-        Flags.AutoExecute = Value
-
-        if Value then
-            QueueAutoExecute()
-        end
-    end
-})
-
--- HEALTH DISPLAY
-local HealthParagraph = MainTab:CreateParagraph({
-    Title = "Itrapped Health",
-    Content = "Waiting for Itrapped..."
-})
-
+-- HEALTH AND DEFEAT MONITOR
 task.spawn(function()
-    while task.wait(0.5) do
+    while task.wait(0.25) do
         local Target = workspace:FindFirstChild("Itrapped")
         local Humanoid = Target and Target:FindFirstChildOfClass("Humanoid")
 
-        if Humanoid then
+        if Humanoid and Humanoid.Health > 0 then
             ItrappedSeen = true
             LastEssenceValue = GetEssences()
 
@@ -182,6 +230,7 @@ task.spawn(function()
                     )
                 })
             end)
+
         elseif ItrappedSeen then
             ItrappedSeen = false
 
@@ -212,6 +261,13 @@ task.spawn(function()
                 })
             end
 
+            pcall(function()
+                HealthParagraph:Set({
+                    Title = "Itrapped Health",
+                    Content = "Waiting for Itrapped..."
+                })
+            end)
+
             if Flags.AutoRejoin and not RejoinStarted then
                 RejoinStarted = true
 
@@ -219,31 +275,52 @@ task.spawn(function()
                     QueueAutoExecute()
                 end
 
-                task.wait(1)
-
                 pcall(function()
                     TeleportService:Teleport(game.PlaceId, Player)
                 end)
             end
-
-            pcall(function()
-                HealthParagraph:Set({
-                    Title = "Itrapped Health",
-                    Content = "Waiting for Itrapped..."
-                })
-            end)
         end
     end
 end)
 
--- AUTO MINIGAME TP SEQUENCE
+-- REJOIN IMMEDIATELY WHILE FROZEN TUNDRA EXISTS
+task.spawn(function()
+    while task.wait(0.2) do
+        if Flags.AutoRejoin
+            and workspace:FindFirstChild("Frozen Tundra")
+            and not RejoinStarted then
+
+            RejoinStarted = true
+
+            if Flags.AutoExecute then
+                QueueAutoExecute()
+            end
+
+            local Success = pcall(function()
+                TeleportService:Teleport(game.PlaceId, Player)
+            end)
+
+            if not Success then
+                RejoinStarted = false
+            end
+        end
+    end
+end)
+
+-- RESET REJOIN STATE ON CHARACTER RESPAWN
+Player.CharacterAdded:Connect(function()
+    RejoinStarted = false
+    SequenceStarted = false
+end)
+
+-- TP SEQUENCE
 task.spawn(function()
     while task.wait(0.2) do
         if Flags.AutoMinigame and not SequenceStarted then
             SequenceStarted = true
 
             task.spawn(function()
-                -- INITIAL WAIT
+                -- WAIT 16 SECONDS
                 task.wait(16)
 
                 if not Flags.AutoMinigame then
@@ -251,7 +328,7 @@ task.spawn(function()
                     return
                 end
 
-                -- TP1: WAIT UNTIL BATTLEFIELD DISAPPEARS
+                -- TP1 UNTIL BATTLEFIELD IS GONE
                 -- AND FROZEN TUNDRA APPEARS
                 while Flags.AutoMinigame do
                     local Battlefield =
@@ -273,7 +350,7 @@ task.spawn(function()
                     return
                 end
 
-                -- TP2: REPEAT UNTIL ITRAPPED APPEARS
+                -- TP2 UNTIL ITRAPPED APPEARS
                 while Flags.AutoMinigame do
                     local Target = workspace:FindFirstChild("Itrapped")
                     local TargetRoot =
@@ -287,17 +364,11 @@ task.spawn(function()
                     task.wait(0.2)
                 end
 
-                if not Flags.AutoMinigame then
-                    SequenceStarted = false
-                    return
-                end
-
                 -- FOLLOW ITRAPPED FROM BEHIND
                 while Flags.AutoMinigame do
                     local Target = workspace:FindFirstChild("Itrapped")
                     local TargetRoot =
                         Target and Target:FindFirstChild("HumanoidRootPart")
-
                     local Root = GetRoot()
 
                     if not TargetRoot or not Root then
@@ -321,7 +392,53 @@ task.spawn(function()
     end
 end)
 
--- QUEUE AUTO EXECUTE WHEN THIS SCRIPT STARTS
+-- ALWAYS FACE ITRAPPED
+RunService:BindToRenderStep(
+    "AutoMinigameFaceItrapped",
+    Enum.RenderPriority.Character.Value + 1,
+    function()
+        if not Flags.FaceItrapped then
+            return
+        end
+
+        local Character = workspace:FindFirstChild(Player.Name)
+            or GetCharacter()
+
+        local Root = Character
+            and Character:FindFirstChild("HumanoidRootPart")
+
+        local Humanoid = Character
+            and Character:FindFirstChildOfClass("Humanoid")
+
+        local Target = workspace:FindFirstChild("Itrapped")
+        local TargetRoot =
+            Target and Target:FindFirstChild("HumanoidRootPart")
+
+        if not Root or not Humanoid or not TargetRoot then
+            if Humanoid then
+                Humanoid.AutoRotate = true
+            end
+            return
+        end
+
+        Humanoid.AutoRotate = false
+
+        local MyPosition = Root.Position
+        local TargetPosition = TargetRoot.Position
+
+        local FlatTarget = Vector3.new(
+            TargetPosition.X,
+            MyPosition.Y,
+            TargetPosition.Z
+        )
+
+        if (FlatTarget - MyPosition).Magnitude > 0.01 then
+            Root.CFrame = CFrame.lookAt(MyPosition, FlatTarget)
+        end
+    end
+)
+
+-- INITIAL AUTO EXECUTE QUEUE
 if Flags.AutoExecute then
     QueueAutoExecute()
 end
