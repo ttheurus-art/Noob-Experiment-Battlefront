@@ -1,17 +1,19 @@
 -- SERVICES
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
+
 local Player = Players.LocalPlayer
 
+-- CONFIG
 local Flags = {
     AutoPunch = true,
     AutoMinigame = true,
-    AutoRejoin = true,
-    AutoReExecute = true
+    AutoRejoin = true
 }
 
 local SequenceStarted = false
 local ItrappedSeen = false
+local RejoinStarted = false
 
 -- RAYFIELD
 local Rayfield = loadstring(game:HttpGet(
@@ -60,19 +62,44 @@ MainTab:CreateToggle({
 })
 
 -- AUTO REJOIN
-local AutoTimeEssenceEnabled = false
-
 MainTab:CreateToggle({
-    Name = "Auto Execute (for auto essence later)",
+    Name = "Auto Rejoin",
+    CurrentValue = true,
+    Flag = "AutoRejoin",
+    Callback = function(Value)
+        Flags.AutoRejoin = Value
+    end
+})
+
+-- AUTO EXECUTE
+MainTab:CreateToggle({
+    Name = "Auto Execute",
     CurrentValue = false,
     Flag = "AutoExecuteTeleport",
     Callback = function(Value)
-        if Value and queue_on_teleport then
-            queue_on_teleport([[
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessence"))()
-            ]])
+        if Value then
+            local QueueFunction =
+                queue_on_teleport
+                or (syn and syn.queue_on_teleport)
+                or (fluxus and fluxus.queue_on_teleport)
+
+            if QueueFunction then
+                pcall(function()
+                    QueueFunction([[
+                        loadstring(game:HttpGet(
+                            "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/script.lua"
+                        ))()
+                    ]])
+                end)
+            else
+                Rayfield:Notify({
+                    Title = "Auto Execute",
+                    Content = "Queue-on-teleport is not supported by this executor.",
+                    Duration = 5
+                })
+            end
         end
-    end,
+    end
 })
 
 -- AUTO PUNCH LOOP
@@ -100,6 +127,7 @@ local function TeleportTo(Position)
         or Player.CharacterAdded:Wait()
 
     local Root = Character:WaitForChild("HumanoidRootPart")
+
     Root.CFrame = CFrame.new(Position)
 end
 
@@ -150,6 +178,7 @@ task.spawn(function()
                         if Root then
                             Root.CFrame = TargetRoot.CFrame
                                 * CFrame.new(0, 0, 3)
+
                             Root.AssemblyLinearVelocity = Vector3.zero
                             Root.AssemblyAngularVelocity = Vector3.zero
                         end
@@ -180,11 +209,15 @@ end)
 -- AUTO REJOIN WHEN ITRAPPED DISAPPEARS
 task.spawn(function()
     while task.wait(0.2) do
+        if not Flags.AutoRejoin or RejoinStarted then
+            continue
+        end
+
         local Target = workspace:FindFirstChild("Itrapped")
 
         if Target then
             ItrappedSeen = true
-        elseif ItrappedSeen and Flags.AutoRejoin and not RejoinStarted then
+        elseif ItrappedSeen then
             RejoinStarted = true
 
             pcall(function()
@@ -192,6 +225,50 @@ task.spawn(function()
             end)
 
             break
+        end
+    end
+end)
+
+-- REJOIN IF BATTLEFIELD DOESN'T BECOME FROZEN TUNDRA
+task.spawn(function()
+    while task.wait(1) do
+        if not Flags.AutoRejoin or RejoinStarted then
+            continue
+        end
+
+        local Battlefield = workspace:FindFirstChild("Battlefield")
+
+        if Battlefield then
+            local StartTime = os.clock()
+            local Changed = false
+
+            while os.clock() - StartTime < 25 do
+                if not Flags.AutoRejoin or RejoinStarted then
+                    break
+                end
+
+                local Current = workspace:FindFirstChild("Battlefield")
+
+                if Current and Current.Name == "Frozen Tundra" then
+                    Changed = true
+                    break
+                end
+
+                task.wait(0.2)
+            end
+
+            if not Changed
+                and Flags.AutoRejoin
+                and not RejoinStarted then
+
+                RejoinStarted = true
+
+                pcall(function()
+                    TeleportService:Teleport(game.PlaceId, Player)
+                end)
+
+                break
+            end
         end
     end
 end)
