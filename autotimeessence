@@ -1,6 +1,3 @@
--- BY THEURUS_THE_CREATOR
--- SUB TO CHANNEL THELASTCLONED
-
 -- SERVICES
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
@@ -17,7 +14,6 @@ local Flags = {
 local SequenceStarted = false
 local ItrappedSeen = false
 local RejoinStarted = false
-local AutoExecuteEnabled = true
 
 -- RAYFIELD
 local Rayfield = loadstring(game:HttpGet(
@@ -34,6 +30,15 @@ local Window = Rayfield:CreateWindow({
 })
 
 local MainTab = Window:CreateTab("Main", 4483362458)
+
+-- NOTIFICATION HELPER
+local function Notify(Title, Content)
+    Rayfield:Notify({
+        Title = Title,
+        Content = Content,
+        Duration = 5
+    })
+end
 
 -- HEALTH PARAGRAPH
 local HealthParagraph = MainTab:CreateParagraph({
@@ -98,26 +103,21 @@ MainTab:CreateToggle({
     CurrentValue = true,
     Flag = "AutoExecuteTeleport",
     Callback = function(Value)
-        AutoExecuteEnabled = Value
-
         if Value then
             local Success = QueueAutoExecute()
 
             if not Success then
-                Rayfield:Notify({
-                    Title = "Auto Execute",
-                    Content = "Queue-on-teleport is unavailable.",
-                    Duration = 5
-                })
+                Notify(
+                    "Auto Execute",
+                    "Queue-on-teleport is unavailable."
+                )
             end
         end
     end
 })
 
 -- QUEUE ON INITIAL EXECUTION
-if AutoExecuteEnabled then
-    QueueAutoExecute()
-end
+QueueAutoExecute()
 
 -- AUTO PUNCH LOOP
 task.spawn(function()
@@ -159,7 +159,7 @@ task.spawn(function()
             SequenceStarted = true
 
             task.spawn(function()
-                task.wait(25)
+                task.wait(18)
 
                 if not Flags.AutoMinigame then
                     SequenceStarted = false
@@ -222,6 +222,22 @@ task.spawn(function()
     end
 end)
 
+-- TIME ESSENCE READER
+local function GetTimeEssence()
+    local Leaderstats = Player:FindFirstChild("leaderstats")
+    local Essence = Leaderstats
+        and Leaderstats:FindFirstChild("Time Essences")
+
+    if Essence and (
+        Essence:IsA("IntValue")
+        or Essence:IsA("NumberValue")
+    ) then
+        return Essence.Value
+    end
+
+    return nil
+end
+
 -- AUTO REJOIN WHEN ITRAPPED DISAPPEARS
 task.spawn(function()
     while task.wait(0.2) do
@@ -234,65 +250,146 @@ task.spawn(function()
         if Target then
             ItrappedSeen = true
         elseif ItrappedSeen then
+            -- Capture essence count before checking reward
+            local EssenceBefore = GetTimeEssence()
+
+            Notify(
+                "Minigame",
+                "Itrapped Has Been Defeated"
+            )
+
             task.wait(1.4)
 
-            -- Confirm Itrapped is still missing
-            if Flags.AutoRejoin
-                and not RejoinStarted
-                and not workspace:FindFirstChild("Itrapped") then
+            if not workspace:FindFirstChild("Itrapped") then
+                -- Allow leaderboard to update
+                task.wait(0.5)
+
+                local EssenceAfter = GetTimeEssence()
+
+                if EssenceBefore ~= nil
+                    and EssenceAfter ~= nil then
+
+                    if EssenceAfter > EssenceBefore then
+                        Notify(
+                            "Time Essence",
+                            "You Got Time Essence! (25% drop)"
+                        )
+                    else
+                        Notify(
+                            "Time Essence",
+                            "You Don't Get Time Essence, GL Next Time"
+                        )
+                    end
+                else
+                    Notify(
+                        "Time Essence",
+                        "Couldn't read Time Essences from leaderboard."
+                    )
+                end
 
                 RejoinStarted = true
 
                 pcall(function()
-                    TeleportService:Teleport(game.PlaceId, Player)
+                    TeleportService:Teleport(
+                        game.PlaceId,
+                        Player
+                    )
                 end)
-            end
 
-            break
+                break
+            end
         end
     end
 end)
 
--- AUTO REJOIN IF FROZEN TUNDRA IS NOT DETECTED WITHIN 80 SECONDS
+-- MAP DETECTION
 task.spawn(function()
     local StartTime = os.clock()
-    local FrozenTundraDetected = false
 
-    while os.clock() - StartTime < 80 do
+    local function HasBattlefield()
+        return workspace:FindFirstChild("Battlefield") ~= nil
+    end
+
+    local function HasFrozenTundra()
+        return workspace:FindFirstChild("Frozen Tundra") ~= nil
+    end
+
+    -- Frozen Tundra exists at startup without Battlefield
+    if HasFrozenTundra() and not HasBattlefield() then
+        Notify(
+            "Auto Rejoin",
+            "The Server Has Been Collected Before"
+        )
+
+        if Flags.AutoRejoin and not RejoinStarted then
+            RejoinStarted = true
+
+            pcall(function()
+                TeleportService:Teleport(
+                    game.PlaceId,
+                    Player
+                )
+            end)
+        end
+
+        return
+    end
+
+    -- Wait up to 5 seconds for Battlefield
+    while os.clock() - StartTime < 5 do
         if not Flags.AutoRejoin or RejoinStarted then
             return
         end
 
-        -- Check Battlefield and descendants for the map name
-        local Battlefield = workspace:FindFirstChild("Battlefield")
+        if HasBattlefield() then
+            -- Battlefield detected: wait for Frozen Tundra
+            while Flags.AutoRejoin and not RejoinStarted do
+                if HasFrozenTundra() then
+                    return
+                end
 
-        if Battlefield then
-            if Battlefield.Name == "Frozen Tundra"
-                or Battlefield:FindFirstChild("Frozen Tundra", true) then
-
-                FrozenTundraDetected = true
-                break
+                task.wait(0.2)
             end
+
+            return
         end
 
-        -- Also check workspace in case the map is a direct child
-        if workspace:FindFirstChild("Frozen Tundra") then
-            FrozenTundraDetected = true
-            break
+        if HasFrozenTundra() then
+            Notify(
+                "Auto Rejoin",
+                "The Server Has Been Collected Before"
+            )
+
+            if not RejoinStarted then
+                RejoinStarted = true
+
+                pcall(function()
+                    TeleportService:Teleport(
+                        game.PlaceId,
+                        Player
+                    )
+                end)
+            end
+
+            return
         end
 
         task.wait(0.2)
     end
 
-    if FrozenTundraDetected then
-        return
-    end
+    -- Rejoin if neither map appeared within 5 seconds
+    if not HasBattlefield()
+        and not HasFrozenTundra()
+        and Flags.AutoRejoin
+        and not RejoinStarted then
 
-    if Flags.AutoRejoin and not RejoinStarted then
         RejoinStarted = true
 
         pcall(function()
-            TeleportService:Teleport(game.PlaceId, Player)
+            TeleportService:Teleport(
+                game.PlaceId,
+                Player
+            )
         end)
     end
 end)
