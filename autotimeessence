@@ -1,342 +1,49 @@
--- AUTO MINIGAME - FIXED FULL SCRIPT
--- 6 SEPARATE TOGGLES
--- Frozen Tundra scan: maximum 5 seconds
--- Itrapped disappears: wait 1.7 seconds before rejoin
--- Auto Execute: autotimeessence URL
--- Teleport retries: increasing delay, maximum 10 attempts
 
+-- SERVICES
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
-local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
 
 local Player = Players.LocalPlayer
-if not Player then return end
 
-local PlayerGui = Player:WaitForChild("PlayerGui")
-
--- CLEANUP PREVIOUS INSTANCE
-local Env
-pcall(function()
-    if type(getgenv) == "function" then
-        Env = getgenv()
-    end
-end)
-
-if Env and type(Env.AutoMinigameCleanup) == "function" then
-    pcall(Env.AutoMinigameCleanup)
-end
-
-local Running = true
-local RenderName = "AutoMinigameFace_" .. Player.UserId
-local Connections = {}
-
-local function IsCurrentInstance()
-    return Running and (not Env or Env.AutoMinigameRunning == true)
-end
-
-local function TrackConnection(connection)
-    table.insert(Connections, connection)
-    return connection
-end
-
-local function Cleanup()
-    if not Running then return end
-    Running = false
-
-    for _, connection in ipairs(Connections) do
-        pcall(function()
-            connection:Disconnect()
-        end)
-    end
-    table.clear(Connections)
-
-    pcall(function()
-        RunService:UnbindFromRenderStep(RenderName)
-    end)
-
-    if Env and Env.AutoMinigameCleanup == Cleanup then
-        Env.AutoMinigameRunning = false
-        Env.AutoMinigameCleanup = nil
-    end
-end
-
-if Env then
-    Env.AutoMinigameRunning = true
-    Env.AutoMinigameCleanup = Cleanup
-end
-
-for _, container in ipairs({PlayerGui, CoreGui}) do
-    for _, gui in ipairs(container:GetChildren()) do
-        if gui.Name == "Rayfield" or gui.Name == "Auto Minigame" then
-            pcall(function()
-                gui:Destroy()
-            end)
-        end
-    end
-end
-
--- LOAD RAYFIELD
-local loaded, Rayfield = pcall(function()
-    return loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
-end)
-
-if not loaded or not Rayfield then
-    warn("Auto Minigame: Rayfield failed to load.")
-    Cleanup()
-    return
-end
-
-local windowOK, Window = pcall(function()
-    return Rayfield:CreateWindow({
-        Name = "Auto Minigame",
-        LoadingTitle = "Auto Minigame",
-        LoadingSubtitle = "Auto TP System",
-        ConfigurationSaving = {
-            Enabled = true,
-            FolderName = "AutoMinigame",
-            FileName = "Config"
-        },
-        KeySystem = false
-    })
-end)
-
-if not windowOK or not Window then
-    Cleanup()
-    return
-end
-
-local MainTab = Window:CreateTab("Main", 4483362458)
-
--- SETTINGS
+-- CONFIG
 local Flags = {
     AutoPunch = true,
     AutoMinigame = true,
     AutoRejoin = true,
-    AutoExecute = true,
-    FaceItrapped = true,
-    AutoDetectFrozenTundra = true
+    AutoExecuteTeleport = true
 }
 
 local SequenceStarted = false
-local RejoinStarted = false
-local InitialRejoinTriggered = false
 local ItrappedSeen = false
-local FrozenScanFinished = false
-local TeleportAttempts = 0
-local MaxTeleportAttempts = 10
-local TeleportRetryScheduled = false
-local TeleportInProgress = false
-local RejoinGeneration = 0
+local Rejoining = false
+local RejoinAttempts = 0
 
--- CHARACTER HELPERS
-local function GetCharacter()
-    return Player.Character
-end
+local REJOIN_DELAY = 3
+local MAX_RETRIES = 5
 
-local function GetRoot()
-    local character = GetCharacter()
-    return character and character:FindFirstChild("HumanoidRootPart")
-end
+-- RAYFIELD
+local Rayfield = loadstring(game:HttpGet(
+    "https://sirius.menu/rayfield"
+))()
 
-local function GetHumanoid()
-    local character = GetCharacter()
-    return character and character:FindFirstChildOfClass("Humanoid")
-end
+local Window = Rayfield:CreateWindow({
+    Name = "Auto Minigame",
+    LoadingTitle = "Auto Minigame",
+    LoadingSubtitle = "Automation Panel",
+    ConfigurationSaving = {
+        Enabled = false
+    }
+})
 
-local function Notify(title, content, duration)
-    if not IsCurrentInstance() then return end
+local MainTab = Window:CreateTab("Main", 4483362458)
 
-    pcall(function()
-        Rayfield:Notify({
-            Title = title,
-            Content = content,
-            Duration = duration or 4
-        })
-    end)
-end
-
-local function TeleportTo(position)
-    if not IsCurrentInstance() then return false end
-
-    local root = GetRoot()
-    if not root then return false end
-
-    return pcall(function()
-        root.CFrame = CFrame.new(position)
-        root.AssemblyLinearVelocity = Vector3.zero
-        root.AssemblyAngularVelocity = Vector3.zero
-    end)
-end
-
--- AUTO EXECUTE
-local function QueueAutoExecute()
-    local queueFunction
-
-    pcall(function()
-        if type(queue_on_teleport) == "function" then
-            queueFunction = queue_on_teleport
-        elseif type(syn) == "table"
-            and type(syn.queue_on_teleport) == "function" then
-            queueFunction = syn.queue_on_teleport
-        elseif type(fluxus) == "table"
-            and type(fluxus.queue_on_teleport) == "function" then
-            queueFunction = fluxus.queue_on_teleport
-        end
-    end)
-
-    if not queueFunction then
-        warn("Auto Execute: queue_on_teleport unavailable.")
-        return false
-    end
-
-    local success, err = pcall(function()
-        queueFunction([[
-            task.wait(2)
-            local ok, err = pcall(function()
-                loadstring(game:HttpGet(
-                    "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessence"
-                ))()
-            end)
-            if not ok then
-                warn("Auto Execute failed:", tostring(err))
-            end
-        ]])
-    end)
-
-    if not success then
-        warn("Auto Execute queue failed:", tostring(err))
-    end
-
-    return success
-end
-
--- REJOIN SYSTEM
-local function StopAutomationForRejoin()
-    SequenceStarted = false
-
-    local humanoid = GetHumanoid()
-    if humanoid then
-        humanoid.AutoRotate = true
-    end
-end
-
-local AttemptTeleport
-
-local function ScheduleTeleportRetry(generation)
-    if not IsCurrentInstance()
-        or not RejoinStarted
-        or TeleportRetryScheduled
-        or generation ~= RejoinGeneration then
-        return
-    end
-
-    if TeleportAttempts >= MaxTeleportAttempts then
-        RejoinStarted = false
-        TeleportInProgress = false
-        TeleportRetryScheduled = false
-        Notify("Auto Rejoin", "Maximum retry attempts reached.", 5)
-        return
-    end
-
-    TeleportRetryScheduled = true
-
-    task.delay(2, function()
-        if not IsCurrentInstance()
-            or not RejoinStarted
-            or generation ~= RejoinGeneration then
-            TeleportRetryScheduled = false
-            return
-        end
-
-        TeleportRetryScheduled = false
-        AttemptTeleport(generation)
-    end)
-end
-
-AttemptTeleport = function(generation)
-    if not IsCurrentInstance()
-        or not RejoinStarted
-        or generation ~= RejoinGeneration
-        or TeleportInProgress then
-        return
-    end
-
-    if TeleportAttempts >= MaxTeleportAttempts then
-        RejoinStarted = false
-        Notify("Auto Rejoin", "Maximum retry attempts reached.", 5)
-        return
-    end
-
-    TeleportAttempts += 1
-    local attempt = TeleportAttempts
-    local delayTime = math.min(attempt * 3, 20)
-
-    task.delay(delayTime, function()
-        if not IsCurrentInstance()
-            or not RejoinStarted
-            or generation ~= RejoinGeneration then
-            return
-        end
-
-        TeleportInProgress = true
-
-        local success, err = pcall(function()
-            TeleportService:Teleport(game.PlaceId, Player)
-        end)
-
-        if not success then
-            TeleportInProgress = false
-            warn("Rejoin attempt " .. attempt .. " failed:", tostring(err))
-            ScheduleTeleportRetry(generation)
-        end
-        -- On a successful API call, wait for teleport completion or
-        -- TeleportInitFailed. Roblox does not guarantee teleport success.
-    end)
-end
-
-TrackConnection(TeleportService.TeleportInitFailed:Connect(
-    function(failedPlayer, result, errorMessage)
-        if failedPlayer ~= Player
-            or not RejoinStarted
-            or not IsCurrentInstance() then
-            return
-        end
-
-        TeleportInProgress = false
-        warn("Teleport failed:", tostring(result), tostring(errorMessage))
-        ScheduleTeleportRetry(RejoinGeneration)
-    end
-))
-
-local function RequestRejoin()
-    if RejoinStarted or not IsCurrentInstance() then return end
-    if not Flags.AutoRejoin then
-        Notify("Auto Rejoin", "Auto Rejoin is OFF.", 3)
-        return
-    end
-
-    RejoinStarted = true
-    InitialRejoinTriggered = true
-    RejoinGeneration += 1
-    TeleportAttempts = 0
-    TeleportRetryScheduled = false
-    TeleportInProgress = false
-
-    StopAutomationForRejoin()
-
-    if Flags.AutoExecute then
-        QueueAutoExecute()
-    end
-
-    local generation = RejoinGeneration
-    task.delay(0.5, function()
-        if IsCurrentInstance()
-            and RejoinStarted
-            and generation == RejoinGeneration then
-            AttemptTeleport(generation)
-        end
-    end)
+-- NOTIFICATION
+local function Notify(Title, Content)
+    Rayfield:Notify({
+        Title = Title,
+        Content = Content,
+        Duration = 5
+    })
 end
 
 -- HEALTH DISPLAY
@@ -345,285 +52,359 @@ local HealthParagraph = MainTab:CreateParagraph({
     Content = "Waiting for Itrapped..."
 })
 
--- TOGGLE 1: AUTO PUNCH
+-- AUTO PUNCH
 MainTab:CreateToggle({
     Name = "Auto Punch",
     CurrentValue = true,
     Flag = "AutoPunch",
-    Callback = function(value)
-        Flags.AutoPunch = value
+    Callback = function(Value)
+        Flags.AutoPunch = Value
     end
 })
 
--- TOGGLE 2: AUTO MINIGAME
+-- AUTO MINIGAME
 MainTab:CreateToggle({
     Name = "Auto Minigame",
     CurrentValue = true,
     Flag = "AutoMinigame",
-    Callback = function(value)
-        Flags.AutoMinigame = value
-        if not value then
-            SequenceStarted = false
-        end
+    Callback = function(Value)
+        Flags.AutoMinigame = Value
     end
 })
 
--- TOGGLE 3: AUTO REJOIN
+-- AUTO REJOIN
 MainTab:CreateToggle({
     Name = "Auto Rejoin",
     CurrentValue = true,
     Flag = "AutoRejoin",
-    Callback = function(value)
-        Flags.AutoRejoin = value
+    Callback = function(Value)
+        Flags.AutoRejoin = Value
+
+        if not Value then
+            Notify(
+                "Auto Rejoin",
+                "Auto Rejoin disabled."
+            )
+        end
     end
 })
 
--- TOGGLE 4: AUTO EXECUTE
+-- AUTO EXECUTE
+local function QueueAutoExecute()
+    local QueueFunction =
+        queue_on_teleport
+        or (syn and syn.queue_on_teleport)
+        or (fluxus and fluxus.queue_on_teleport)
+
+    if type(QueueFunction) ~= "function" then
+        return false
+    end
+
+    return pcall(function()
+        QueueFunction([[
+            loadstring(game:HttpGet(
+                "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessence"
+            ))()
+        ]])
+    end)
+end
+
 MainTab:CreateToggle({
     Name = "Auto Execute",
     CurrentValue = true,
-    Flag = "AutoExecute",
-    Callback = function(value)
-        Flags.AutoExecute = value
-    end
-})
+    Flag = "AutoExecuteTeleport",
+    Callback = function(Value)
+        Flags.AutoExecuteTeleport = Value
 
--- TOGGLE 5: ALWAYS FACE ITRAPPED
-MainTab:CreateToggle({
-    Name = "Always Face Itrapped",
-    CurrentValue = true,
-    Flag = "FaceItrapped",
-    Callback = function(value)
-        Flags.FaceItrapped = value
-
-        if not value then
-            local humanoid = GetHumanoid()
-            if humanoid then humanoid.AutoRotate = true end
+        if Value then
+            if not QueueAutoExecute() then
+                Notify(
+                    "Auto Execute",
+                    "Queue-on-teleport is unavailable."
+                )
+            end
         end
     end
 })
 
--- TOGGLE 6: FROZEN TUNDRA DETECTOR
-MainTab:CreateToggle({
-    Name = "Auto Detect Frozen Tundra",
-    CurrentValue = true,
-    Flag = "AutoDetectFrozenTundra",
-    Callback = function(value)
-        Flags.AutoDetectFrozenTundra = value
+if Flags.AutoExecuteTeleport then
+    QueueAutoExecute()
+end
+
+-- AUTO REJOIN SYSTEM
+local function AutoRejoin()
+    if not Flags.AutoRejoin or Rejoining then
+        return
     end
-})
 
--- FROZEN TUNDRA SCAN: ONE PASS, MAXIMUM 5 SECONDS
-task.spawn(function()
-    local startedAt = os.clock()
+    Rejoining = true
+    RejoinAttempts = 0
 
-    while IsCurrentInstance()
-        and Flags.AutoDetectFrozenTundra
-        and not FrozenScanFinished
-        and not RejoinStarted
-        and os.clock() - startedAt < 5 do
+    task.spawn(function()
+        while Flags.AutoRejoin
+            and RejoinAttempts < MAX_RETRIES do
 
-        if workspace:FindFirstChild("Frozen Tundra") then
-            FrozenScanFinished = true
-            Notify("Frozen Tundra Detected", "Rejoining...", 3)
-            RequestRejoin()
+            RejoinAttempts += 1
+
+            Notify(
+                "Auto Rejoin",
+                "Rejoining... Attempt "
+                    .. RejoinAttempts
+                    .. "/"
+                    .. MAX_RETRIES
+            )
+
+            task.wait(REJOIN_DELAY)
+
+            if not Flags.AutoRejoin then
+                break
+            end
+
+            local Success, ErrorMessage = pcall(function()
+                TeleportService:Teleport(
+                    game.PlaceId,
+                    Player
+                )
+            end)
+
+            if Success then
+                Notify(
+                    "Auto Rejoin",
+                    "Teleport request sent."
+                )
+                return
+            else
+                Notify(
+                    "Teleport Error",
+                    tostring(ErrorMessage)
+                )
+            end
+
+            task.wait(2)
+        end
+
+        Rejoining = false
+
+        if Flags.AutoRejoin then
+            Notify(
+                "Auto Rejoin",
+                "Maximum retry attempts reached."
+            )
+        end
+    end)
+end
+
+TeleportService.TeleportInitFailed:Connect(
+    function(TeleportPlayer, TeleportResult, ErrorMessage)
+        if TeleportPlayer ~= Player then
             return
         end
 
-        task.wait(0.1)
+        if not Flags.AutoRejoin then
+            Rejoining = false
+            return
+        end
+
+        Rejoining = false
+
+        Notify(
+            "Teleport Failed",
+            tostring(TeleportResult)
+                .. ": "
+                .. tostring(ErrorMessage)
+        )
+
+        task.delay(2, AutoRejoin)
+    end
+)
+
+-- TELEPORT HELPER
+local function TeleportTo(Position)
+    local Character = Player.Character
+        or Player.CharacterAdded:Wait()
+
+    local Root = Character:WaitForChild(
+        "HumanoidRootPart",
+        5
+    )
+
+    if not Root then
+        return false
     end
 
-    FrozenScanFinished = true
-end)
+    return pcall(function()
+        Root.CFrame = CFrame.new(Position)
+    end)
+end
 
 -- AUTO PUNCH LOOP
 task.spawn(function()
-    while IsCurrentInstance() do
-        if RejoinStarted then return end
-
+    while task.wait(0.1) do
         if Flags.AutoPunch then
-            local character = GetCharacter()
-            local punch = character and character:FindFirstChild("Punch")
-            local remote = punch and punch:FindFirstChild("RemoteEvent")
+            local Character = Player.Character
+            local Punch = Character
+                and Character:FindFirstChild("Punch")
 
-            if remote then
+            local Event = Punch
+                and Punch:FindFirstChild("RemoteEvent")
+
+            if Event and Event:IsA("RemoteEvent") then
                 pcall(function()
-                    remote:FireServer()
+                    Event:FireServer()
                 end)
             end
         end
-
-        task.wait(0.1)
     end
 end)
 
--- HEALTH / DEFEAT MONITOR
+-- AUTO MINIGAME / TELEPORT LOOP
 task.spawn(function()
-    while IsCurrentInstance() do
-        if RejoinStarted then return end
-
-        local target = workspace:FindFirstChild("Itrapped")
-        local humanoid = target and target:FindFirstChildOfClass("Humanoid")
-
-        if target then
-            ItrappedSeen = true
-
-            if humanoid then
-                pcall(function()
-                    HealthParagraph:Set({
-                        Title = "Itrapped Health",
-                        Content = string.format(
-                            "Health: %d / %d",
-                            math.floor(humanoid.Health),
-                            math.floor(humanoid.MaxHealth)
-                        )
-                    })
-                end)
-            end
-        elseif ItrappedSeen then
-            ItrappedSeen = false
-
-            pcall(function()
-                HealthParagraph:Set({
-                    Title = "Itrapped Health",
-                    Content = "Itrapped disappeared. Rejoining in 1.7 seconds..."
-                })
-            end)
-
-            task.wait(1.7)
-
-            if not IsCurrentInstance() or RejoinStarted then return end
-
-            if Flags.AutoRejoin then
-                RequestRejoin()
-                return
-            else
-                pcall(function()
-                    HealthParagraph:Set({
-                        Title = "Itrapped Health",
-                        Content = "Itrapped disappeared. Auto Rejoin is OFF."
-                    })
-                end)
-            end
-        end
-
-        task.wait(0.2)
-    end
-end)
-
--- AUTO MINIGAME TELEPORT SEQUENCE
-task.spawn(function()
-    while IsCurrentInstance() do
-        if RejoinStarted then return end
-
+    while task.wait(0.2) do
         if Flags.AutoMinigame and not SequenceStarted then
             SequenceStarted = true
 
             task.spawn(function()
-                local function SequenceActive()
-                    return IsCurrentInstance()
-                        and Flags.AutoMinigame
-                        and not RejoinStarted
-                end
+                task.wait(18)
 
-                task.wait(16)
-
-                if not SequenceActive() then
+                if not Flags.AutoMinigame then
                     SequenceStarted = false
                     return
                 end
 
-                -- TP1
-                while SequenceActive() do
-                    local battlefield = workspace:FindFirstChild("Battlefield")
-                    local frozenTundra = workspace:FindFirstChild("Frozen Tundra")
+                -- PHASE 1
+                while Flags.AutoMinigame do
+                    local Battlefield =
+                        workspace:FindFirstChild("Battlefield")
 
-                    if not battlefield and frozenTundra then break end
+                    local FrozenTundra =
+                        workspace:FindFirstChild("Frozen Tundra")
+
+                    if not Battlefield and FrozenTundra then
+                        break
+                    end
 
                     TeleportTo(Vector3.new(99, -18, 193))
-                    task.wait(0.2)
+                    task.wait(1)
                 end
 
-                if not SequenceActive() then
+                if not Flags.AutoMinigame then
                     SequenceStarted = false
                     return
                 end
 
-                -- TP2
-                while SequenceActive() do
-                    local target = workspace:FindFirstChild("Itrapped")
-                    local targetRoot = target and target:FindFirstChild("HumanoidRootPart")
-
-                    if targetRoot then break end
+                -- PHASE 2
+                while Flags.AutoMinigame do
+                    if workspace:FindFirstChild("Itrapped") then
+                        break
+                    end
 
                     TeleportTo(Vector3.new(85, -16, 59))
-                    task.wait(0.2)
-                end
-
-                -- FOLLOW ITRAPPED
-                while SequenceActive() do
-                    local target = workspace:FindFirstChild("Itrapped")
-                    local targetRoot = target and target:FindFirstChild("HumanoidRootPart")
-                    local root = GetRoot()
-
-                    if not targetRoot or not root then break end
-
-                    pcall(function()
-                        root.CFrame = targetRoot.CFrame * CFrame.new(0, 0, 3)
-                        root.AssemblyLinearVelocity = Vector3.zero
-                        root.AssemblyAngularVelocity = Vector3.zero
-                    end)
-
-                    RunService.Heartbeat:Wait()
+                    task.wait(1)
                 end
 
                 SequenceStarted = false
             end)
         end
-
-        task.wait(0.2)
     end
 end)
 
--- ALWAYS FACE ITRAPPED
-RunService:BindToRenderStep(
-    RenderName,
-    Enum.RenderPriority.Character.Value + 1,
-    function()
-        if not IsCurrentInstance()
-            or not Flags.FaceItrapped
-            or RejoinStarted then
-            return
-        end
+-- TIME ESSENCE READER
+local function GetTimeEssence()
+    local Leaderstats = Player:FindFirstChild("leaderstats")
+    local Essence = Leaderstats
+        and Leaderstats:FindFirstChild("Time Essences")
 
-        local character = GetCharacter()
-        local root = character and character:FindFirstChild("HumanoidRootPart")
-        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-        local target = workspace:FindFirstChild("Itrapped")
-        local targetRoot = target and target:FindFirstChild("HumanoidRootPart")
+    if Essence and (
+        Essence:IsA("IntValue")
+        or Essence:IsA("NumberValue")
+    ) then
+        return Essence.Value
+    end
 
-        if not root or not humanoid or not targetRoot then
-            if humanoid then humanoid.AutoRotate = true end
-            return
-        end
+    return nil
+end
 
-        humanoid.AutoRotate = false
+-- ITRAPPED HEALTH + DEFEAT DETECTION
+task.spawn(function()
+    local LastEssenceValue = GetTimeEssence()
 
-        local myPosition = root.Position
-        local targetPosition = targetRoot.Position
-        local flatTarget = Vector3.new(
-            targetPosition.X,
-            myPosition.Y,
-            targetPosition.Z
-        )
+    while task.wait(0.2) do
+        local Target = workspace:FindFirstChild("Itrapped")
 
-        if (flatTarget - myPosition).Magnitude > 0.01 then
-            root.CFrame = CFrame.lookAt(myPosition, flatTarget)
+        if Target then
+            ItrappedSeen = true
+
+            local CurrentEssence = GetTimeEssence()
+
+            if CurrentEssence ~= nil then
+                LastEssenceValue = CurrentEssence
+            end
+
+            local Humanoid =
+                Target:FindFirstChildOfClass("Humanoid")
+
+            if Humanoid then
+                HealthParagraph:Set({
+                    Title = "Itrapped Health",
+                    Content = "Health: "
+                        .. math.floor(Humanoid.Health)
+                        .. " / "
+                        .. math.floor(Humanoid.MaxHealth)
+                })
+            else
+                HealthParagraph:Set({
+                    Title = "Itrapped Health",
+                    Content = "Itrapped detected."
+                })
+            end
+
+        elseif ItrappedSeen then
+            ItrappedSeen = false
+
+            HealthParagraph:Set({
+                Title = "Itrapped Health",
+                Content = "Itrapped defeated."
+            })
+
+            Notify(
+                "Minigame",
+                "Itrapped Has Been Defeated"
+            )
+
+            task.wait(1.4)
+
+            if not workspace:FindFirstChild("Itrapped") then
+                task.wait(0.5)
+
+                local EssenceAfter = GetTimeEssence()
+
+                if LastEssenceValue ~= nil
+                    and EssenceAfter ~= nil then
+
+                    if EssenceAfter > LastEssenceValue then
+                        Notify(
+                            "Time Essence",
+                            "You Got Time Essence! (25% drop)"
+                        )
+                    else
+                        Notify(
+                            "Time Essence",
+                            "You Don't Get Time Essence, GL Next Time"
+                        )
+                    end
+                else
+                    Notify(
+                        "Time Essence",
+                        "Couldn't read Time Essences from leaderboard."
+                    )
+                end
+
+                -- REJOIN AFTER DEFEAT
+                if Flags.AutoRejoin then
+                    task.wait(1)
+                    AutoRejoin()
+                end
+            end
         end
     end
-)
-
--- CLEANUP ON CHARACTER REMOVAL IS NOT USED:
--- Character respawns should not destroy the running GUI.
-
-Notify("Auto Minigame", "Script loaded!", 4)
+end)
