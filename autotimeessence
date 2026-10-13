@@ -208,17 +208,3 @@ task.spawn(function()
         end
     end
 end)
-
--- AUTO REEXECUTE PLACEHOLDER
--- Isi ScriptURL nanti.
--- Auto-reexecute membutuhkan dukungan executor untuk
--- menjalankan ulang script setelah masuk server baru.
-task.spawn(function()
-    while task.wait(1) do
-        if Flags.AutoReExecute and ScriptURL ~= "" then
-            -- URL belum dijalankan otomatis di sini.
-            -- Sambungkan sesuai executor yang kamu gunakan.
-            break
-        end
-    end
-end)
