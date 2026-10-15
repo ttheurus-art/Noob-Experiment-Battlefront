@@ -1,6 +1,9 @@
+
 -- SERVICES
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
+
 local Player = Players.LocalPlayer
 
 -- RAYFIELD
@@ -11,7 +14,7 @@ local Rayfield = loadstring(game:HttpGet(
 local Window = Rayfield:CreateWindow({
     Name = "Auto Minigame",
     LoadingTitle = "Auto Minigame",
-    LoadingSubtitle = "Automation Panel",
+    LoadingSubtitle = "By Theurus",
     Theme = "Ocean",
     ConfigurationSaving = {
         Enabled = false
@@ -20,9 +23,22 @@ local Window = Rayfield:CreateWindow({
 
 local MainTab = Window:CreateTab("Main", 4483362458)
 
---==================================================
--- HEALTH MONITOR
---==================================================
+-- VARIABLES
+local AutoPunch = true
+local AutoMinigame = true
+local AutoRejoin = true
+local AutoExecute = true
+local AlwaysFaceItrapped = true
+local AutoKillItrapped = true
+local AutoDetectFrozenTundra = true
+
+local Rejoining = false
+local MinigameRunId = 0
+
+local ScriptURL =
+    "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessenc"
+
+-- HEALTH DISPLAY
 local HealthParagraph = MainTab:CreateParagraph({
     Title = "Itrapped Health",
     Content = "Waiting for Itrapped..."
@@ -31,31 +47,30 @@ local HealthParagraph = MainTab:CreateParagraph({
 task.spawn(function()
     while task.wait(0.2) do
         local Target = workspace:FindFirstChild("Itrapped")
-        local Humanoid = Target
-            and Target:FindFirstChildOfClass("Humanoid")
+        local Humanoid = Target and Target:FindFirstChildOfClass("Humanoid")
 
         if Humanoid then
-            HealthParagraph:Set({
-                Title = "Itrapped Health",
-                Content = "Health: "
-                    .. math.floor(Humanoid.Health)
-                    .. " / "
-                    .. math.floor(Humanoid.MaxHealth)
-            })
+            pcall(function()
+                HealthParagraph:Set({
+                    Title = "Itrapped Health",
+                    Content = "Health: "
+                        .. math.floor(Humanoid.Health)
+                        .. " / "
+                        .. math.floor(Humanoid.MaxHealth)
+                })
+            end)
         else
-            HealthParagraph:Set({
-                Title = "Itrapped Health",
-                Content = "Waiting for Itrapped..."
-            })
+            pcall(function()
+                HealthParagraph:Set({
+                    Title = "Itrapped Health",
+                    Content = "Waiting for Itrapped..."
+                })
+            end)
         end
     end
 end)
 
---==================================================
--- 1. AUTO PUNCH
---==================================================
-local AutoPunch = true
-
+-- AUTO PUNCH
 MainTab:CreateToggle({
     Name = "Auto Punch",
     CurrentValue = true,
@@ -66,31 +81,22 @@ MainTab:CreateToggle({
 })
 
 task.spawn(function()
-    while true do
+    while task.wait(0.1) do
         if AutoPunch then
             local Character = Player.Character
-            local Punch = Character
-                and Character:FindFirstChild("Punch")
-            local Remote = Punch
-                and Punch:FindFirstChild("RemoteEvent")
+            local Punch = Character and Character:FindFirstChild("Punch")
+            local Remote = Punch and Punch:FindFirstChild("RemoteEvent")
 
-            if Remote then
+            if Remote and Remote:IsA("RemoteEvent") then
                 pcall(function()
                     Remote:FireServer()
                 end)
             end
         end
-
-        task.wait(0.1)
     end
 end)
 
---==================================================
--- 2. AUTO MINIGAME
---==================================================
-local AutoMinigame = true
-local MinigameRunId = 0
-
+-- AUTO MINIGAME
 MainTab:CreateToggle({
     Name = "Auto Minigame",
     CurrentValue = true,
@@ -98,101 +104,27 @@ MainTab:CreateToggle({
     Callback = function(Value)
         AutoMinigame = Value
         MinigameRunId += 1
-
-        if Value then
-            local RunId = MinigameRunId
-
-            task.spawn(function()
-                task.wait(5)
-
-                -- TP1: Y = -23
-                while AutoMinigame
-                    and RunId == MinigameRunId
-                    and not workspace:FindFirstChild("Frozen Tundra") do
-
-                    local Character = Player.Character
-
-                    if Character then
-                        pcall(function()
-                            Character:MoveTo(
-                                Vector3.new(99, -23, 193)
-                            )
-                        end)
-                    end
-
-                    task.wait(0.1)
-                end
-
-                -- TP2
-                while AutoMinigame
-                    and RunId == MinigameRunId
-                    and not workspace:FindFirstChild("Itrapped") do
-
-                    local Character = Player.Character
-
-                    if Character then
-                        pcall(function()
-                            Character:MoveTo(
-                                Vector3.new(85, -16, 59)
-                            )
-                        end)
-                    end
-
-                    task.wait(0.1)
-                end
-            end)
-        end
     end
 })
 
--- AUTO MINIGAME STARTUP
-do
-    local RunId = MinigameRunId
-
-    task.spawn(function()
-        task.wait(5)
-
-        while AutoMinigame
-            and RunId == MinigameRunId
-            and not workspace:FindFirstChild("Frozen Tundra") do
-
+task.spawn(function()
+    while task.wait(0.1) do
+        if AutoMinigame then
             local Character = Player.Character
+            local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
 
-            if Character then
-                pcall(function()
-                    Character:MoveTo(
-                        Vector3.new(99, -23, 193)
-                    )
-                end)
+            if Character and Humanoid and Humanoid.Health > 0 then
+                if not workspace:FindFirstChild("Frozen Tundra") then
+                    Character:MoveTo(Vector3.new(99, -23, 193))
+                elseif not workspace:FindFirstChild("Itrapped") then
+                    Character:MoveTo(Vector3.new(85, -16, 59))
+                end
             end
-
-            task.wait(0.1)
         end
+    end
+end)
 
-        while AutoMinigame
-            and RunId == MinigameRunId
-            and not workspace:FindFirstChild("Itrapped") do
-
-            local Character = Player.Character
-
-            if Character then
-                pcall(function()
-                    Character:MoveTo(
-                        Vector3.new(85, -16, 59)
-                    )
-                end)
-            end
-
-            task.wait(0.1)
-        end
-    end)
-end
-
---==================================================
--- 3. AUTO KILL ITRAPPED
---==================================================
-local AutoKillItrapped = true
-
+-- AUTO KILL ITRAPPED: CFrame 2 STUDS BEHIND
 MainTab:CreateToggle({
     Name = "Auto Kill Itrapped",
     CurrentValue = true,
@@ -207,39 +139,124 @@ RunService.Heartbeat:Connect(function()
         return
     end
 
-    local Target = workspace:FindFirstChild("Itrapped")
-    if not Target then
-        return
-    end
-
-    local Root = Target:FindFirstChild("HumanoidRootPart")
-        or Target.PrimaryPart
-
     local Character = Player.Character
-    local PlayerRoot = Character
-        and Character:FindFirstChild("HumanoidRootPart")
+    local Root = Character and Character:FindFirstChild("HumanoidRootPart")
+    local Target = workspace:FindFirstChild("Itrapped")
 
-    if not Root or not PlayerRoot then
-        return
+    local TargetRoot = Target and (
+        Target:FindFirstChild("HumanoidRootPart")
+        or Target.PrimaryPart
+    )
+
+    if Root and TargetRoot then
+        pcall(function()
+            Root.CFrame = TargetRoot.CFrame * CFrame.new(0, 0, 2)
+        end)
     end
-
-    -- 2 STUD DI BELAKANG
-    -- OFFSET KANAN = 0
-    -- OFFSET ATAS = 0
-    local BehindPosition =
-        Root.Position - Root.CFrame.LookVector * 2
-
-    pcall(function()
-        Character:MoveTo(BehindPosition)
-    end)
 end)
 
---==================================================
--- 4. AUTO REJOIN
---==================================================
-local AutoRejoin = true
-local Rejoining = false
+-- ALWAYS FACE ITRAPPED
+MainTab:CreateToggle({
+    Name = "Always Face Itrapped",
+    CurrentValue = true,
+    Flag = "AlwaysFaceItrapped",
+    Callback = function(Value)
+        AlwaysFaceItrapped = Value
+    end
+})
 
+RunService.Heartbeat:Connect(function()
+    if not AlwaysFaceItrapped or AutoKillItrapped then
+        return
+    end
+
+    local Character = Player.Character
+    local Root = Character and Character:FindFirstChild("HumanoidRootPart")
+    local Target = workspace:FindFirstChild("Itrapped")
+
+    local TargetRoot = Target and (
+        Target:FindFirstChild("HumanoidRootPart")
+        or Target.PrimaryPart
+    )
+
+    if Root and TargetRoot then
+        pcall(function()
+            local Position = Root.Position
+            local TargetPosition = TargetRoot.Position
+
+            Root.CFrame = CFrame.lookAt(
+                Position,
+                Vector3.new(
+                    TargetPosition.X,
+                    Position.Y,
+                    TargetPosition.Z
+                )
+            )
+        end)
+    end
+end)
+
+-- AUTO DETECT FROZEN TUNDRA
+MainTab:CreateToggle({
+    Name = "Auto Detect Frozen Tundra",
+    CurrentValue = true,
+    Flag = "AutoDetectFrozenTundra",
+    Callback = function(Value)
+        AutoDetectFrozenTundra = Value
+    end
+})
+
+local FrozenParagraph = MainTab:CreateParagraph({
+    Title = "Frozen Tundra Detection",
+    Content = "Scanning..."
+})
+
+task.spawn(function()
+    while task.wait(5) do
+        if AutoDetectFrozenTundra then
+            local Found = workspace:FindFirstChild("Frozen Tundra") ~= nil
+
+            pcall(function()
+                FrozenParagraph:Set({
+                    Title = "Frozen Tundra Detection",
+                    Content = Found and "Frozen Tundra detected."
+                        or "Frozen Tundra not found."
+                })
+            end)
+        end
+    end
+end)
+
+-- AUTO EXECUTE
+MainTab:CreateToggle({
+    Name = "Auto Execute",
+    CurrentValue = true,
+    Flag = "AutoExecute",
+    Callback = function(Value)
+        AutoExecute = Value
+    end
+})
+
+local function QueueAutoExecute()
+    if not AutoExecute then
+        return
+    end
+
+    local QueueFunction =
+        queue_on_teleport
+        or (syn and syn.queue_on_teleport)
+        or (fluxus and fluxus.queue_on_teleport)
+
+    if type(QueueFunction) == "function" then
+        pcall(function()
+            QueueFunction(
+                'loadstring(game:HttpGet("' .. ScriptURL .. '"))()'
+            )
+        end)
+    end
+end
+
+-- AUTO REJOIN: WHEN ITRAPPED DISAPPEARS
 MainTab:CreateToggle({
     Name = "Auto Rejoin",
     CurrentValue = true,
@@ -253,13 +270,12 @@ task.spawn(function()
     local TargetWasDetected =
         workspace:FindFirstChild("Itrapped") ~= nil
 
-    while true do
+    while task.wait(0.2) do
         local TargetExists =
             workspace:FindFirstChild("Itrapped") ~= nil
 
         if TargetExists then
             TargetWasDetected = true
-
         elseif TargetWasDetected then
             TargetWasDetected = false
 
@@ -267,74 +283,32 @@ task.spawn(function()
                 Rejoining = true
 
                 task.spawn(function()
-                    -- QUEUE AUTO EXECUTE
-                    if AutoExecute
-                        and type(queue_on_teleport) == "function" then
+                    QueueAutoExecute()
 
-                        pcall(function()
-                            queue_on_teleport([[
-                                loadstring(game:HttpGet(
-                                    "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessenc"
-                                ))()
-                            ]])
-                        end)
+                    local Success = pcall(function()
+                        if #Players:GetPlayers() <= 1 then
+                            -- Infinite Yield-style single-player rejoin
+                            Player:Kick("\nRejoining...")
+                            task.wait()
+                            TeleportService:Teleport(
+                                game.PlaceId,
+                                Player
+                            )
+                        else
+                            -- Rejoin the current server instance
+                            TeleportService:TeleportToPlaceInstance(
+                                game.PlaceId,
+                                game.JobId,
+                                Player
+                            )
+                        end
+                    end)
+
+                    if not Success then
+                        Rejoining = false
                     end
-
-                    -- REJOIN DAHULU
-                    if type(Rejoinclient) == "function" then
-                        pcall(function()
-                            Rejoinclient()
-                        end)
-                    end
-
-                    -- TUNGGU 0.25 DETIK
-                    task.wait(0.25)
-
-                    -- KICK SETELAHNYA
-                    Player:Kick("Rejoining...")
                 end)
             end
         end
-
-        task.wait(0.2)
     end
 end)
-
---==================================================
--- 5. AUTO EXECUTE
---==================================================
-local AutoExecute = true
-
-MainTab:CreateToggle({
-    Name = "Auto Execute",
-    CurrentValue = true,
-    Flag = "AutoExecuteTeleport",
-    Callback = function(Value)
-        AutoExecute = Value
-
-        if Value
-            and type(queue_on_teleport) == "function" then
-
-            pcall(function()
-                queue_on_teleport([[
-                    loadstring(game:HttpGet(
-                        "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessenc"
-                    ))()
-                ]])
-            end)
-        end
-    end
-})
-
--- QUEUE AUTO EXECUTE SAAT SCRIPT DIMULAI
-if AutoExecute
-    and type(queue_on_teleport) == "function" then
-
-    pcall(function()
-        queue_on_teleport([[
-            loadstring(game:HttpGet(
-                "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessenc"
-            ))()
-        ]])
-    end)
-end
