@@ -4,8 +4,6 @@
 
 -- SERVICES
 local Players = game:GetService("Players")
-local TeleportService = game:GetService("TeleportService")
-local RunService = game:GetService("RunService")
 
 local Player = Players.LocalPlayer
 
@@ -14,6 +12,7 @@ local Player = Players.LocalPlayer
 --==================================================
 
 local TP_INTERVAL = 0.1
+local ITRAPPED_TP_INTERVAL = 0
 local INITIAL_DELAY = 5
 local REJOIN_DELAY = 2
 
@@ -62,8 +61,7 @@ local function Notify(Title, Content)
 end
 
 --==================================================
--- HEALTH MONITOR
--- ALWAYS AT THE TOP
+-- HEALTH MONITOR - ALWAYS FIRST
 --==================================================
 
 local HealthParagraph = MainTab:CreateParagraph({
@@ -102,8 +100,7 @@ task.spawn(function()
 end)
 
 --==================================================
--- TELEPORT TO COORDINATES
--- NO CFRAME
+-- TELEPORT HELPER - NO CFRAME
 --==================================================
 
 local function TeleportTo(Position)
@@ -161,7 +158,6 @@ local function AutoRejoin()
 
         task.wait(1)
 
-        -- Executor-specific function, if available
         local RejoinFunction = Rejoinclient
 
         if type(RejoinFunction) == "function" then
@@ -170,13 +166,13 @@ local function AutoRejoin()
             end)
         end
 
-        -- Disconnect player
         Player:Kick("Rejoining...")
     end)
 end
 
 --==================================================
 -- TOGGLE: AUTO PUNCH
+-- LOOP DELAY: 0.1 SECONDS
 --==================================================
 
 MainTab:CreateToggle({
@@ -214,7 +210,7 @@ MainTab:CreateToggle({
 
 --==================================================
 -- TOGGLE: AUTO MINIGAME
--- TP1 + TP2
+-- TP1 + TP2 | LOOP DELAY: 0.1 SECONDS
 --==================================================
 
 MainTab:CreateToggle({
@@ -265,7 +261,7 @@ MainTab:CreateToggle({
 
 --==================================================
 -- TOGGLE: AUTO KILL ITRAPPED
--- CONTINUOUSLY MOVE TO ITRAPPED
+-- LOOP TP DELAY: 0 SECONDS
 --==================================================
 
 MainTab:CreateToggle({
@@ -289,15 +285,13 @@ MainTab:CreateToggle({
                     or Target.PrimaryPart
                 )
 
-                local Character = Player.Character
-
-                if TargetRoot and Character then
-                    Character:MoveTo(
+                if TargetRoot then
+                    TeleportTo(
                         TargetRoot.Position + Vector3.new(0, 0, 3)
                     )
                 end
 
-                task.wait(0)
+                task.wait(ITRAPPED_TP_INTERVAL)
             end
         end)
     end
@@ -337,7 +331,7 @@ MainTab:CreateToggle({
 
 --==================================================
 -- AUTO DETECT REJOIN
--- USES THE SAME AutoRejoin() FUNCTION
+-- USES SAME AutoRejoin FUNCTION
 --==================================================
 
 task.spawn(function()
