@@ -407,7 +407,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 --==================================================
--- TOGGLE 4: AUTO REJOIN
+-- 4. AUTO REJOIN
 --==================================================
 MainTab:CreateToggle({
     Name = "Auto Rejoin",
@@ -432,12 +432,15 @@ task.spawn(function()
             TargetWasDetected = false
 
             if AutoRejoin and not Rejoining then
-                RequestRejoin(true)
+                task.wait(1.75)
+
+                if AutoRejoin and not Rejoining then
+                    RequestRejoin(true)
+                end
             end
         end
     end
 end)
-
 --==================================================
 -- TOGGLE 5: AUTO EXECUTE
 --==================================================
