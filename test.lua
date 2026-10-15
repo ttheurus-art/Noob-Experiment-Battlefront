@@ -1011,84 +1011,95 @@ MainTab:CreateToggle({
     end,
 })
 
---// AUTO HEATLH RESET
+--// AUTO BLOXXER CANNON
 
 
--- AUTO REPAIR
-local RepairThreshold = 15
-local AutoRepairEnabled = false
-local RepairTriggered = false
-local RepairEvent = game:GetService("ReplicatedStorage")
-    :WaitForChild("ItemsEvent")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Player = Players.LocalPlayer
+
+local AbilityName = "Call Bloxxer Cannon"
+
+local AutoBloxxerCannon = false
+local AutoCannonTask = nil
+local TaskGeneration = 0
 
 MainTab:CreateToggle({
-    Name = "Auto Repair",
-    CurrentValue = false,
-    Callback = function(Value)
-        AutoRepairEnabled = Value
+Name = "Auto Buy/Use Bloxxer Cannon",
+CurrentValue = false,
+Flag = "AutoBloxxerCannon",
+Callback = function(Value)
+AutoBloxxerCannon = Value
+TaskGeneration += 1
 
-        if not Value then
-            RepairTriggered = false
-        end
-    end,
-})
+    local CurrentGeneration = TaskGeneration
 
--- Slider di bawah toggle
-MainTab:CreateSlider({
-    Name = "Repair Health Threshold",
-    Range = {5, 25},
-    Increment = 1,
-    Suffix = " HP",
-    CurrentValue = 15,
-    Callback = function(Value)
-        RepairThreshold = Value
-    end,
-})
-
--- Gunakan Humanoid dari Low Health Visual
-task.spawn(function()
-    local PreviousHumanoid = nil
-
-    while task.wait(0.1) do
-        if Humanoid ~= PreviousHumanoid then
-            PreviousHumanoid = Humanoid
-            RepairTriggered = false
-        end
-
-        if not AutoRepairEnabled then
-            continue
-        end
-
-        if not Humanoid or not Humanoid.Parent then
-            continue
-        end
-
-        local MaxHealth = Humanoid.MaxHealth
-        local Health = Humanoid.Health
-
-        if MaxHealth <= 0 or Health <= 0 then
-            continue
-        end
-
-        if Health >= RepairThreshold then
-            RepairTriggered = false
-        elseif not RepairTriggered then
-            RepairTriggered = true
-
-            local Success = pcall(function()
-                RepairEvent:FireServer("Repair")
-            end)
-
-            if Success then
-                Rayfield:Notify({
-                    Title = "Auto Repair",
-                    Content = "Titan Has Been Repair!",
-                    Duration = 3,
-                })
-            end
-        end
+    -- Cleanup task lama
+    if AutoCannonTask then
+        pcall(task.cancel, AutoCannonTask)
+        AutoCannonTask = nil
     end
-end)
+
+    if not Value then
+        return
+    end
+
+    AutoCannonTask = task.spawn(function()
+        while AutoBloxxerCannon
+            and TaskGeneration == CurrentGeneration do
+
+            local PlayerGui = Player:FindFirstChild("PlayerGui")
+            local AbilitiesGui = PlayerGui and PlayerGui:FindFirstChild("Abilities")
+            local AbilitySlot = AbilitiesGui and AbilitiesGui:FindFirstChild("AbilitySlot")
+
+            if AbilitySlot then
+                local HasAnyAbility = false
+                local HasCannon = false
+
+                for _, Child in ipairs(AbilitySlot:GetChildren()) do
+                    if Child.Name ~= "UIListLayout" then
+                        HasAnyAbility = true
+
+                        if Child.Name == AbilityName then
+                            HasCannon = true
+                        end
+                    end
+                end
+
+                if HasAnyAbility then
+                    if not HasCannon then
+                        local ItemsEvent =
+                            ReplicatedStorage:FindFirstChild("ItemsEvent")
+
+                        if ItemsEvent then
+                            ItemsEvent:FireServer(AbilityName)
+                        end
+                    else
+                        local Character = Player.Character
+                        local Abilities =
+                            Character and Character:FindFirstChild("Abilities")
+                        local Cannon =
+                            Abilities and Abilities:FindFirstChild(AbilityName)
+                        local RemoteEvent =
+                            Cannon and Cannon:FindFirstChild("RemoteEvent")
+
+                        if RemoteEvent and RemoteEvent:IsA("RemoteEvent") then
+                            RemoteEvent:FireServer()
+                        end
+                    end
+                end
+            end
+
+            task.wait(0.5)
+        end
+
+        if TaskGeneration == CurrentGeneration then
+            AutoCannonTask = nil
+        end
+    end)
+end
+
+})
 
 
 --// MUSIC
