@@ -1011,161 +1011,177 @@ MainTab:CreateToggle({
     end,
 })
 
---// AUTO BLOXXER CANNON
+--// AUTO BUY/USE BLOXXER CANNON
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Player = Players.LocalPlayer
 
+local Player = Players.LocalPlayer
 local AbilityName = "Call Bloxxer Cannon"
 
 local AutoBloxxerCannon = false
 local AutoCannonTask = nil
 local TaskGeneration = 0
 
-local SpawnInterval = 0.5
-local UseInterval = 0.01
+local SpawnInterval = 1
+local UseInterval = 0.05
 local UseDuration = 1
 
+--// SPAWN SPEED DROPDOWN
+
 MainTab:CreateDropdown({
-Name = "Spawn Speed",
-Options = {
-"Spawn 2.5s",
-"Spawn 2s",
-"Spawn 1.5s",
-"Spawn 1s",
-"Spawn 0.5s",
-"Spawn 0.25s",
-"Spawn 0s"
-},
-CurrentOption = "Spawn 1s",
-Flag = "BloxxerSpawnSpeed",
+    Name = "Spawn Speed",
+    Options = {
+        "Spawn 2.5s",
+        "Spawn 2s",
+        "Spawn 1.5s",
+        "Spawn 1s",
+        "Spawn 0.5s",
+        "Spawn 0.25s",
+        "Spawn 0s"
+    },
+    CurrentOption = "Spawn 1s",
+    Flag = "BloxxerSpawnSpeed",
 
-Callback = function(Option)
-    if type(Option) == "table" then
-        Option = Option[1]
+    Callback = function(Option)
+        if type(Option) == "table" then
+            Option = Option[1]
+        end
+
+        local Speeds = {
+            ["Spawn 2.5s"] = 2.5,
+            ["Spawn 2s"] = 2,
+            ["Spawn 1.5s"] = 1.5,
+            ["Spawn 1s"] = 1,
+            ["Spawn 0.5s"] = 0.5,
+            ["Spawn 0.25s"] = 0.25,
+            ["Spawn 0s"] = 0
+        }
+
+        if Speeds[Option] ~= nil then
+            SpawnInterval = Speeds[Option]
+        end
     end
-
-    local Speeds = {
-        ["Spawn 2.5s"] = 2.5,
-        ["Spawn 2s"] = 2,
-        ["Spawn 1.5s"] = 1.5,
-        ["Spawn 1s"] = 1,
-        ["Spawn 0.5s"] = 0.5,
-		["Spawn 0.25s"] = 0.25,
-		["Spawn 0s"] = 0
-    }
-
-    SpawnInterval = Speeds[Option] or 0.5
-end
-
 })
 
+--// AUTO BUY/USE TOGGLE
+
 MainTab:CreateToggle({
-Name = "Auto Buy/Use Bloxxer Cannon",
-CurrentValue = false,
-Flag = "AutoBloxxerCannon",
+    Name = "Auto Buy/Use Bloxxer Cannon",
+    CurrentValue = false,
+    Flag = "AutoBloxxerCannon",
 
-Callback = function(Value)
-    AutoBloxxerCannon = Value
-    TaskGeneration += 1
+    Callback = function(Value)
+        AutoBloxxerCannon = Value
+        TaskGeneration += 1
 
-    local CurrentGeneration = TaskGeneration
+        local CurrentGeneration = TaskGeneration
 
-    if AutoCannonTask then
-        pcall(task.cancel, AutoCannonTask)
-        AutoCannonTask = nil
-    end
+        if AutoCannonTask then
+            pcall(task.cancel, AutoCannonTask)
+            AutoCannonTask = nil
+        end
 
-    if not Value then
-        return
-    end
+        if not Value then
+            return
+        end
 
-    AutoCannonTask = task.spawn(function()
-        while AutoBloxxerCannon
-            and TaskGeneration == CurrentGeneration do
+        AutoCannonTask = task.spawn(function()
+            while AutoBloxxerCannon
+                and TaskGeneration == CurrentGeneration do
 
-            -- Periksa apakah player sudah morph
-            local PlayerGui = Player:FindFirstChild("PlayerGui")
-            local AbilitiesGui = PlayerGui
-                and PlayerGui:FindFirstChild("Abilities")
-            local AbilitySlot = AbilitiesGui
-                and AbilitiesGui:FindFirstChild("AbilitySlot")
+                --// CHECK MORPH / ABILITY SLOT
 
-            local HasAnyAbility = false
+                local PlayerGui = Player:FindFirstChild("PlayerGui")
+                local AbilitiesGui = PlayerGui
+                    and PlayerGui:FindFirstChild("Abilities")
+                local AbilitySlot = AbilitiesGui
+                    and AbilitiesGui:FindFirstChild("AbilitySlot")
 
-            if AbilitySlot then
-                for _, Child in ipairs(AbilitySlot:GetChildren()) do
-                    if Child.Name ~= "UIListLayout" then
-                        HasAnyAbility = true
-                        break
+                local HasAnyAbility = false
+
+                if AbilitySlot then
+                    for _, Child in ipairs(AbilitySlot:GetChildren()) do
+                        if Child.Name ~= "UIListLayout" then
+                            HasAnyAbility = true
+                            break
+                        end
                     end
                 end
-            end
 
-            -- Tunggu jika player belum morph
-            if not HasAnyAbility then
-                task.wait(0.5)
-                continue
-            end
+                -- Tunggu sampai player sudah morph
+                if not HasAnyAbility then
+                    task.wait(0.5)
+                    continue
+                end
 
-            -- Beli Bloxxer Cannon
-            local ItemsEvent =
-                ReplicatedStorage:FindFirstChild("ItemsEvent")
+                --// BUY CANNON
 
-            if ItemsEvent then
-                ItemsEvent:FireServer(AbilityName)
-            end
+                local ItemsEvent =
+                    ReplicatedStorage:FindFirstChild("ItemsEvent")
 
-            task.wait(SpawnInterval)
+                if ItemsEvent then
+                    ItemsEvent:FireServer(AbilityName)
+                else
+                    task.wait(1)
+                    continue
+                end
 
-            if not AutoBloxxerCannon
-                or TaskGeneration ~= CurrentGeneration then
-                break
-            end
+                --// WAIT FOR CANNON TO APPEAR
 
-            -- Gunakan Cannon selama 1 detik
-            local UseUntil = os.clock() + UseDuration
+                local SpawnDeadline = os.clock() + SpawnInterval
 
-            repeat
+                repeat
+                    if not AutoBloxxerCannon
+                        or TaskGeneration ~= CurrentGeneration then
+                        break
+                    end
+
+                    task.wait(0.03)
+                until os.clock() >= SpawnDeadline
+
                 if not AutoBloxxerCannon
                     or TaskGeneration ~= CurrentGeneration then
                     break
                 end
 
-                local Character = Player.Character
-                local Abilities = Character
-                    and Character:FindFirstChild("Abilities")
-                local Cannon = Abilities
-                    and Abilities:FindFirstChild(AbilityName)
-                local RemoteEvent = Cannon
-                    and Cannon:FindFirstChild("RemoteEvent")
+                --// USE CANNON FOR 1 SECOND
 
-                if RemoteEvent
-                    and RemoteEvent:IsA("RemoteEvent") then
-                    RemoteEvent:FireServer()
-                end
+                local UseUntil = os.clock() + UseDuration
 
-                task.wait(UseInterval)
-            until os.clock() >= UseUntil
+                repeat
+                    if not AutoBloxxerCannon
+                        or TaskGeneration ~= CurrentGeneration then
+                        break
+                    end
 
-            -- Jeda sebelum siklus pembelian berikutnya
-            if AutoBloxxerCannon
-                and TaskGeneration == CurrentGeneration then
-                task.wait(SpawnInterval)
+                    local Character = Player.Character
+                    local Abilities = Character
+                        and Character:FindFirstChild("Abilities")
+                    local Cannon = Abilities
+                        and Abilities:FindFirstChild(AbilityName)
+                    local RemoteEvent = Cannon
+                        and Cannon:FindFirstChild("RemoteEvent")
+
+                    if RemoteEvent
+                        and RemoteEvent:IsA("RemoteEvent") then
+                        RemoteEvent:FireServer()
+                    end
+
+                    task.wait(UseInterval)
+                until os.clock() >= UseUntil
+
+                -- Siklus berikutnya langsung mulai dari pembelian lagi
             end
-        end
 
-        if TaskGeneration == CurrentGeneration then
-            AutoCannonTask = nil
-        end
-    end)
-end
-
+            if TaskGeneration == CurrentGeneration then
+                AutoCannonTask = nil
+            end
+        end)
+    end
 })
 
 --// MUSIC
-
 local SoundService = game:GetService("SoundService")
 
 local MusicList = {
