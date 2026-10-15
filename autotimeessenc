@@ -1,10 +1,14 @@
+--==================================================
 -- SERVICES
+--==================================================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
 local Player = Players.LocalPlayer
 
+--==================================================
 -- RAYFIELD
+--==================================================
 local Rayfield = loadstring(game:HttpGet(
     "https://sirius.menu/rayfield"
 ))()
@@ -29,41 +33,50 @@ local AutoRejoin = true
 local AutoPunch = true
 local AutoMinigame = true
 local AutoKillItrapped = true
+local AutoDetectFrozenTundra = true
 
 local Rejoining = false
 local MinigameRunId = 0
 local FrozenScanId = 0
-local FrozenDetectionTriggered = false
+
+local ScriptURL =
+    "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessenc"
 
 --==================================================
--- AUTO EXECUTE QUEUE
+-- QUEUE AUTO EXECUTE
+-- SATU TEMPAT SAJA YANG MEMBUAT QUEUE
 --==================================================
 local function QueueAutoExecute()
     if not AutoExecute then
         return false
     end
 
-    local QueueFunction =
-        queue_on_teleport
-        or (syn and syn.queue_on_teleport)
-        or (fluxus and fluxus.queue_on_teleport)
+    local QueueFunction = queue_on_teleport
+
+    if not QueueFunction and syn then
+        QueueFunction = syn.queue_on_teleport
+    end
+
+    if not QueueFunction and fluxus then
+        QueueFunction = fluxus.queue_on_teleport
+    end
 
     if type(QueueFunction) ~= "function" then
         return false
     end
 
-    return pcall(function()
-        QueueFunction([[
-            loadstring(game:HttpGet(
-                "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessenc"
-            ))()
-        ]])
+    local Success = pcall(function()
+        QueueFunction(
+            'loadstring(game:HttpGet("' .. ScriptURL .. '"))()'
+        )
     end)
+
+    return Success
 end
 
 --==================================================
--- SHARED REJOIN
--- Auto Rejoin dan Frozen Tundra memakai fungsi ini
+-- IY-STYLE REJOIN
+-- DIPAKAI OLEH AUTO REJOIN DAN AUTO DETECT
 --==================================================
 local function RequestRejoin(ShouldQueue)
     if Rejoining then
@@ -73,6 +86,7 @@ local function RequestRejoin(ShouldQueue)
     Rejoining = true
 
     task.spawn(function()
+        -- QUEUE HANYA SEKALI SEBELUM REJOIN
         if ShouldQueue then
             QueueAutoExecute()
         end
@@ -80,7 +94,23 @@ local function RequestRejoin(ShouldQueue)
         task.wait(1.25)
 
         local Success = pcall(function()
-            TeleportService:Teleport(game.PlaceId, Player)
+            if #Players:GetPlayers() <= 1 then
+                -- POLA REJOIN SAAT SENDIRIAN
+                Player:Kick("Rejoining...")
+                task.wait()
+
+                TeleportService:Teleport(
+                    game.PlaceId,
+                    Player
+                )
+            else
+                -- POLA REJOIN SAAT ADA PEMAIN LAIN
+                TeleportService:TeleportToPlaceInstance(
+                    game.PlaceId,
+                    game.JobId,
+                    Player
+                )
+            end
         end)
 
         if not Success then
@@ -158,6 +188,7 @@ end)
 local function RunAutoMinigame(RunId)
     task.wait(5)
 
+    -- TP1: Y = -23
     while AutoMinigame
         and RunId == MinigameRunId
         and not workspace:FindFirstChild("Frozen Tundra") do
@@ -166,13 +197,16 @@ local function RunAutoMinigame(RunId)
 
         if Character then
             pcall(function()
-                Character:MoveTo(Vector3.new(99, -23, 193))
+                Character:MoveTo(
+                    Vector3.new(99, -23, 193)
+                )
             end)
         end
 
         task.wait(0.1)
     end
 
+    -- TP2
     while AutoMinigame
         and RunId == MinigameRunId
         and not workspace:FindFirstChild("Itrapped") do
@@ -181,7 +215,9 @@ local function RunAutoMinigame(RunId)
 
         if Character then
             pcall(function()
-                Character:MoveTo(Vector3.new(85, -16, 59))
+                Character:MoveTo(
+                    Vector3.new(85, -16, 59)
+                )
             end)
         end
 
@@ -207,6 +243,7 @@ MainTab:CreateToggle({
     end
 })
 
+-- AUTO MINIGAME STARTUP
 task.spawn(function()
     RunAutoMinigame(MinigameRunId)
 end)
@@ -229,6 +266,7 @@ RunService.Heartbeat:Connect(function()
     end
 
     local Target = workspace:FindFirstChild("Itrapped")
+
     if not Target then
         return
     end
@@ -244,8 +282,12 @@ RunService.Heartbeat:Connect(function()
         return
     end
 
+    -- 2 STUD DI BELAKANG
+    -- OFFSET KANAN = 0
+    -- OFFSET ATAS = 0
     pcall(function()
-        PlayerRoot.CFrame = Root.CFrame * CFrame.new(0, 0, 2)
+        PlayerRoot.CFrame =
+            Root.CFrame * CFrame.new(0, 0, 2)
     end)
 end)
 
@@ -276,14 +318,15 @@ task.spawn(function()
             TargetWasDetected = false
 
             if AutoRejoin and not Rejoining then
-                RequestRejoin(AutoExecute)
+                RequestRejoin(true)
             end
         end
     end
 end)
 
 --==================================================
--- 5. AUTO EXECUTE TOGGLE
+-- 5. AUTO EXECUTE
+-- HANYA MENGATUR STATUS; TIDAK MEMBUAT QUEUE
 --==================================================
 MainTab:CreateToggle({
     Name = "Auto Execute",
@@ -296,24 +339,11 @@ MainTab:CreateToggle({
 
 --==================================================
 -- 6. AUTO DETECT FROZEN TUNDRA
--- Scan maksimal 5 detik
+-- MEMINDAI MAKSIMAL 5 DETIK
 --==================================================
-local function DisableOtherFeatures()
-    AutoPunch = false
-
-    AutoMinigame = false
-    MinigameRunId += 1
-
-    AutoKillItrapped = false
-    AutoRejoin = false
-    AutoExecute = false
-end
-
 local function StartFrozenScan()
     FrozenScanId += 1
     local MyScanId = FrozenScanId
-
-    FrozenDetectionTriggered = false
 
     task.spawn(function()
         local StartTime = os.clock()
@@ -324,24 +354,17 @@ local function StartFrozenScan()
             end
 
             if workspace:FindFirstChild("Frozen Tundra") then
-                if FrozenDetectionTriggered then
-                    return
-                end
+                -- Hentikan fitur lain
+                AutoPunch = false
 
-                FrozenDetectionTriggered = true
+                AutoMinigame = false
+                MinigameRunId += 1
 
-                -- Queue sebelum AutoExecute dimatikan
-                local ShouldQueue = AutoExecute
+                AutoKillItrapped = false
+                AutoRejoin = false
 
-                if ShouldQueue then
-                    QueueAutoExecute()
-                end
-
-                -- Matikan fungsi toggle lain
-                DisableOtherFeatures()
-
-                -- Jangan queue dua kali
-                RequestRejoin(false)
+                -- Gunakan jalur rejoin yang sama
+                RequestRejoin(true)
                 return
             end
 
@@ -355,6 +378,8 @@ MainTab:CreateToggle({
     CurrentValue = true,
     Flag = "AutoDetectFrozenTundra",
     Callback = function(Value)
+        AutoDetectFrozenTundra = Value
+
         if Value then
             StartFrozenScan()
         else
@@ -363,5 +388,7 @@ MainTab:CreateToggle({
     end
 })
 
--- Mulai scan saat script pertama kali dijalankan
-StartFrozenScan()
+-- MULAI SCAN SAAT SCRIPT DIEKSEKUSI
+if AutoDetectFrozenTundra then
+    StartFrozenScan()
+end
