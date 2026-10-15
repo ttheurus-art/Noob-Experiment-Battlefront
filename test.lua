@@ -1023,6 +1023,35 @@ local AutoBloxxerCannon = false
 local AutoCannonTask = nil
 local TaskGeneration = 0
 
+local SpawnInterval = 0.1
+local UseInterval = 0.00001
+local UseDuration = 1
+
+MainTab:CreateDropdown({
+Name = "Spawn Speed",
+Options = {
+"Spawn 0.1",
+"Spawn 0.01",
+"Spawn 0.001"
+},
+CurrentOption = "Spawn 0.1",
+Flag = "BloxxerSpawnSpeed",
+Callback = function(Option)
+if type(Option) == "table" then
+Option = Option[1]
+end
+
+    local Speeds = {
+        ["Spawn 0.1"] = 0.1,
+        ["Spawn 0.01"] = 0.01,
+        ["Spawn 0.001"] = 0.001
+    }
+
+    SpawnInterval = Speeds[Option] or 0.1
+end
+
+})
+
 MainTab:CreateToggle({
 Name = "Auto Buy/Use Bloxxer Cannon",
 CurrentValue = false,
@@ -1047,6 +1076,7 @@ Callback = function(Value)
         while AutoBloxxerCannon
             and TaskGeneration == CurrentGeneration do
 
+            -- Periksa apakah player sudah morph
             local PlayerGui = Player:FindFirstChild("PlayerGui")
             local AbilitiesGui = PlayerGui
                 and PlayerGui:FindFirstChild("Abilities")
@@ -1064,13 +1094,12 @@ Callback = function(Value)
                 end
             end
 
-            -- Tunggu sampai player morph
             if not HasAnyAbility then
-                task.wait(0.05)
+                task.wait(0.5)
                 continue
             end
 
-            -- Beli Bloxxer Cannon
+            -- Beli Cannon menggunakan kecepatan dropdown
             local ItemsEvent =
                 ReplicatedStorage:FindFirstChild("ItemsEvent")
 
@@ -1078,15 +1107,15 @@ Callback = function(Value)
                 ItemsEvent:FireServer(AbilityName)
             end
 
-            task.wait(0.1)
+            task.wait(SpawnInterval)
 
             if not AutoBloxxerCannon
                 or TaskGeneration ~= CurrentGeneration then
                 break
             end
 
-            -- Gunakan Cannon berulang selama 1 detik
-            local UseUntil = os.clock() + 1
+            -- Gunakan Cannon selama UseDuration
+            local UseUntil = os.clock() + UseDuration
 
             repeat
                 if not AutoBloxxerCannon
@@ -1102,13 +1131,18 @@ Callback = function(Value)
                 local RemoteEvent = Cannon
                     and Cannon:FindFirstChild("RemoteEvent")
 
-                if RemoteEvent and RemoteEvent:IsA("RemoteEvent") then
+                if RemoteEvent
+                    and RemoteEvent:IsA("RemoteEvent") then
                     RemoteEvent:FireServer()
                 end
 
-                task.wait(0.01)
+                task.wait(UseInterval)
             until os.clock() >= UseUntil
 
+            if AutoBloxxerCannon
+                and TaskGeneration == CurrentGeneration then
+                task.wait(SpawnInterval)
+            end
         end
 
         if TaskGeneration == CurrentGeneration then
