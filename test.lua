@@ -1051,8 +1051,8 @@ Callback = function(Option)
         ["Spawn 2s"] = 2,
         ["Spawn 1.5s"] = 1.5,
         ["Spawn 1s"] = 1,
-        ["Spawn 0.5s"] = 0.5
-		["Spawn 0.25s"] = 0.25
+        ["Spawn 0.5s"] = 0.5,
+		["Spawn 0.25s"] = 0.25,
 		["Spawn 0s"] = 0
     }
 
