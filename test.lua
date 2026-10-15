@@ -1023,31 +1023,36 @@ local AutoBloxxerCannon = false
 local AutoCannonTask = nil
 local TaskGeneration = 0
 
-local SpawnInterval = 0.1
-local UseInterval = 0.00001
+local SpawnInterval = 0.5
+local UseInterval = 0.01
 local UseDuration = 1
 
 MainTab:CreateDropdown({
 Name = "Spawn Speed",
 Options = {
-"Spawn 0.1",
-"Spawn 0.01",
-"Spawn 0.001"
+"Spawn 2.5s",
+"Spawn 2s",
+"Spawn 1.5s",
+"Spawn 1s",
+"Spawn 0.5s"
 },
-CurrentOption = "Spawn 0.1",
+CurrentOption = "Spawn 0.5s",
 Flag = "BloxxerSpawnSpeed",
+
 Callback = function(Option)
-if type(Option) == "table" then
-Option = Option[1]
-end
+    if type(Option) == "table" then
+        Option = Option[1]
+    end
 
     local Speeds = {
-        ["Spawn 0.1"] = 0.1,
-        ["Spawn 0.01"] = 0.01,
-        ["Spawn 0.001"] = 0.001
+        ["Spawn 2.5s"] = 2.5,
+        ["Spawn 2s"] = 2,
+        ["Spawn 1.5s"] = 1.5,
+        ["Spawn 1s"] = 1,
+        ["Spawn 0.5s"] = 0.5
     }
 
-    SpawnInterval = Speeds[Option] or 0.1
+    SpawnInterval = Speeds[Option] or 0.5
 end
 
 })
@@ -1094,12 +1099,13 @@ Callback = function(Value)
                 end
             end
 
+            -- Tunggu jika player belum morph
             if not HasAnyAbility then
                 task.wait(0.5)
                 continue
             end
 
-            -- Beli Cannon menggunakan kecepatan dropdown
+            -- Beli Bloxxer Cannon
             local ItemsEvent =
                 ReplicatedStorage:FindFirstChild("ItemsEvent")
 
@@ -1114,7 +1120,7 @@ Callback = function(Value)
                 break
             end
 
-            -- Gunakan Cannon selama UseDuration
+            -- Gunakan Cannon selama 1 detik
             local UseUntil = os.clock() + UseDuration
 
             repeat
@@ -1139,6 +1145,7 @@ Callback = function(Value)
                 task.wait(UseInterval)
             until os.clock() >= UseUntil
 
+            -- Jeda sebelum siklus pembelian berikutnya
             if AutoBloxxerCannon
                 and TaskGeneration == CurrentGeneration then
                 task.wait(SpawnInterval)
