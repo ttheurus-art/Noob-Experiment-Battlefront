@@ -21,36 +21,71 @@ local Window = Rayfield:CreateWindow({
 
 local MainTab = Window:CreateTab("Main", 4483362458)
 
--- AUTO EXECUTE
+--==================================================
+-- CONFIG
+--==================================================
 local AutoExecute = true
+local AutoRejoin = true
+local AutoPunch = true
+local AutoMinigame = true
+local AutoKillItrapped = true
 
-MainTab:CreateToggle({
-    Name = "Auto Execute",
-    CurrentValue = true,
-    Flag = "AutoExecuteTeleport",
-    Callback = function(Value)
-        AutoExecute = Value
+local Rejoining = false
+local MinigameRunId = 0
+local FrozenScanId = 0
+local FrozenDetectionTriggered = false
 
-        if Value and type(queue_on_teleport) == "function" then
-            pcall(function()
-                queue_on_teleport([[
-                    loadstring(game:HttpGet(
-                        "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessenc"
-                    ))()
-                ]])
-            end)
-        end
+--==================================================
+-- AUTO EXECUTE QUEUE
+--==================================================
+local function QueueAutoExecute()
+    if not AutoExecute then
+        return false
     end
-})
 
--- QUEUE AUTO EXECUTE SAAT SCRIPT DIMULAI
-if AutoExecute and type(queue_on_teleport) == "function" then
-    pcall(function()
-        queue_on_teleport([[
+    local QueueFunction =
+        queue_on_teleport
+        or (syn and syn.queue_on_teleport)
+        or (fluxus and fluxus.queue_on_teleport)
+
+    if type(QueueFunction) ~= "function" then
+        return false
+    end
+
+    return pcall(function()
+        QueueFunction([[
             loadstring(game:HttpGet(
                 "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessenc"
             ))()
         ]])
+    end)
+end
+
+--==================================================
+-- SHARED REJOIN
+-- Auto Rejoin dan Frozen Tundra memakai fungsi ini
+--==================================================
+local function RequestRejoin(ShouldQueue)
+    if Rejoining then
+        return
+    end
+
+    Rejoining = true
+
+    task.spawn(function()
+        if ShouldQueue then
+            QueueAutoExecute()
+        end
+
+        task.wait(1.25)
+
+        local Success = pcall(function()
+            TeleportService:Teleport(game.PlaceId, Player)
+        end)
+
+        if not Success then
+            Rejoining = false
+        end
     end)
 end
 
@@ -88,8 +123,6 @@ end)
 --==================================================
 -- 1. AUTO PUNCH
 --==================================================
-local AutoPunch = true
-
 MainTab:CreateToggle({
     Name = "Auto Punch",
     CurrentValue = true,
@@ -122,9 +155,6 @@ end)
 --==================================================
 -- 2. AUTO MINIGAME
 --==================================================
-local AutoMinigame = true
-local MinigameRunId = 0
-
 local function RunAutoMinigame(RunId)
     task.wait(5)
 
@@ -168,23 +198,22 @@ MainTab:CreateToggle({
         MinigameRunId += 1
 
         if Value then
+            local RunId = MinigameRunId
+
             task.spawn(function()
-                RunAutoMinigame(MinigameRunId)
+                RunAutoMinigame(RunId)
             end)
         end
     end
 })
 
--- AUTO MINIGAME STARTUP
 task.spawn(function()
     RunAutoMinigame(MinigameRunId)
 end)
 
 --==================================================
--- 3. AUTO KILL ITRAPPED
+-- 3. AUTO KILL ITRAPPED - CFRAME
 --==================================================
-local AutoKillItrapped = true
-
 MainTab:CreateToggle({
     Name = "Auto Kill Itrapped",
     CurrentValue = true,
@@ -215,7 +244,6 @@ RunService.Heartbeat:Connect(function()
         return
     end
 
-    -- 2 STUD DI BELAKANG, OFFSET KANAN 0, ATAS 0
     pcall(function()
         PlayerRoot.CFrame = Root.CFrame * CFrame.new(0, 0, 2)
     end)
@@ -224,9 +252,6 @@ end)
 --==================================================
 -- 4. AUTO REJOIN
 --==================================================
-local AutoRejoin = true
-local Rejoining = false
-
 MainTab:CreateToggle({
     Name = "Auto Rejoin",
     CurrentValue = true,
@@ -251,48 +276,92 @@ task.spawn(function()
             TargetWasDetected = false
 
             if AutoRejoin and not Rejoining then
-                Rejoining = true
-
-                task.spawn(function()
-                    -- QUEUE AUTO EXECUTE SEBELUM TELEPORT
-                    if AutoExecute then
-                        local QueueFunction = queue_on_teleport
-
-                        if type(QueueFunction) == "function" then
-                            pcall(function()
-                                QueueFunction([[
-                                    loadstring(game:HttpGet(
-                                        "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessenc"
-                                    ))()
-                                ]])
-                            end)
-                        end
-                    end
-
-                    -- TUNGGU 1,25 DETIK
-                    task.wait(1.25)
-
-                    -- REJOIN DENGAN TELEPORTSERVICE
-                    local Success = pcall(function()
-                        if #Players:GetPlayers() <= 1 then
-                            TeleportService:Teleport(
-                                game.PlaceId,
-                                Player
-                            )
-                        else
-                            TeleportService:TeleportToPlaceInstance(
-                                game.PlaceId,
-                                game.JobId,
-                                Player
-                            )
-                        end
-                    end)
-
-                    if not Success then
-                        Rejoining = false
-                    end
-                end)
+                RequestRejoin(AutoExecute)
             end
         end
     end
 end)
+
+--==================================================
+-- 5. AUTO EXECUTE TOGGLE
+--==================================================
+MainTab:CreateToggle({
+    Name = "Auto Execute",
+    CurrentValue = true,
+    Flag = "AutoExecuteTeleport",
+    Callback = function(Value)
+        AutoExecute = Value
+    end
+})
+
+--==================================================
+-- 6. AUTO DETECT FROZEN TUNDRA
+-- Scan maksimal 5 detik
+--==================================================
+local function DisableOtherFeatures()
+    AutoPunch = false
+
+    AutoMinigame = false
+    MinigameRunId += 1
+
+    AutoKillItrapped = false
+    AutoRejoin = false
+    AutoExecute = false
+end
+
+local function StartFrozenScan()
+    FrozenScanId += 1
+    local MyScanId = FrozenScanId
+
+    FrozenDetectionTriggered = false
+
+    task.spawn(function()
+        local StartTime = os.clock()
+
+        repeat
+            if MyScanId ~= FrozenScanId then
+                return
+            end
+
+            if workspace:FindFirstChild("Frozen Tundra") then
+                if FrozenDetectionTriggered then
+                    return
+                end
+
+                FrozenDetectionTriggered = true
+
+                -- Queue sebelum AutoExecute dimatikan
+                local ShouldQueue = AutoExecute
+
+                if ShouldQueue then
+                    QueueAutoExecute()
+                end
+
+                -- Matikan fungsi toggle lain
+                DisableOtherFeatures()
+
+                -- Jangan queue dua kali
+                RequestRejoin(false)
+                return
+            end
+
+            task.wait(0.2)
+        until os.clock() - StartTime >= 5
+    end)
+end
+
+MainTab:CreateToggle({
+    Name = "Auto Detect Frozen Tundra",
+    CurrentValue = true,
+    Flag = "AutoDetectFrozenTundra",
+    Callback = function(Value)
+        if Value then
+            StartFrozenScan()
+        else
+            FrozenScanId += 1
+        end
+    end
+})
+
+-- Mulai scan saat script pertama kali dijalankan
+StartFrozenScan()
