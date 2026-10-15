@@ -1034,9 +1034,11 @@ Options = {
 "Spawn 2s",
 "Spawn 1.5s",
 "Spawn 1s",
-"Spawn 0.5s"
+"Spawn 0.5s",
+"Spawn 0.25s",
+"Spawn 0s"
 },
-CurrentOption = "Spawn 0.5s",
+CurrentOption = "Spawn 1s",
 Flag = "BloxxerSpawnSpeed",
 
 Callback = function(Option)
@@ -1050,6 +1052,8 @@ Callback = function(Option)
         ["Spawn 1.5s"] = 1.5,
         ["Spawn 1s"] = 1,
         ["Spawn 0.5s"] = 0.5
+		["Spawn 0.25s"] = 0.25
+		["Spawn 0s"] = 0
     }
 
     SpawnInterval = Speeds[Option] or 0.5
