@@ -26,12 +26,11 @@ local TP2_POSITION = Vector3.new(85, -16, 59)
 
 local AutoPunchRunning = false
 local AutoMinigameRunning = false
-local AutoTP3Running = false
+local AutoKillItrappedRunning = false
 local AutoRejoinEnabled = true
 local AutoExecuteEnabled = false
 
 local Rejoining = false
-local TP3Connection = nil
 
 --==================================================
 -- RAYFIELD
@@ -63,7 +62,8 @@ local function Notify(Title, Content)
 end
 
 --==================================================
--- HEALTH MONITOR (ALWAYS AT THE TOP)
+-- HEALTH MONITOR
+-- ALWAYS AT THE TOP
 --==================================================
 
 local HealthParagraph = MainTab:CreateParagraph({
@@ -102,25 +102,24 @@ task.spawn(function()
 end)
 
 --==================================================
--- TELEPORT HELPER
+-- TELEPORT TO COORDINATES
+-- NO CFRAME
 --==================================================
 
 local function TeleportTo(Position)
     local Character = Player.Character
-    local Root = Character
-        and Character:FindFirstChild("HumanoidRootPart")
 
-    if not Root then
+    if not Character then
         return false
     end
 
     return pcall(function()
-        Root.CFrame = CFrame.new(Position)
+        Character:MoveTo(Position)
     end)
 end
 
 --==================================================
--- AUTO EXECUTE QUEUE
+-- AUTO EXECUTE
 --==================================================
 
 local function QueueAutoExecute()
@@ -129,7 +128,7 @@ local function QueueAutoExecute()
     end
 
     if type(queue_on_teleport) ~= "function" then
-        warn("queue_on_teleport unavailable.")
+        warn("queue_on_teleport is unavailable.")
         return
     end
 
@@ -162,7 +161,7 @@ local function AutoRejoin()
 
         task.wait(1)
 
-        -- Executor-specific rejoin function
+        -- Executor-specific function, if available
         local RejoinFunction = Rejoinclient
 
         if type(RejoinFunction) == "function" then
@@ -171,7 +170,7 @@ local function AutoRejoin()
             end)
         end
 
-        -- Kick player
+        -- Disconnect player
         Player:Kick("Rejoining...")
     end)
 end
@@ -214,7 +213,8 @@ MainTab:CreateToggle({
 })
 
 --==================================================
--- TOGGLE: AUTO MINIGAME (TP1 + TP2)
+-- TOGGLE: AUTO MINIGAME
+-- TP1 + TP2
 --==================================================
 
 MainTab:CreateToggle({
@@ -236,7 +236,7 @@ MainTab:CreateToggle({
                 return
             end
 
-            -- TP1: wait for Frozen Tundra
+            -- TP1: until Frozen Tundra appears
             while AutoMinigameRunning do
                 if workspace:FindFirstChild("Frozen Tundra") then
                     break
@@ -250,7 +250,7 @@ MainTab:CreateToggle({
                 return
             end
 
-            -- TP2: wait for Itrapped
+            -- TP2: until Itrapped appears
             while AutoMinigameRunning do
                 if workspace:FindFirstChild("Itrapped") then
                     break
@@ -264,50 +264,41 @@ MainTab:CreateToggle({
 })
 
 --==================================================
--- TOGGLE: AUTO TP3
+-- TOGGLE: AUTO KILL ITRAPPED
+-- CONTINUOUSLY MOVE TO ITRAPPED
 --==================================================
 
 MainTab:CreateToggle({
-    Name = "Auto TP3",
+    Name = "Auto Kill Itrapped",
     CurrentValue = true,
-    Flag = "AutoTP3",
+    Flag = "AutoKillItrapped",
 
     Callback = function(Value)
-        AutoTP3Running = Value
-
-        if TP3Connection then
-            TP3Connection:Disconnect()
-            TP3Connection = nil
-        end
+        AutoKillItrappedRunning = Value
 
         if not Value then
             return
         end
 
-        TP3Connection = RunService.Heartbeat:Connect(function()
-            if not AutoTP3Running then
-                return
+        task.spawn(function()
+            while AutoKillItrappedRunning do
+                local Target = workspace:FindFirstChild("Itrapped")
+
+                local TargetRoot = Target and (
+                    Target:FindFirstChild("HumanoidRootPart")
+                    or Target.PrimaryPart
+                )
+
+                local Character = Player.Character
+
+                if TargetRoot and Character then
+                    Character:MoveTo(
+                        TargetRoot.Position + Vector3.new(0, 0, 3)
+                    )
+                end
+
+                task.wait(0)
             end
-
-            local Target = workspace:FindFirstChild("Itrapped")
-
-            local TargetRoot = Target and (
-                Target:FindFirstChild("HumanoidRootPart")
-                or Target.PrimaryPart
-            )
-
-            local Character = Player.Character
-            local PlayerRoot = Character
-                and Character:FindFirstChild("HumanoidRootPart")
-
-            if not TargetRoot or not PlayerRoot then
-                return
-            end
-
-            pcall(function()
-                PlayerRoot.CFrame =
-                    TargetRoot.CFrame * CFrame.new(0, 0, 3)
-            end)
         end)
     end
 })
@@ -346,7 +337,7 @@ MainTab:CreateToggle({
 
 --==================================================
 -- AUTO DETECT REJOIN
--- Uses the SAME AutoRejoin() function above
+-- USES THE SAME AutoRejoin() FUNCTION
 --==================================================
 
 task.spawn(function()
