@@ -1028,13 +1028,13 @@ MainTab:CreateToggle({
 Name = "Auto Buy/Use Bloxxer Cannon",
 CurrentValue = false,
 Flag = "AutoBloxxerCannon",
+
 Callback = function(Value)
-AutoBloxxerCannon = Value
-TaskGeneration += 1
+    AutoBloxxerCannon = Value
+    TaskGeneration += 1
 
     local CurrentGeneration = TaskGeneration
 
-    -- Cleanup task lama
     if AutoCannonTask then
         pcall(task.cancel, AutoCannonTask)
         AutoCannonTask = nil
@@ -1049,8 +1049,10 @@ TaskGeneration += 1
             and TaskGeneration == CurrentGeneration do
 
             local PlayerGui = Player:FindFirstChild("PlayerGui")
-            local AbilitiesGui = PlayerGui and PlayerGui:FindFirstChild("Abilities")
-            local AbilitySlot = AbilitiesGui and AbilitiesGui:FindFirstChild("AbilitySlot")
+            local AbilitiesGui = PlayerGui
+                and PlayerGui:FindFirstChild("Abilities")
+            local AbilitySlot = AbilitiesGui
+                and AbilitiesGui:FindFirstChild("AbilitySlot")
 
             if AbilitySlot then
                 local HasAnyAbility = false
@@ -1074,23 +1076,37 @@ TaskGeneration += 1
                         if ItemsEvent then
                             ItemsEvent:FireServer(AbilityName)
                         end
+
+                        task.wait(0.5)
                     else
                         local Character = Player.Character
-                        local Abilities =
-                            Character and Character:FindFirstChild("Abilities")
-                        local Cannon =
-                            Abilities and Abilities:FindFirstChild(AbilityName)
-                        local RemoteEvent =
-                            Cannon and Cannon:FindFirstChild("RemoteEvent")
+                        local Abilities = Character
+                            and Character:FindFirstChild("Abilities")
+                        local Cannon = Abilities
+                            and Abilities:FindFirstChild(AbilityName)
+                        local RemoteEvent = Cannon
+                            and Cannon:FindFirstChild("RemoteEvent")
 
-                        if RemoteEvent and RemoteEvent:IsA("RemoteEvent") then
+                        if RemoteEvent
+                            and RemoteEvent:IsA("RemoteEvent") then
+
                             RemoteEvent:FireServer()
+
+                            -- Tunggu 0,5 detik setelah menggunakan
+                            task.wait(0.5)
+
+                            -- Lanjutkan loop untuk membeli/menggunakan lagi
+                        else
+                            task.wait(0.5)
                         end
                     end
+                else
+                    -- Belum morph atau tidak ada ability
+                    task.wait(0.5)
                 end
+            else
+                task.wait(0.5)
             end
-
-            task.wait(0.5)
         end
 
         if TaskGeneration == CurrentGeneration then
@@ -1100,6 +1116,7 @@ TaskGeneration += 1
 end
 
 })
+
 
 
 --// MUSIC
