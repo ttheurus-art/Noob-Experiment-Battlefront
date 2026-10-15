@@ -23,11 +23,11 @@ local TP2_POSITION = Vector3.new(85, -16, 59)
 -- STATES
 --==================================================
 
-local AutoPunchRunning = false
-local AutoMinigameRunning = false
-local AutoKillItrappedRunning = false
+local AutoPunchRunning = true
+local AutoMinigameRunning = true
+local AutoKillItrappedRunning = true
 local AutoRejoinEnabled = true
-local AutoExecuteEnabled = false
+local AutoExecuteEnabled = true
 
 local Rejoining = false
 
