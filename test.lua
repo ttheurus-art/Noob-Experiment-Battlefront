@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V4.6🔥",
+   Name = "Noob Experiment: Battlefront V4.5🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "The Best Noob Experiment: Battlefront",
    LoadingSubtitle = "By: Theurus_The_Creator",
@@ -1013,7 +1013,6 @@ MainTab:CreateToggle({
 
 --// AUTO BLOXXER CANNON
 
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = Players.LocalPlayer
@@ -1054,59 +1053,62 @@ Callback = function(Value)
             local AbilitySlot = AbilitiesGui
                 and AbilitiesGui:FindFirstChild("AbilitySlot")
 
-            if AbilitySlot then
-                local HasAnyAbility = false
-                local HasCannon = false
+            local HasAnyAbility = false
 
+            if AbilitySlot then
                 for _, Child in ipairs(AbilitySlot:GetChildren()) do
                     if Child.Name ~= "UIListLayout" then
                         HasAnyAbility = true
-
-                        if Child.Name == AbilityName then
-                            HasCannon = true
-                        end
+                        break
                     end
                 end
-
-                if HasAnyAbility then
-                    if not HasCannon then
-                        local ItemsEvent =
-                            ReplicatedStorage:FindFirstChild("ItemsEvent")
-
-                        if ItemsEvent then
-                            ItemsEvent:FireServer(AbilityName)
-                        end
-
-                        task.wait(0.5)
-                    else
-                        local Character = Player.Character
-                        local Abilities = Character
-                            and Character:FindFirstChild("Abilities")
-                        local Cannon = Abilities
-                            and Abilities:FindFirstChild(AbilityName)
-                        local RemoteEvent = Cannon
-                            and Cannon:FindFirstChild("RemoteEvent")
-
-                        if RemoteEvent
-                            and RemoteEvent:IsA("RemoteEvent") then
-
-                            RemoteEvent:FireServer()
-
-                            -- Tunggu 0,5 detik setelah menggunakan
-                            task.wait(0.5)
-
-                            -- Lanjutkan loop untuk membeli/menggunakan lagi
-                        else
-                            task.wait(0.5)
-                        end
-                    end
-                else
-                    -- Belum morph atau tidak ada ability
-                    task.wait(0.5)
-                end
-            else
-                task.wait(0.5)
             end
+
+            -- Tunggu sampai player morph
+            if not HasAnyAbility then
+                task.wait(0.05)
+                continue
+            end
+
+            -- Beli Bloxxer Cannon
+            local ItemsEvent =
+                ReplicatedStorage:FindFirstChild("ItemsEvent")
+
+            if ItemsEvent then
+                ItemsEvent:FireServer(AbilityName)
+            end
+
+            task.wait(0.5)
+
+            if not AutoBloxxerCannon
+                or TaskGeneration ~= CurrentGeneration then
+                break
+            end
+
+            -- Gunakan Cannon berulang selama 1 detik
+            local UseUntil = os.clock() + 1
+
+            repeat
+                if not AutoBloxxerCannon
+                    or TaskGeneration ~= CurrentGeneration then
+                    break
+                end
+
+                local Character = Player.Character
+                local Abilities = Character
+                    and Character:FindFirstChild("Abilities")
+                local Cannon = Abilities
+                    and Abilities:FindFirstChild(AbilityName)
+                local RemoteEvent = Cannon
+                    and Cannon:FindFirstChild("RemoteEvent")
+
+                if RemoteEvent and RemoteEvent:IsA("RemoteEvent") then
+                    RemoteEvent:FireServer()
+                end
+
+                task.wait(0.01)
+            until os.clock() >= UseUntil
+
         end
 
         if TaskGeneration == CurrentGeneration then
@@ -1116,8 +1118,6 @@ Callback = function(Value)
 end
 
 })
-
-
 
 --// MUSIC
 
