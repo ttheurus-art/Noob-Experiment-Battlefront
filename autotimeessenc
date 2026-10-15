@@ -43,8 +43,23 @@ local ScriptURL =
     "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessenc"
 
 --==================================================
+-- HELPERS
+--==================================================
+local function FormatTime(Seconds)
+    Seconds = math.max(0, math.floor(Seconds))
+
+    local Minutes = math.floor(Seconds / 60)
+    local RemainingSeconds = Seconds % 60
+
+    return string.format(
+        "%02d:%02d",
+        Minutes,
+        RemainingSeconds
+    )
+end
+
+--==================================================
 -- QUEUE AUTO EXECUTE
--- SATU TEMPAT SAJA YANG MEMBUAT QUEUE
 --==================================================
 local function QueueAutoExecute()
     if not AutoExecute then
@@ -65,18 +80,16 @@ local function QueueAutoExecute()
         return false
     end
 
-    local Success = pcall(function()
+    return pcall(function()
         QueueFunction(
             'loadstring(game:HttpGet("' .. ScriptURL .. '"))()'
         )
     end)
-
-    return Success
 end
 
 --==================================================
--- IY-STYLE REJOIN
--- DIPAKAI OLEH AUTO REJOIN DAN AUTO DETECT
+-- SHARED IY-STYLE REJOIN
+-- ALL REJOIN TRIGGERS USE THIS FUNCTION
 --==================================================
 local function RequestRejoin(ShouldQueue)
     if Rejoining then
@@ -86,7 +99,6 @@ local function RequestRejoin(ShouldQueue)
     Rejoining = true
 
     task.spawn(function()
-        -- QUEUE HANYA SEKALI SEBELUM REJOIN
         if ShouldQueue then
             QueueAutoExecute()
         end
@@ -95,7 +107,6 @@ local function RequestRejoin(ShouldQueue)
 
         local Success = pcall(function()
             if #Players:GetPlayers() <= 1 then
-                -- POLA REJOIN SAAT SENDIRIAN
                 Player:Kick("Rejoining...")
                 task.wait()
 
@@ -104,7 +115,6 @@ local function RequestRejoin(ShouldQueue)
                     Player
                 )
             else
-                -- POLA REJOIN SAAT ADA PEMAIN LAIN
                 TeleportService:TeleportToPlaceInstance(
                     game.PlaceId,
                     game.JobId,
@@ -120,7 +130,7 @@ local function RequestRejoin(ShouldQueue)
 end
 
 --==================================================
--- HEALTH MONITOR
+-- HEALTH MONITOR: ITRAPPED
 --==================================================
 local HealthParagraph = MainTab:CreateParagraph({
     Title = "Itrapped Health",
@@ -188,7 +198,6 @@ end)
 local function RunAutoMinigame(RunId)
     task.wait(5)
 
-    -- TP1: Y = -23
     while AutoMinigame
         and RunId == MinigameRunId
         and not workspace:FindFirstChild("Frozen Tundra") do
@@ -206,7 +215,6 @@ local function RunAutoMinigame(RunId)
         task.wait(0.1)
     end
 
-    -- TP2
     while AutoMinigame
         and RunId == MinigameRunId
         and not workspace:FindFirstChild("Itrapped") do
@@ -243,7 +251,6 @@ MainTab:CreateToggle({
     end
 })
 
--- AUTO MINIGAME STARTUP
 task.spawn(function()
     RunAutoMinigame(MinigameRunId)
 end)
@@ -266,7 +273,6 @@ RunService.Heartbeat:Connect(function()
     end
 
     local Target = workspace:FindFirstChild("Itrapped")
-
     if not Target then
         return
     end
@@ -282,9 +288,6 @@ RunService.Heartbeat:Connect(function()
         return
     end
 
-    -- 2 STUD DI BELAKANG
-    -- OFFSET KANAN = 0
-    -- OFFSET ATAS = 0
     pcall(function()
         PlayerRoot.CFrame =
             Root.CFrame * CFrame.new(0, 0, 2)
@@ -313,7 +316,6 @@ task.spawn(function()
 
         if TargetExists then
             TargetWasDetected = true
-
         elseif TargetWasDetected then
             TargetWasDetected = false
 
@@ -326,7 +328,6 @@ end)
 
 --==================================================
 -- 5. AUTO EXECUTE
--- HANYA MENGATUR STATUS; TIDAK MEMBUAT QUEUE
 --==================================================
 MainTab:CreateToggle({
     Name = "Auto Execute",
@@ -339,7 +340,6 @@ MainTab:CreateToggle({
 
 --==================================================
 -- 6. AUTO DETECT FROZEN TUNDRA
--- MEMINDAI MAKSIMAL 5 DETIK
 --==================================================
 local function StartFrozenScan()
     FrozenScanId += 1
@@ -354,16 +354,6 @@ local function StartFrozenScan()
             end
 
             if workspace:FindFirstChild("Frozen Tundra") then
-                -- Hentikan fitur lain
-                AutoPunch = false
-
-                AutoMinigame = false
-                MinigameRunId += 1
-
-                AutoKillItrapped = false
-                AutoRejoin = false
-
-                -- Gunakan jalur rejoin yang sama
                 RequestRejoin(true)
                 return
             end
@@ -388,7 +378,171 @@ MainTab:CreateToggle({
     end
 })
 
--- MULAI SCAN SAAT SCRIPT DIEKSEKUSI
 if AutoDetectFrozenTundra then
     StartFrozenScan()
 end
+
+--==================================================
+-- 7. SERVER SCANNER
+-- Rejoin if server has 2+ players for 1 second
+--==================================================
+local ServerScannerParagraph = MainTab:CreateParagraph({
+    Title = "Server Scanner",
+    Content = "Scanning server..."
+})
+
+task.spawn(function()
+    local ConditionStart = nil
+
+    while task.wait(0.2) do
+        local PlayerCount = #Players:GetPlayers()
+
+        if PlayerCount >= 2 then
+            if not ConditionStart then
+                ConditionStart = os.clock()
+            end
+
+            local Elapsed = os.clock() - ConditionStart
+
+            ServerScannerParagraph:Set({
+                Title = "Server Scanner",
+                Content = "Players: "
+                    .. PlayerCount
+                    .. " | Condition: "
+                    .. FormatTime(Elapsed)
+                    .. " / 00:01"
+            })
+
+            if Elapsed >= 1 then
+                ServerScannerParagraph:Set({
+                    Title = "Server Scanner",
+                    Content = "2+ players detected. Rejoining..."
+                })
+
+                RequestRejoin(true)
+                return
+            end
+        else
+            ConditionStart = nil
+
+            ServerScannerParagraph:Set({
+                Title = "Server Scanner",
+                Content = "Players: "
+                    .. PlayerCount
+                    .. " | Waiting for 2 players..."
+            })
+        end
+    end
+end)
+
+--==================================================
+-- 8. ITRAPPED TIMER
+-- Missing: 00:00 -> 00:30, then rejoin
+-- Present: 00:00 -> 03:00, then rejoin
+--==================================================
+local ItrappedTimerParagraph = MainTab:CreateParagraph({
+    Title = "Itrapped Timer",
+    Content = "Waiting for Itrapped..."
+})
+
+task.spawn(function()
+    local CurrentMode = nil
+    local ModeStart = os.clock()
+
+    while task.wait(0.2) do
+        local TargetExists =
+            workspace:FindFirstChild("Itrapped") ~= nil
+
+        local NewMode = TargetExists and "PRESENT" or "MISSING"
+
+        if NewMode ~= CurrentMode then
+            CurrentMode = NewMode
+            ModeStart = os.clock()
+        end
+
+        local Elapsed = os.clock() - ModeStart
+
+        if CurrentMode == "MISSING" then
+            ItrappedTimerParagraph:Set({
+                Title = "Itrapped Timer",
+                Content = "Itrapped missing: "
+                    .. FormatTime(Elapsed)
+                    .. " / 00:30"
+            })
+
+            if Elapsed >= 30 then
+                ItrappedTimerParagraph:Set({
+                    Title = "Itrapped Timer",
+                    Content = "Itrapped missing for 30 seconds. Rejoining..."
+                })
+
+                RequestRejoin(true)
+                return
+            end
+        else
+            ItrappedTimerParagraph:Set({
+                Title = "Itrapped Timer",
+                Content = "Itrapped present: "
+                    .. FormatTime(Elapsed)
+                    .. " / 03:00"
+            })
+
+            if Elapsed >= 180 then
+                ItrappedTimerParagraph:Set({
+                    Title = "Itrapped Timer",
+                    Content = "Itrapped present for 3 minutes. Rejoining..."
+                })
+
+                RequestRejoin(true)
+                return
+            end
+        end
+    end
+end)
+
+--==================================================
+-- 9. PLAYER HEALTH SCANNER
+-- Rejoin if own health <= 5% MaxHealth
+--==================================================
+local PlayerHealthParagraph = MainTab:CreateParagraph({
+    Title = "Player Health Scanner",
+    Content = "Waiting for character..."
+})
+
+task.spawn(function()
+    while task.wait(0.2) do
+        local Character = Player.Character
+        local Humanoid = Character
+            and Character:FindFirstChildOfClass("Humanoid")
+
+        if Humanoid and Humanoid.MaxHealth > 0 then
+            local HealthPercent =
+                (Humanoid.Health / Humanoid.MaxHealth) * 100
+
+            PlayerHealthParagraph:Set({
+                Title = "Player Health Scanner",
+                Content = string.format(
+                    "Health: %d / %d (%.1f%%)",
+                    math.floor(Humanoid.Health),
+                    math.floor(Humanoid.MaxHealth),
+                    HealthPercent
+                )
+            })
+
+            if HealthPercent <= 5 then
+                PlayerHealthParagraph:Set({
+                    Title = "Player Health Scanner",
+                    Content = "Health <= 5%%. Rejoining..."
+                })
+
+                RequestRejoin(true)
+                return
+            end
+        else
+            PlayerHealthParagraph:Set({
+                Title = "Player Health Scanner",
+                Content = "Waiting for character..."
+            })
+        end
+    end
+end)
