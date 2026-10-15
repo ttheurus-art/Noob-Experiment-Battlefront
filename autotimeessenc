@@ -1,5 +1,6 @@
 -- SERVICES
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local Player = Players.LocalPlayer
 
 -- RAYFIELD
@@ -104,7 +105,7 @@ MainTab:CreateToggle({
             task.spawn(function()
                 task.wait(5)
 
-                -- TP1: 5 STUD LEBIH BAWAH
+                -- TP1: Y = -23
                 while AutoMinigame
                     and RunId == MinigameRunId
                     and not workspace:FindFirstChild("Frozen Tundra") do
@@ -113,14 +114,16 @@ MainTab:CreateToggle({
 
                     if Character then
                         pcall(function()
-                            Character:MoveTo(Vector3.new(99, -23, 193))
+                            Character:MoveTo(
+                                Vector3.new(99, -23, 193)
+                            )
                         end)
                     end
 
                     task.wait(0.1)
                 end
 
-                -- TP2: MENUNGGU ITRAPPED
+                -- TP2
                 while AutoMinigame
                     and RunId == MinigameRunId
                     and not workspace:FindFirstChild("Itrapped") do
@@ -129,7 +132,9 @@ MainTab:CreateToggle({
 
                     if Character then
                         pcall(function()
-                            Character:MoveTo(Vector3.new(85, -16, 59))
+                            Character:MoveTo(
+                                Vector3.new(85, -16, 59)
+                            )
                         end)
                     end
 
@@ -155,7 +160,9 @@ do
 
             if Character then
                 pcall(function()
-                    Character:MoveTo(Vector3.new(99, -23, 193))
+                    Character:MoveTo(
+                        Vector3.new(99, -23, 193)
+                    )
                 end)
             end
 
@@ -170,7 +177,9 @@ do
 
             if Character then
                 pcall(function()
-                    Character:MoveTo(Vector3.new(85, -16, 59))
+                    Character:MoveTo(
+                        Vector3.new(85, -16, 59)
+                    )
                 end)
             end
 
@@ -193,31 +202,36 @@ MainTab:CreateToggle({
     end
 })
 
-task.spawn(function()
-    while true do
-        if AutoKillItrapped then
-            local Target = workspace:FindFirstChild("Itrapped")
-
-            if Target then
-                local Root = Target:FindFirstChild("HumanoidRootPart")
-                    or Target.PrimaryPart
-
-                if Root then
-                    local Character = Player.Character
-
-                    if Character then
-                        pcall(function()
-                            Character:MoveTo(
-                                Root.Position - Root.CFrame.LookVector * 2
-                            )
-                        end)
-                    end
-                end
-            end
-        end
-
-        task.wait(0)
+RunService.Heartbeat:Connect(function()
+    if not AutoKillItrapped then
+        return
     end
+
+    local Target = workspace:FindFirstChild("Itrapped")
+    if not Target then
+        return
+    end
+
+    local Root = Target:FindFirstChild("HumanoidRootPart")
+        or Target.PrimaryPart
+
+    local Character = Player.Character
+    local PlayerRoot = Character
+        and Character:FindFirstChild("HumanoidRootPart")
+
+    if not Root or not PlayerRoot then
+        return
+    end
+
+    -- 2 STUD DI BELAKANG
+    -- OFFSET KANAN = 0
+    -- OFFSET ATAS = 0
+    local BehindPosition =
+        Root.Position - Root.CFrame.LookVector * 2
+
+    pcall(function()
+        Character:MoveTo(BehindPosition)
+    end)
 end)
 
 --==================================================
@@ -245,17 +259,15 @@ task.spawn(function()
 
         if TargetExists then
             TargetWasDetected = true
+
         elseif TargetWasDetected then
             TargetWasDetected = false
 
             if AutoRejoin and not Rejoining then
+                Rejoining = true
+
                 task.spawn(function()
-                    if not AutoRejoin or Rejoining then
-                        return
-                    end
-
-                    Rejoining = true
-
+                    -- QUEUE AUTO EXECUTE
                     if AutoExecute
                         and type(queue_on_teleport) == "function" then
 
@@ -268,12 +280,17 @@ task.spawn(function()
                         end)
                     end
 
+                    -- REJOIN DAHULU
                     if type(Rejoinclient) == "function" then
                         pcall(function()
                             Rejoinclient()
                         end)
                     end
 
+                    -- TUNGGU 0.25 DETIK
+                    task.wait(0.25)
+
+                    -- KICK SETELAHNYA
                     Player:Kick("Rejoining...")
                 end)
             end
@@ -295,7 +312,9 @@ MainTab:CreateToggle({
     Callback = function(Value)
         AutoExecute = Value
 
-        if Value and type(queue_on_teleport) == "function" then
+        if Value
+            and type(queue_on_teleport) == "function" then
+
             pcall(function()
                 queue_on_teleport([[
                     loadstring(game:HttpGet(
@@ -307,8 +326,10 @@ MainTab:CreateToggle({
     end
 })
 
--- QUEUE ON STARTUP
-if AutoExecute and type(queue_on_teleport) == "function" then
+-- QUEUE AUTO EXECUTE SAAT SCRIPT DIMULAI
+if AutoExecute
+    and type(queue_on_teleport) == "function" then
+
     pcall(function()
         queue_on_teleport([[
             loadstring(game:HttpGet(
