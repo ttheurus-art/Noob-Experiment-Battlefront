@@ -317,7 +317,7 @@ MainTab:CreateToggle({
 
 MainTab:CreateToggle({
     Name = "Auto Execute",
-    CurrentValue = false,
+    CurrentValue = true,
     Flag = "AutoExecuteTeleport",
 
     Callback = function(Value)
