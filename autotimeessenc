@@ -432,7 +432,7 @@ task.spawn(function()
             TargetWasDetected = false
 
             if AutoRejoin and not Rejoining then
-                task.wait(1.75)
+                task.wait(1.25)
 
                 if AutoRejoin and not Rejoining then
                     RequestRejoin(true)
