@@ -4,7 +4,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V4.5🔥",
+   Name = "Noob Experiment: Battlefront V4.6🔥",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "The Best Noob Experiment: Battlefront",
    LoadingSubtitle = "By: Theurus_The_Creator",
@@ -227,7 +227,7 @@ MainTab:CreateParagraph({
 
 MainTab:CreateParagraph({
 	Title = "Update Log",
-	Content = "+Tips How To Be Invisible And Invincible Forever"
+	Content = "+Auto Buy/Use Bloxxer Cannon (on fun menu)"
 	})
 		
 local MainTab = Window:CreateTab("Shop", nil)
@@ -1011,84 +1011,176 @@ MainTab:CreateToggle({
     end,
 })
 
---// AUTO HEATLH RESET
 
+--// AUTO BUY/USE BLOXXER CANNON
 
--- AUTO REPAIR
-local RepairThreshold = 15
-local AutoRepairEnabled = false
-local RepairTriggered = false
-local RepairEvent = game:GetService("ReplicatedStorage")
-    :WaitForChild("ItemsEvent")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-MainTab:CreateToggle({
-    Name = "Auto Repair",
-    CurrentValue = false,
-    Callback = function(Value)
-        AutoRepairEnabled = Value
+local Player = Players.LocalPlayer
+local AbilityName = "Call Bloxxer Cannon"
 
-        if not Value then
-            RepairTriggered = false
-        end
-    end,
-})
+local AutoBloxxerCannon = false
+local AutoCannonTask = nil
+local TaskGeneration = 0
 
--- Slider di bawah toggle
-MainTab:CreateSlider({
-    Name = "Repair Health Threshold",
-    Range = {5, 25},
-    Increment = 1,
-    Suffix = " HP",
-    CurrentValue = 15,
-    Callback = function(Value)
-        RepairThreshold = Value
-    end,
-})
+local SpawnInterval = 1
+local UseInterval = 0.05
+local UseDuration = 1
 
--- Gunakan Humanoid dari Low Health Visual
-task.spawn(function()
-    local PreviousHumanoid = nil
+--// SPAWN SPEED DROPDOWN
 
-    while task.wait(0.1) do
-        if Humanoid ~= PreviousHumanoid then
-            PreviousHumanoid = Humanoid
-            RepairTriggered = false
+MainTab:CreateDropdown({
+    Name = "Spawn Speed",
+    Options = {
+        "Spawn 2.5s",
+        "Spawn 2s",
+        "Spawn 1.5s",
+        "Spawn 1s",
+        "Spawn 0.5s",
+        "Spawn 0.25s",
+        "Spawn 0s"
+    },
+    CurrentOption = "Spawn 1s",
+    Flag = "BloxxerSpawnSpeed",
+
+    Callback = function(Option)
+        if type(Option) == "table" then
+            Option = Option[1]
         end
 
-        if not AutoRepairEnabled then
-            continue
-        end
+        local Speeds = {
+            ["Spawn 2.5s"] = 2.5,
+            ["Spawn 2s"] = 2,
+            ["Spawn 1.5s"] = 1.5,
+            ["Spawn 1s"] = 1,
+            ["Spawn 0.5s"] = 0.5,
+            ["Spawn 0.25s"] = 0.25,
+            ["Spawn 0s"] = 0
+        }
 
-        if not Humanoid or not Humanoid.Parent then
-            continue
-        end
-
-        local MaxHealth = Humanoid.MaxHealth
-        local Health = Humanoid.Health
-
-        if MaxHealth <= 0 or Health <= 0 then
-            continue
-        end
-
-        if Health >= RepairThreshold then
-            RepairTriggered = false
-        elseif not RepairTriggered then
-            RepairTriggered = true
-
-            local Success = pcall(function()
-                RepairEvent:FireServer("Repair")
-            end)
-
-            if Success then
-                Rayfield:Notify({
-                    Title = "Auto Repair",
-                    Content = "Titan Has Been Repair!",
-                    Duration = 3,
-                })
-            end
+        if Speeds[Option] ~= nil then
+            SpawnInterval = Speeds[Option]
         end
     end
-end)
+})
+
+--// AUTO BUY/USE TOGGLE
+
+MainTab:CreateToggle({
+    Name = "Auto Buy/Use Bloxxer Cannon (cost 3k money per spawn)",
+    CurrentValue = false,
+    Flag = "AutoBloxxerCannon",
+
+    Callback = function(Value)
+        AutoBloxxerCannon = Value
+        TaskGeneration += 1
+
+        local CurrentGeneration = TaskGeneration
+
+        if AutoCannonTask then
+            pcall(task.cancel, AutoCannonTask)
+            AutoCannonTask = nil
+        end
+
+        if not Value then
+            return
+        end
+
+        AutoCannonTask = task.spawn(function()
+            while AutoBloxxerCannon
+                and TaskGeneration == CurrentGeneration do
+
+                --// CHECK MORPH / ABILITY SLOT
+
+                local PlayerGui = Player:FindFirstChild("PlayerGui")
+                local AbilitiesGui = PlayerGui
+                    and PlayerGui:FindFirstChild("Abilities")
+                local AbilitySlot = AbilitiesGui
+                    and AbilitiesGui:FindFirstChild("AbilitySlot")
+
+                local HasAnyAbility = false
+
+                if AbilitySlot then
+                    for _, Child in ipairs(AbilitySlot:GetChildren()) do
+                        if Child.Name ~= "UIListLayout" then
+                            HasAnyAbility = true
+                            break
+                        end
+                    end
+                end
+
+                -- Tunggu sampai player sudah morph
+                if not HasAnyAbility then
+                    task.wait(0.5)
+                    continue
+                end
+
+                --// BUY CANNON
+
+                local ItemsEvent =
+                    ReplicatedStorage:FindFirstChild("ItemsEvent")
+
+                if ItemsEvent then
+                    ItemsEvent:FireServer(AbilityName)
+                else
+                    task.wait(1)
+                    continue
+                end
+
+                --// WAIT FOR CANNON TO APPEAR
+
+                local SpawnDeadline = os.clock() + SpawnInterval
+
+                repeat
+                    if not AutoBloxxerCannon
+                        or TaskGeneration ~= CurrentGeneration then
+                        break
+                    end
+
+                    task.wait(0.03)
+                until os.clock() >= SpawnDeadline
+
+                if not AutoBloxxerCannon
+                    or TaskGeneration ~= CurrentGeneration then
+                    break
+                end
+
+                --// USE CANNON FOR 1 SECOND
+
+                local UseUntil = os.clock() + UseDuration
+
+                repeat
+                    if not AutoBloxxerCannon
+                        or TaskGeneration ~= CurrentGeneration then
+                        break
+                    end
+
+                    local Character = Player.Character
+                    local Abilities = Character
+                        and Character:FindFirstChild("Abilities")
+                    local Cannon = Abilities
+                        and Abilities:FindFirstChild(AbilityName)
+                    local RemoteEvent = Cannon
+                        and Cannon:FindFirstChild("RemoteEvent")
+
+                    if RemoteEvent
+                        and RemoteEvent:IsA("RemoteEvent") then
+                        RemoteEvent:FireServer()
+                    end
+
+                    task.wait(UseInterval)
+                until os.clock() >= UseUntil
+
+                -- Siklus berikutnya langsung mulai dari pembelian lagi
+            end
+
+            if TaskGeneration == CurrentGeneration then
+                AutoCannonTask = nil
+            end
+        end)
+    end
+})
 
 
 --// MUSIC
