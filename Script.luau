@@ -3,7 +3,7 @@ local Zynz = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus
 
 local Window = Zynz:CreateWindow({
    Name = "Noob Experiment: Battlefront V4.6🔥",
-   MainTabTheme = "Normal"
+   MainTabTheme = "Modern"
 })
 
 local p = Instance.new("Part")
