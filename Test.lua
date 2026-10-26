@@ -3,7 +3,7 @@
 ]]
 -- Converted: Rayfield → Zynz Library (faithful, code preserved)
 
-local Zynz = loadstring(game:HttpGet('URL_ZYNZ_LIBRARY_KAMU_DISINI'))()
+local Zynz = loadstring(game:HttpGet('https://raw.githubusercontent.com/ttheurus-art/Creator/refs/heads/main/Zynz.luau'))()
 
 local Window = Zynz:CreateWindow({
    Name = "Noob Experiment: Battlefront V4.6🔥",
