@@ -2211,138 +2211,23 @@ else
 end
 
 -- ==========================================================
---   TAB: Bring — MoveTo Method (Server-Authoritative)
---   Tanpa asset ID, tanpa image, tanpa icon
+--   TAB: Bring — Pure Ownership Loop
+--   Hanya: Unanchor + SetNetworkOwner (looping)
+--   Tanpa CFrame, tanpa weld, tanpa MoveTo
 -- ==========================================================
 local BringTab = Window:CreateTab({Name = "Bring"})
 
-BringTab:CreateSection({Name = "🎯 Bring Enemies"})
+BringTab:CreateSection({Name = "🔬 Ownership Loop (Test)"})
 
--- State
-local _BringEnabled   = false
-local _BringGen       = 0
-local _BringRadius    = 5000
-local _BringFrontDist = 18
-local _BringSpeed     = 200
-local _BringMethod    = "Auto"
+local _Running  = false
+local _Gen      = 0
+local _Interval = 0.05
 
 -- ==========================================================
--- Cleanup
+-- Loop: Unanchor + SetNetworkOwner
 -- ==========================================================
-local function BringCleanup()
-    local folder = workspace:FindFirstChild("Enemies")
-    if not folder then return end
-    for _, enemy in ipairs(folder:GetChildren()) do
-        if enemy:IsA("Model") then
-            local hrp = enemy:FindFirstChild("HumanoidRootPart")
-            local h   = enemy:FindFirstChildOfClass("Humanoid")
-            if hrp then
-                for _, name in ipairs({
-                    "BodyVelocity_Bring", "BodyPosition_Bring",
-                    "AlignPosition_Bring", "BringAttachment",
-                }) do
-                    local c = hrp:FindFirstChild(name)
-                    if c then c:Destroy() end
-                end
-                hrp.CanCollide = true
-                pcall(function() hrp:SetNetworkOwner(nil) end)
-            end
-            if h then
-                h.WalkSpeed = 16
-                h.JumpPower = 50
-                pcall(function() h:MoveTo(hrp.Position) end)  -- stop current move
-            end
-        end
-    end
-
-    -- Cleanup weld dari player
+local function ownershipTick()
     local LP = game.Players.LocalPlayer
-    if LP.Character then
-        local hrpP = LP.Character:FindFirstChild("HumanoidRootPart")
-        if hrpP then
-            for _, c in ipairs(hrpP:GetChildren()) do
-                if c.Name:sub(1, 11) == "BringWeld_" then
-                    c:Destroy()
-                end
-            end
-        end
-    end
-end
-
--- ==========================================================
--- METHOD 1: MoveTo (server-authoritative AI)
--- ==========================================================
-local function methodMoveTo(ehrp, h, myPos)
-    h.WalkSpeed = _BringSpeed
-    h.JumpPower = 50
-    h:MoveTo(myPos)
-end
-
--- ==========================================================
--- METHOD 2: CFrame + BodyVelocity (Banana method)
--- ==========================================================
-local function methodCFrame(ehrp, h, targetCF, LP)
-    if h.WalkSpeed == 0 then
-        -- sudah dibring, refresh posisi aja
-        if not ehrp:FindFirstChild("BodyVelocity_Bring") then
-            local bv = Instance.new("BodyVelocity")
-            bv.Name     = "BodyVelocity_Bring"
-            bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
-            bv.Velocity = Vector3.zero
-            bv.Parent   = ehrp
-        end
-        ehrp.CFrame = targetCF
-    else
-        pcall(function() ehrp:SetNetworkOwner(LP) end)
-        ehrp.CFrame = targetCF
-        ehrp.AssemblyLinearVelocity  = Vector3.zero
-        ehrp.AssemblyAngularVelocity = Vector3.zero
-
-        if not ehrp:FindFirstChild("BodyVelocity_Bring") then
-            local bv = Instance.new("BodyVelocity")
-            bv.Name     = "BodyVelocity_Bring"
-            bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
-            bv.Velocity = Vector3.zero
-            bv.Parent   = ehrp
-        end
-    end
-    h.WalkSpeed = 0
-    h.JumpPower = 0
-    ehrp.CanCollide = false
-end
-
--- ==========================================================
--- METHOD 3: WeldConstraint (nuclear)
--- ==========================================================
-local function methodWeld(ehrp, h, targetCF, LP, playerHRP)
-    pcall(function() ehrp:SetNetworkOwner(LP) end)
-    ehrp.CFrame = targetCF
-    ehrp.AssemblyLinearVelocity  = Vector3.zero
-    ehrp.AssemblyAngularVelocity = Vector3.zero
-
-    local weldName = "BringWeld_" .. tostring(ehrp.Parent and ehrp.Parent.Name or "E")
-    local weld = playerHRP:FindFirstChild(weldName)
-    if not weld then
-        weld = Instance.new("WeldConstraint")
-        weld.Name   = weldName
-        weld.Part0  = playerHRP
-        weld.Part1  = ehrp
-        weld.Parent = playerHRP
-    end
-    h.WalkSpeed = 0
-    h.JumpPower = 0
-    ehrp.CanCollide = false
-end
-
--- ==========================================================
--- Main loop
--- ==========================================================
-local function bringOnce()
-    local LP   = game.Players.LocalPlayer
-    local char = LP.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
 
     pcall(function()
         if sethiddenproperty then
@@ -2353,30 +2238,32 @@ local function bringOnce()
     local folder = workspace:FindFirstChild("Enemies")
     if not folder then return end
 
-    local myPos    = hrp.Position
-    local targetCF = hrp.CFrame * CFrame.new(0, 0, -_BringFrontDist)
+    for _, e in ipairs(folder:GetChildren()) do
+        if e:IsA("Model") then
+            local hrp = e:FindFirstChild("HumanoidRootPart")
+            local h   = e:FindFirstChildOfClass("Humanoid")
+            if hrp and h and h.Health > 0 then
+                -- 1. Unanchor
+                pcall(function() hrp.Anchored = false end)
 
-    for _, enemy in ipairs(folder:GetChildren()) do
-        if enemy:IsA("Model") then
-            local h    = enemy:FindFirstChildOfClass("Humanoid")
-            local ehrp = enemy:FindFirstChild("HumanoidRootPart")
-            if h and ehrp and h.Health > 0 then
-                local dist = (ehrp.Position - myPos).Magnitude
-                if dist <= _BringRadius then
-                    if _BringMethod == "MoveTo" then
-                        methodMoveTo(ehrp, h, myPos)
-                    elseif _BringMethod == "CFrame" then
-                        methodCFrame(ehrp, h, targetCF, LP)
-                    elseif _BringMethod == "Weld" then
-                        methodWeld(ehrp, h, targetCF, LP, hrp)
-                    else
-                        -- AUTO: coba ketiganya
-                        methodMoveTo(ehrp, h, myPos)
-                        if dist > _BringFrontDist * 2 then
-                            methodCFrame(ehrp, h, targetCF, LP)
-                        end
-                    end
-                end
+                -- 2. Ambil ownership
+                pcall(function() hrp:SetNetworkOwner(LP) end)
+            end
+        end
+    end
+end
+
+-- ==========================================================
+-- Cleanup
+-- ==========================================================
+local function cleanupOwnership()
+    local folder = workspace:FindFirstChild("Enemies")
+    if not folder then return end
+    for _, e in ipairs(folder:GetChildren()) do
+        if e:IsA("Model") then
+            local hrp = e:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                pcall(function() hrp:SetNetworkOwner(nil) end)
             end
         end
     end
@@ -2385,153 +2272,65 @@ end
 -- ==========================================================
 -- Loop driver
 -- ==========================================================
-local function startBringLoop()
-    _BringGen = _BringGen + 1
-    local myGen = _BringGen
+local function startLoop()
+    _Gen = _Gen + 1
+    local myGen = _Gen
     task.spawn(function()
-        while _BringEnabled and _BringGen == myGen do
-            pcall(bringOnce)
-            task.wait(0.15)
+        while _Running and _Gen == myGen do
+            pcall(ownershipTick)
+            task.wait(_Interval)
         end
     end)
 end
 
 -- ==========================================================
--- UI
+-- Toggle (satu-satunya)
 -- ==========================================================
 BringTab:CreateToggle({
-    Name = "Bring Enemies",
+    Name = "Ownership Loop (Unanchor + SetOwner)",
     Value = false,
     Callback = function(Value)
-        _BringEnabled = Value
+        _Running = Value
         if Value then
-            startBringLoop()
+            startLoop()
+            Zynz:Notify({Name = "Ownership", Content = "Loop started", Duration = 2})
         else
-            _BringGen = _BringGen + 1
-            BringCleanup()
+            _Gen = _Gen + 1
+            cleanupOwnership()
+            Zynz:Notify({Name = "Ownership", Content = "Stopped, owner returned to server", Duration = 2})
         end
     end,
-})
-
-BringTab:CreateSection({Name = "⚙️ Method"})
-
-BringTab:CreateDropdown({
-    Name = "Bring Method",
-    Options = {"Auto", "MoveTo", "CFrame", "Weld"},
-    CurrentOption = "Auto",
-    Callback = function(Option)
-        _BringMethod = Option
-    end,
-})
-
-BringTab:CreateParagraph({
-    Name = "Method Info",
-    Content = "Auto   = MoveTo + CFrame (rekomendasi)\nMoveTo = mob JALAN ke player (paling aman, server-authoritative)\nCFrame = teleport instan (cuma work kalau dapat ownership)\nWeld   = paksa physics (berat, tapi pasti replicate)",
-})
-
-BringTab:CreateSection({Name = "📏 Settings"})
-
-BringTab:CreateSlider({
-    Name = "Jarak Depan (studs)",
-    Range = {5, 50},
-    Increment = 1,
-    Value = 18,
-    Callback = function(Value) _BringFrontDist = Value end,
-})
-
-BringTab:CreateSlider({
-    Name = "Radius Tarik",
-    Range = {100, 20000},
-    Increment = 100,
-    Value = 5000,
-    Callback = function(Value) _BringRadius = Value end,
-})
-
-BringTab:CreateSlider({
-    Name = "Mob Speed (MoveTo)",
-    Range = {16, 500},
-    Increment = 1,
-    Value = 200,
-    Callback = function(Value) _BringSpeed = Value end,
 })
 
 -- ==========================================================
--- Diagnostics
+-- Live Status
 -- ==========================================================
-BringTab:CreateSection({Name = "🔍 Diagnostic"})
+local _StatusLabel = BringTab:CreateParagraph({
+    Name = "Status",
+    Content = "OFF"
+})
 
-BringTab:CreateButton({
-    Name = "Check Enemy Status",
-    Callback = function()
+task.spawn(function()
+    while true do
+        task.wait(0.5)
         local LP = game.Players.LocalPlayer
         local folder = workspace:FindFirstChild("Enemies")
-        if not folder then
-            Zynz:Notify({Name = "Diagnostic", Content = "workspace.Enemies tidak ada", Duration = 3})
-            return
-        end
-
-        local total, owned, anchored, locked = 0, 0, 0, 0
-        local sample = nil
-        for _, e in ipairs(folder:GetChildren()) do
-            if e:IsA("Model") then
-                local ehrp = e:FindFirstChild("HumanoidRootPart")
-                if ehrp then
-                    total = total + 1
-                    if ehrp.Anchored then anchored = anchored + 1 end
-                    if ehrp:GetNetworkOwner() == LP then owned = owned + 1 end
-                    if ehrp.CanSetNetworkOwnership and not ehrp:CanSetNetworkOwnership() then
-                        locked = locked + 1
-                    end
-                    if not sample then
-                        sample = string.format("%s | Anchor:%s | Owned:%s",
-                            e.Name, tostring(ehrp.Anchored), tostring(ehrp:GetNetworkOwner() == LP))
+        if folder then
+            local total, owned, anchored = 0, 0, 0
+            for _, e in ipairs(folder:GetChildren()) do
+                if e:IsA("Model") then
+                    local hrp = e:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        total = total + 1
+                        if hrp:GetNetworkOwner() == LP then owned = owned + 1 end
+                        if hrp.Anchored then anchored = anchored + 1 end
                     end
                 end
             end
+            _StatusLabel:SetText(string.format(
+                "Total: %d | Owner: %d | Anchored: %d",
+                total, owned, anchored
+            ))
         end
-
-        local msg = string.format("Total:%d Owner:%d Anchor:%d Locked:%d", total, owned, anchored, locked)
-        print("[Bring Diagnostic] " .. msg)
-        if sample then print("[Sample] " .. sample) end
-        Zynz:Notify({
-            Name = "Diagnostic",
-            Content = msg,
-            Duration = 5,
-        })
-    end,
-})
-
-BringTab:CreateButton({
-    Name = "Force Unlock Ownership",
-    Callback = function()
-        local LP = game.Players.LocalPlayer
-        local folder = workspace:FindFirstChild("Enemies")
-        if not folder then return end
-        local count = 0
-        for _, e in ipairs(folder:GetChildren()) do
-            if e:IsA("Model") then
-                local ehrp = e:FindFirstChild("HumanoidRootPart")
-                if ehrp then
-                    pcall(function() ehrp.Anchored = false end)
-                    pcall(function() ehrp:SetNetworkOwner(LP) end)
-                    count = count + 1
-                end
-            end
-        end
-        Zynz:Notify({
-            Name = "Force Unlock",
-            Content = count .. " enemy diproses",
-            Duration = 3,
-        })
-    end,
-})
-
-BringTab:CreateButton({
-    Name = "Stop & Restore",
-    Callback = function()
-        _BringEnabled = false
-        _BringGen = _BringGen + 1
-        BringCleanup()
-        Zynz:Notify({Name = "Bring", Content = "Stopped", Duration = 2})
-    end,
-})
+    end
+end)
