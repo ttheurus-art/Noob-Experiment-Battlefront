@@ -2211,23 +2211,21 @@ else
 end
 
 -- ==========================================================
---   TAB: Bring — Pure Ownership Loop
---   Hanya: Unanchor + SetNetworkOwner (looping)
---   Tanpa CFrame, tanpa weld, tanpa MoveTo
+--   TAB: Bring — Satu Toggle
 -- ==========================================================
 local BringTab = Window:CreateTab({Name = "Bring"})
 
-BringTab:CreateSection({Name = "🔬 Ownership Loop (Test)"})
+BringTab:CreateSection({Name = "🎯 Bring All Enemies"})
 
-local _Running  = false
-local _Gen      = 0
-local _Interval = 0.05
+local _BringOn  = false
+local _BringGen = 0
 
--- ==========================================================
--- Loop: Unanchor + SetNetworkOwner
--- ==========================================================
-local function ownershipTick()
+local function bringTick()
     local LP = game.Players.LocalPlayer
+    local char = LP.Character
+    if not char then return end
+    local myHrp = char:FindFirstChild("HumanoidRootPart")
+    if not myHrp then return end
 
     pcall(function()
         if sethiddenproperty then
@@ -2238,99 +2236,82 @@ local function ownershipTick()
     local folder = workspace:FindFirstChild("Enemies")
     if not folder then return end
 
+    local targetCF = myHrp.CFrame * CFrame.new(0, 0, -18)
+
     for _, e in ipairs(folder:GetChildren()) do
         if e:IsA("Model") then
             local hrp = e:FindFirstChild("HumanoidRootPart")
             local h   = e:FindFirstChildOfClass("Humanoid")
             if hrp and h and h.Health > 0 then
-                -- 1. Unanchor
+                -- Unanchor
                 pcall(function() hrp.Anchored = false end)
-
-                -- 2. Ambil ownership
+                -- Set owner
                 pcall(function() hrp:SetNetworkOwner(LP) end)
+
+                -- Freeze physics
+                if not hrp:FindFirstChild("BodyVel_BF") then
+                    local bv = Instance.new("BodyVelocity")
+                    bv.Name = "BodyVel_BF"
+                    bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+                    bv.Velocity = Vector3.zero
+                    bv.Parent = hrp
+                end
+
+                -- CFrame (hanya kalau owner)
+                if hrp:GetNetworkOwner() == LP then
+                    hrp.CFrame = targetCF
+                    hrp.AssemblyLinearVelocity = Vector3.zero
+                end
+
+                -- Freeze humanoid
+                h.WalkSpeed = 0
+                h.JumpPower = 0
+                hrp.CanCollide = false
             end
         end
     end
 end
 
--- ==========================================================
--- Cleanup
--- ==========================================================
-local function cleanupOwnership()
+local function cleanup()
     local folder = workspace:FindFirstChild("Enemies")
     if not folder then return end
     for _, e in ipairs(folder:GetChildren()) do
         if e:IsA("Model") then
             local hrp = e:FindFirstChild("HumanoidRootPart")
+            local h   = e:FindFirstChildOfClass("Humanoid")
             if hrp then
+                local bv = hrp:FindFirstChild("BodyVel_BF")
+                if bv then bv:Destroy() end
+                hrp.CanCollide = true
                 pcall(function() hrp:SetNetworkOwner(nil) end)
+            end
+            if h then
+                h.WalkSpeed = 16
+                h.JumpPower = 50
             end
         end
     end
 end
 
--- ==========================================================
--- Loop driver
--- ==========================================================
-local function startLoop()
-    _Gen = _Gen + 1
-    local myGen = _Gen
-    task.spawn(function()
-        while _Running and _Gen == myGen do
-            pcall(ownershipTick)
-            task.wait(_Interval)
-        end
-    end)
-end
-
--- ==========================================================
--- Toggle (satu-satunya)
--- ==========================================================
 BringTab:CreateToggle({
-    Name = "Ownership Loop (Unanchor + SetOwner)",
+    Name = "Bring All Enemies",
     Value = false,
     Callback = function(Value)
-        _Running = Value
+        _BringOn = Value
+        _BringGen = _BringGen + 1
+
         if Value then
-            startLoop()
-            Zynz:Notify({Name = "Ownership", Content = "Loop started", Duration = 2})
+            local myGen = _BringGen
+            task.spawn(function()
+                while _BringOn and _BringGen == myGen do
+                    pcall(bringTick)
+                    task.wait(0.08)
+                end
+            end)
+            Zynz:Notify({Name = "Bring", Content = "ON", Duration = 2})
         else
-            _Gen = _Gen + 1
-            cleanupOwnership()
-            Zynz:Notify({Name = "Ownership", Content = "Stopped, owner returned to server", Duration = 2})
+            cleanup()
+            Zynz:Notify({Name = "Bring", Content = "OFF", Duration = 2})
         end
     end,
 })
-
--- ==========================================================
--- Live Status
--- ==========================================================
-local _StatusLabel = BringTab:CreateParagraph({
-    Name = "Status",
-    Content = "OFF"
-})
-
-task.spawn(function()
-    while true do
-        task.wait(0.5)
-        local LP = game.Players.LocalPlayer
-        local folder = workspace:FindFirstChild("Enemies")
-        if folder then
-            local total, owned, anchored = 0, 0, 0
-            for _, e in ipairs(folder:GetChildren()) do
-                if e:IsA("Model") then
-                    local hrp = e:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        total = total + 1
-                        if hrp:GetNetworkOwner() == LP then owned = owned + 1 end
-                        if hrp.Anchored then anchored = anchored + 1 end
-                    end
-                end
-            end
-            _StatusLabel:SetText(string.format(
-                "Total: %d | Owner: %d | Anchored: %d",
-                total, owned, anchored
-            ))
-        end
-    end
-end)
