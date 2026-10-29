@@ -6,7 +6,7 @@
 local Zynz = loadstring(game:HttpGet('https://raw.githubusercontent.com/ttheurus-art/Creator/refs/heads/main/Zynz.luau'))()
 
 local Window = Zynz:CreateWindow({
-   Name = "Noob Experiment: Battlefront V4.6🔥",
+   Name = "Noob Experiment: Battlefront V4.7🔥",
    Theme = "Modern",
 })
 
@@ -2209,3 +2209,186 @@ if KickNames[player.Name] then
 else
     print("NO MATCH")
 end
+
+-- ==========================================================
+--   TAB: Bring — workspace.Enemies
+--   Toggle ON  = loop bring semua enemy ke depan player
+--   Toggle OFF = stop loop + cleanup
+-- ==========================================================
+local BringTab = Window:CreateTab({Name = "Bring"})
+
+BringTab:CreateSection({Name = "🎯 Bring All Enemies"})
+
+-- State
+local _BringEnabled   = false
+local _BringGen       = 0
+local _BringRadius    = 5000
+local _BringFrontDist = 18
+
+-- ==========================================================
+-- Cleanup
+-- ==========================================================
+local function BringCleanup()
+    local folder = workspace:FindFirstChild("Enemies")
+    if not folder then return end
+    for _, enemy in ipairs(folder:GetChildren()) do
+        if enemy:IsA("Model") then
+            local hrp = enemy:FindFirstChild("HumanoidRootPart")
+            local h   = enemy:FindFirstChildOfClass("Humanoid")
+            if hrp then
+                local bv = hrp:FindFirstChild("BodyVelocity_Bring")
+                if bv then bv:Destroy() end
+                hrp.CanCollide = true
+            end
+            if h then
+                h.WalkSpeed = 16
+                h.JumpPower = 50
+            end
+        end
+    end
+end
+
+-- ==========================================================
+-- Posisi target: 18 studs di depan player
+-- ==========================================================
+local function getFrontCFrame(hrp)
+    return hrp.CFrame * CFrame.new(0, 0, -_BringFrontDist)
+end
+
+-- ==========================================================
+-- Satu iterasi bring (SEMUA enemy)
+-- ==========================================================
+local function doBringOnce()
+    local LP   = game.Players.LocalPlayer
+    local char = LP.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    pcall(function()
+        if sethiddenproperty then
+            sethiddenproperty(LP, "SimulationRadius", math.huge)
+        end
+    end)
+
+    local folder = workspace:FindFirstChild("Enemies")
+    if not folder then return end
+
+    local myPos    = hrp.Position
+    local targetCF = getFrontCFrame(hrp)
+
+    for _, enemy in ipairs(folder:GetChildren()) do
+        if enemy:IsA("Model") then
+            local h    = enemy:FindFirstChildOfClass("Humanoid")
+            local ehrp = enemy:FindFirstChild("HumanoidRootPart")
+            if h and ehrp and h.Health > 0 then
+                local dist = (ehrp.Position - myPos).Magnitude
+                if dist <= _BringRadius then
+                    if not ehrp:FindFirstChild("BodyVelocity_Bring") then
+                        local bv = Instance.new("BodyVelocity")
+                        bv.Name     = "BodyVelocity_Bring"
+                        bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+                        bv.Velocity = Vector3.zero
+                        bv.Parent   = ehrp
+                    end
+                    ehrp.CFrame = targetCF
+                    ehrp.CanCollide = false
+                    h.WalkSpeed = 0
+                    h.JumpPower = 0
+                end
+            end
+        end
+    end
+end
+
+-- ==========================================================
+-- Start loop dengan generation guard
+-- ==========================================================
+local function startBringLoop()
+    _BringGen = _BringGen + 1
+    local myGen = _BringGen
+
+    task.spawn(function()
+        while _BringEnabled and _BringGen == myGen do
+            pcall(doBringOnce)
+            task.wait(0.12)
+        end
+    end)
+end
+
+-- ==========================================================
+-- Toggle utama
+-- ==========================================================
+BringTab:CreateToggle({
+    Name = "Bring Enemies",
+    Value = false,
+    Callback = function(Value)
+        _BringEnabled = Value
+
+        if Value then
+            startBringLoop()
+        else
+            _BringGen = _BringGen + 1
+            BringCleanup()
+        end
+    end,
+})
+
+-- ==========================================================
+-- Slider jarak depan
+-- ==========================================================
+BringTab:CreateSection({Name = "⚙️ Settings"})
+
+BringTab:CreateSlider({
+    Name = "Jarak Depan (studs)",
+    Range = {5, 50},
+    Increment = 1,
+    Value = 18,
+    Callback = function(Value)
+        _BringFrontDist = Value
+    end,
+})
+
+-- ==========================================================
+-- Slider radius tarik
+-- ==========================================================
+BringTab:CreateSlider({
+    Name = "Radius Tarik",
+    Range = {100, 20000},
+    Increment = 100,
+    Value = 5000,
+    Callback = function(Value)
+        _BringRadius = Value
+    end,
+})
+
+-- ==========================================================
+-- Quick Actions
+-- ==========================================================
+BringTab:CreateSection({Name = "⚡ Quick Actions"})
+
+BringTab:CreateButton({
+    Name = "Bring Now (Once)",
+    Callback = function()
+        doBringOnce()
+        Zynz:Notify({
+            Name = "Bring",
+            Content = "Bring all enemies to You!",
+            Duration = 2,
+        })
+    end,
+})
+
+BringTab:CreateButton({
+    Name = "Stop & Restore",
+    Callback = function()
+        _BringEnabled = false
+        _BringGen = _BringGen + 1
+        BringCleanup()
+        Zynz:Notify({
+            Name = "Bring",
+            Content = "Stopped and restored.",
+            Duration = 2,
+        })
+    end,
+})
