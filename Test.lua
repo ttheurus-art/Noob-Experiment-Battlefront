@@ -2211,19 +2211,21 @@ else
 end
 
 -- ==========================================================
---   TAB: Bring — SERVER-SIDE (Network Ownership)
---   workspace.Enemies
+--   TAB: Bring — FORCE (Banana Method + Nuclear Fallback)
+--   Lapis 1: Banana (sethiddenproperty + auto-assign check)
+--   Lapis 2: Force SetNetworkOwner
+--   Lapis 3: WeldConstraint (nuclear - pasti replicate)
 -- ==========================================================
-local BringTab = Window:CreateTab({Name = "Bring Enemy"})
+local BringTab = Window:CreateTab({Name = "Bring"})
 
-BringTab:CreateSection({Name = "🎯 Bring (Server-Side)"})
+BringTab:CreateSection({Name = "🎯 Bring (Force Lock)"})
 
 -- State
 local _BringEnabled   = false
 local _BringGen       = 0
 local _BringRadius    = 5000
 local _BringFrontDist = 18
-local _BringInterval  = 0.03   -- lebih cepat dari sebelumnya (was 0.12)
+local _BringMethod    = "Auto"   -- "Auto" / "Banana" / "Force" / "Nuclear"
 
 -- ==========================================================
 -- Cleanup
@@ -2236,32 +2238,167 @@ local function BringCleanup()
             local hrp = enemy:FindFirstChild("HumanoidRootPart")
             local h   = enemy:FindFirstChildOfClass("Humanoid")
             if hrp then
-                local bv = hrp:FindFirstChild("BodyVelocity_Bring")
-                if bv then bv:Destroy() end
-                local bp = hrp:FindFirstChild("BodyPosition_Bring")
-                if bp then bp:Destroy() end
+                -- Hapus semua constraint
+                for _, name in ipairs({
+                    "BodyVelocity_Bring", "BodyPosition_Bring",
+                    "AlignPosition_Bring", "AlignOrientation_Bring",
+                    "BringAttachment",
+                }) do
+                    local c = hrp:FindFirstChild(name)
+                    if c then c:Destroy() end
+                end
                 hrp.CanCollide = true
-                pcall(function() hrp:SetNetworkOwner(nil) end)  -- kembalikan ke server
+                pcall(function() hrp:SetNetworkOwner(nil) end)
             end
             if h then
                 h.WalkSpeed = 16
                 h.JumpPower = 50
+            end
+            -- Hapus weld dari player
+            local LP = game.Players.LocalPlayer
+            if LP.Character then
+                local hrpPlayer = LP.Character:FindFirstChild("HumanoidRootPart")
+                if hrpPlayer then
+                    local weld = hrpPlayer:FindFirstChild("BringWeld_" .. enemy.Name)
+                    if weld then weld:Destroy() end
+                end
             end
         end
     end
 end
 
 -- ==========================================================
--- Server-side bring (SetNetworkOwner + CFrame + BodyPosition)
+-- Banana guard (dari script Banana)
 -- ==========================================================
-local function serverBringOnce()
+local function bananaCanTeleport(hrp)
+    -- Kalau ada isnetworkowner, cek itu
+    if isnetworkowner then
+        local ok, result = pcall(isnetworkowner, hrp)
+        if ok then return result end
+    end
+    -- Fallback: cek ReceiveAge (fresh dari server) + unanchored + moving
+    return hrp.ReceiveAge == 0
+       and not hrp.Anchored
+       and hrp.AssemblyLinearVelocity.Magnitude > 0
+end
+
+-- ==========================================================
+-- LAPIS 1: Banana method (paling akurat untuk Blox Fruits)
+-- ==========================================================
+local function bananaBring(ehrp, h, targetCF)
+    -- Pasang BodyVelocity biar nggak kabur
+    if not ehrp:FindFirstChild("BodyVelocity_Bring") then
+        local bv = Instance.new("BodyVelocity")
+        bv.Name     = "BodyVelocity_Bring"
+        bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+        bv.Velocity = Vector3.zero
+        bv.Parent   = ehrp
+    end
+
+    -- Cuma teleport kalau lolos guard (Banana behavior)
+    if bananaCanTeleport(ehrp) then
+        ehrp.CFrame = targetCF
+    end
+
+    ehrp.CanCollide = false
+    h.WalkSpeed = 0
+    h.JumpPower = 0
+end
+
+-- ==========================================================
+-- LAPIS 2: Force ownership + CFrame
+-- ==========================================================
+local function forceBring(ehrp, h, targetCF, LP)
+    -- Coba unanchor dulu
+    if ehrp.Anchored then
+        pcall(function() ehrp.Anchored = false end)
+    end
+
+    -- Paksa ambil ownership
+    pcall(function() ehrp:SetNetworkOwner(LP) end)
+
+    -- Cek ownership berhasil?
+    local owner = ehrp:GetNetworkOwner()
+    local gotOwner = (owner == LP)
+
+    -- Set CFrame (kalau owner, ini bakal stick di server)
+    ehrp.CFrame = targetCF
+    ehrp.AssemblyLinearVelocity  = Vector3.zero
+    ehrp.AssemblyAngularVelocity = Vector3.zero
+
+    -- BodyVelocity anti-drift
+    local bv = ehrp:FindFirstChild("BodyVelocity_Bring")
+    if not bv then
+        bv = Instance.new("BodyVelocity")
+        bv.Name     = "BodyVelocity_Bring"
+        bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+        bv.Velocity = Vector3.zero
+        bv.Parent   = ehrp
+    end
+
+    ehrp.CanCollide = false
+    h.WalkSpeed = 0
+    h.JumpPower = 0
+
+    return gotOwner
+end
+
+-- ==========================================================
+-- LAPIS 3: Nuclear — WeldConstraint (pasti replicate)
+-- ==========================================================
+local function nuclearBring(ehrp, h, targetCF, LP, playerHRP)
+    -- 1. Unanchor + set CFrame untuk sync awal
+    pcall(function() ehrp.Anchored = false end)
+    pcall(function() ehrp:SetNetworkOwner(LP) end)
+    ehrp.CFrame = targetCF
+    ehrp.AssemblyLinearVelocity  = Vector3.zero
+    ehrp.AssemblyAngularVelocity = Vector3.zero
+
+    -- 2. BodyVelocity freeze
+    if not ehrp:FindFirstChild("BodyVelocity_Bring") then
+        local bv = Instance.new("BodyVelocity")
+        bv.Name     = "BodyVelocity_Bring"
+        bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+        bv.Velocity = Vector3.zero
+        bv.Parent   = ehrp
+    end
+
+    -- 3. WeldConstraint: parent ke PLAYER (client-owned)
+    -- Ini yang paksa server lihat enemy ikut player
+    local enemyName = ehrp.Parent and ehrp.Parent.Name or "Enemy"
+    local weldName  = "BringWeld_" .. enemyName
+    local weld = playerHRP:FindFirstChild(weldName)
+    if not weld then
+        weld = Instance.new("WeldConstraint")
+        weld.Name   = weldName
+        weld.Part0  = playerHRP
+        weld.Part1  = ehrp
+        weld.Parent = playerHRP
+    else
+        -- Pastiin masih terhubung
+        weld.Part0 = playerHRP
+        weld.Part1 = ehrp
+    end
+
+    -- 4. Freeze humanoid
+    ehrp.CanCollide = false
+    h.WalkSpeed = 0
+    h.JumpPower = 0
+end
+
+-- ==========================================================
+-- Main bring loop
+-- ==========================================================
+local function bringOnce()
     local LP   = game.Players.LocalPlayer
     local char = LP.Character
     if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
 
-    -- Paksa server load enemy jauh (WAJIB untuk server-side)
+    -- ⚡ KUNCI UTAMA Banana: SimulationRadius = infinity
+    -- Ini bikin server KIRIM semua enemy ke client (bahkan yang jauh)
+    -- Tanpa ini, client nggak bisa sentuh enemy di luar radius streaming
     pcall(function()
         if sethiddenproperty then
             sethiddenproperty(LP, "SimulationRadius", math.huge)
@@ -2281,36 +2418,25 @@ local function serverBringOnce()
             if h and ehrp and h.Health > 0 then
                 local dist = (ehrp.Position - myPos).Magnitude
                 if dist <= _BringRadius then
-                    -- ⚡ STEP 1: Ambil alih network ownership
-                    -- Ini yang bikin CFrame kita di-ACCEPT oleh server
-                    pcall(function()
-                        ehrp:SetNetworkOwner(LP)
-                    end)
+                    if _BringMethod == "Banana" then
+                        bananaBring(ehrp, h, targetCF)
+                    elseif _BringMethod == "Force" then
+                        forceBring(ehrp, h, targetCF, LP)
+                    elseif _BringMethod == "Nuclear" then
+                        nuclearBring(ehrp, h, targetCF, LP, hrp)
+                    else
+                        -- AUTO: coba semua berurutan
+                        -- Lapis 1: Banana (ringan, no exploit-ish)
+                        bananaBring(ehrp, h, targetCF)
 
-                    -- ⚡ STEP 2: Set posisi (sekarang server akan terima)
-                    ehrp.CFrame = targetCF
+                        -- Lapis 2: Force ownership
+                        local gotOwner = forceBring(ehrp, h, targetCF, LP)
 
-                    -- ⚡ STEP 3: Nol velocity biar nggak jitter
-                    ehrp.AssemblyLinearVelocity  = Vector3.zero
-                    ehrp.AssemblyAngularVelocity = Vector3.zero
-
-                    -- ⚡ STEP 4: BodyPosition untuk stabilisasi
-                    -- (jaga-jaga kalau server reset posisi)
-                    local bp = ehrp:FindFirstChild("BodyPosition_Bring")
-                    if not bp then
-                        bp = Instance.new("BodyPosition")
-                        bp.Name     = "BodyPosition_Bring"
-                        bp.MaxForce = Vector3.new(1e9, 1e9, 1e9)
-                        bp.P        = 10000
-                        bp.D        = 1000
-                        bp.Parent   = ehrp
+                        -- Lapis 3: Kalau masih gagal, weld (nuclear)
+                        if not gotOwner then
+                            nuclearBring(ehrp, h, targetCF, LP, hrp)
+                        end
                     end
-                    bp.Position = targetCF.Position
-
-                    -- Bekukan humanoid
-                    h.WalkSpeed = 0
-                    h.JumpPower = 0
-                    ehrp.CanCollide = false
                 end
             end
         end
@@ -2318,29 +2444,27 @@ local function serverBringOnce()
 end
 
 -- ==========================================================
--- Start loop
+-- Loop driver
 -- ==========================================================
 local function startBringLoop()
     _BringGen = _BringGen + 1
     local myGen = _BringGen
-
     task.spawn(function()
         while _BringEnabled and _BringGen == myGen do
-            pcall(serverBringOnce)
-            task.wait(_BringInterval)
+            pcall(bringOnce)
+            task.wait(0.05)   -- 20 Hz, cukup smooth
         end
     end)
 end
 
 -- ==========================================================
--- Toggle utama
+-- UI
 -- ==========================================================
 BringTab:CreateToggle({
-    Name = "Bring (Server-Side)",
+    Name = "Bring (Force Lock)",
     Value = false,
     Callback = function(Value)
         _BringEnabled = Value
-
         if Value then
             startBringLoop()
         else
@@ -2350,10 +2474,23 @@ BringTab:CreateToggle({
     end,
 })
 
--- ==========================================================
--- Settings
--- ==========================================================
-BringTab:CreateSection({Name = "⚙️ Settings"})
+BringTab:CreateSection({Name = "⚙️ Method"})
+
+BringTab:CreateDropdown({
+    Name = "Bring Method",
+    Options = {"Auto", "Banana", "Force", "Nuclear"},
+    CurrentOption = "Auto",
+    Callback = function(Option)
+        _BringMethod = Option
+    end,
+})
+
+BringTab:CreateParagraph({
+    Name = "Method Guide",
+    Content = "Auto    = Banana → Force → Weld (coba semua)\nBanana  = persis Banana script (ringan)\nForce   = SetNetworkOwner + CFrame\nNuclear = WeldConstraint (pasti replicate, tapi berat)",
+})
+
+BringTab:CreateSection({Name = "📏 Settings"})
 
 BringTab:CreateSlider({
     Name = "Jarak Depan (studs)",
@@ -2371,29 +2508,77 @@ BringTab:CreateSlider({
     Callback = function(Value) _BringRadius = Value end,
 })
 
-BringTab:CreateSlider({
-    Name = "Update Interval (detik × 100)",
-    Range = {1, 30},
-    Increment = 1,
-    Value = 3,   -- 0.03 detik
-    Callback = function(Value)
-        _BringInterval = Value / 100
+-- ==========================================================
+-- Diagnostics
+-- ==========================================================
+BringTab:CreateSection({Name = "🔍 Diagnostic"})
+
+BringTab:CreateButton({
+    Name = "Check Status (Owner / Weld / Anchor)",
+    Callback = function()
+        local LP = game.Players.LocalPlayer
+        local folder = workspace:FindFirstChild("Enemies")
+        if not folder then
+            Zynz:Notify({Name = "Diagnostic", Content = "workspace.Enemies tidak ada", Duration = 3})
+            return
+        end
+
+        local total, owned, welded, anchored, locked = 0, 0, 0, 0, 0
+        for _, e in ipairs(folder:GetChildren()) do
+            if e:IsA("Model") then
+                local ehrp = e:FindFirstChild("HumanoidRootPart")
+                if ehrp then
+                    total = total + 1
+                    if ehrp.Anchored then anchored = anchored + 1 end
+                    local owner = ehrp:GetNetworkOwner()
+                    if owner == LP then owned = owned + 1 end
+                    if ehrp:CanSetNetworkOwnership and not ehrp:CanSetNetworkOwnership() then
+                        locked = locked + 1
+                    end
+                    if LP.Character then
+                        local hrpP = LP.Character:FindFirstChild("HumanoidRootPart")
+                        if hrpP and hrpP:FindFirstChild("BringWeld_" .. e.Name) then
+                            welded = welded + 1
+                        end
+                    end
+                end
+            end
+        end
+
+        local msg = string.format(
+            "Total: %d | Owner: %d | Weld: %d | Anchor: %d | Locked: %d",
+            total, owned, welded, anchored, locked
+        )
+        print("[Bring Diagnostic] " .. msg)
+        Zynz:Notify({
+            Name = "Diagnostic",
+            Content = msg .. "\n(lihat Console F9 untuk detail)",
+            Duration = 6,
+        })
     end,
 })
 
--- ==========================================================
--- Quick Actions
--- ==========================================================
-BringTab:CreateSection({Name = "⚡ Quick Actions"})
-
 BringTab:CreateButton({
-    Name = "Bring Now (Server)",
+    Name = "Force Unlock Semua (Aggressive)",
     Callback = function()
-        serverBringOnce()
+        local LP = game.Players.LocalPlayer
+        local folder = workspace:FindFirstChild("Enemies")
+        if not folder then return end
+        local count = 0
+        for _, e in ipairs(folder:GetChildren()) do
+            if e:IsA("Model") then
+                local ehrp = e:FindFirstChild("HumanoidRootPart")
+                if ehrp then
+                    pcall(function() ehrp.Anchored = false end)
+                    pcall(function() ehrp:SetNetworkOwner(LP) end)
+                    count = count + 1
+                end
+            end
+        end
         Zynz:Notify({
-            Name = "Bring",
-            Content = "Server-side bring executed!",
-            Duration = 2,
+            Name = "Force Unlock",
+            Content = count .. " enemy di-unlock & di-claim",
+            Duration = 3,
         })
     end,
 })
@@ -2406,7 +2591,7 @@ BringTab:CreateButton({
         BringCleanup()
         Zynz:Notify({
             Name = "Bring",
-            Content = "Stopped. Network ownership returned to server.",
+            Content = "Stopped & cleaned.",
             Duration = 2,
         })
     end,
