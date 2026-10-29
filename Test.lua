@@ -2211,19 +2211,19 @@ else
 end
 
 -- ==========================================================
---   TAB: Bring — workspace.Enemies
---   Toggle ON  = loop bring semua enemy ke depan player
---   Toggle OFF = stop loop + cleanup
+--   TAB: Bring — SERVER-SIDE (Network Ownership)
+--   workspace.Enemies
 -- ==========================================================
-local BringTab = Window:CreateTab({Name = "Bring"})
+local BringTab = Window:CreateTab({Name = "Bring Enemy"})
 
-BringTab:CreateSection({Name = "🎯 Bring All Enemies"})
+BringTab:CreateSection({Name = "🎯 Bring (Server-Side)"})
 
 -- State
 local _BringEnabled   = false
 local _BringGen       = 0
 local _BringRadius    = 5000
 local _BringFrontDist = 18
+local _BringInterval  = 0.03   -- lebih cepat dari sebelumnya (was 0.12)
 
 -- ==========================================================
 -- Cleanup
@@ -2238,7 +2238,10 @@ local function BringCleanup()
             if hrp then
                 local bv = hrp:FindFirstChild("BodyVelocity_Bring")
                 if bv then bv:Destroy() end
+                local bp = hrp:FindFirstChild("BodyPosition_Bring")
+                if bp then bp:Destroy() end
                 hrp.CanCollide = true
+                pcall(function() hrp:SetNetworkOwner(nil) end)  -- kembalikan ke server
             end
             if h then
                 h.WalkSpeed = 16
@@ -2249,22 +2252,16 @@ local function BringCleanup()
 end
 
 -- ==========================================================
--- Posisi target: 18 studs di depan player
+-- Server-side bring (SetNetworkOwner + CFrame + BodyPosition)
 -- ==========================================================
-local function getFrontCFrame(hrp)
-    return hrp.CFrame * CFrame.new(0, 0, -_BringFrontDist)
-end
-
--- ==========================================================
--- Satu iterasi bring (SEMUA enemy)
--- ==========================================================
-local function doBringOnce()
+local function serverBringOnce()
     local LP   = game.Players.LocalPlayer
     local char = LP.Character
     if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
 
+    -- Paksa server load enemy jauh (WAJIB untuk server-side)
     pcall(function()
         if sethiddenproperty then
             sethiddenproperty(LP, "SimulationRadius", math.huge)
@@ -2275,7 +2272,7 @@ local function doBringOnce()
     if not folder then return end
 
     local myPos    = hrp.Position
-    local targetCF = getFrontCFrame(hrp)
+    local targetCF = hrp.CFrame * CFrame.new(0, 0, -_BringFrontDist)
 
     for _, enemy in ipairs(folder:GetChildren()) do
         if enemy:IsA("Model") then
@@ -2284,17 +2281,36 @@ local function doBringOnce()
             if h and ehrp and h.Health > 0 then
                 local dist = (ehrp.Position - myPos).Magnitude
                 if dist <= _BringRadius then
-                    if not ehrp:FindFirstChild("BodyVelocity_Bring") then
-                        local bv = Instance.new("BodyVelocity")
-                        bv.Name     = "BodyVelocity_Bring"
-                        bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
-                        bv.Velocity = Vector3.zero
-                        bv.Parent   = ehrp
-                    end
+                    -- ⚡ STEP 1: Ambil alih network ownership
+                    -- Ini yang bikin CFrame kita di-ACCEPT oleh server
+                    pcall(function()
+                        ehrp:SetNetworkOwner(LP)
+                    end)
+
+                    -- ⚡ STEP 2: Set posisi (sekarang server akan terima)
                     ehrp.CFrame = targetCF
-                    ehrp.CanCollide = false
+
+                    -- ⚡ STEP 3: Nol velocity biar nggak jitter
+                    ehrp.AssemblyLinearVelocity  = Vector3.zero
+                    ehrp.AssemblyAngularVelocity = Vector3.zero
+
+                    -- ⚡ STEP 4: BodyPosition untuk stabilisasi
+                    -- (jaga-jaga kalau server reset posisi)
+                    local bp = ehrp:FindFirstChild("BodyPosition_Bring")
+                    if not bp then
+                        bp = Instance.new("BodyPosition")
+                        bp.Name     = "BodyPosition_Bring"
+                        bp.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+                        bp.P        = 10000
+                        bp.D        = 1000
+                        bp.Parent   = ehrp
+                    end
+                    bp.Position = targetCF.Position
+
+                    -- Bekukan humanoid
                     h.WalkSpeed = 0
                     h.JumpPower = 0
+                    ehrp.CanCollide = false
                 end
             end
         end
@@ -2302,7 +2318,7 @@ local function doBringOnce()
 end
 
 -- ==========================================================
--- Start loop dengan generation guard
+-- Start loop
 -- ==========================================================
 local function startBringLoop()
     _BringGen = _BringGen + 1
@@ -2310,8 +2326,8 @@ local function startBringLoop()
 
     task.spawn(function()
         while _BringEnabled and _BringGen == myGen do
-            pcall(doBringOnce)
-            task.wait(0.12)
+            pcall(serverBringOnce)
+            task.wait(_BringInterval)
         end
     end)
 end
@@ -2320,7 +2336,7 @@ end
 -- Toggle utama
 -- ==========================================================
 BringTab:CreateToggle({
-    Name = "Bring Enemies",
+    Name = "Bring (Server-Side)",
     Value = false,
     Callback = function(Value)
         _BringEnabled = Value
@@ -2335,7 +2351,7 @@ BringTab:CreateToggle({
 })
 
 -- ==========================================================
--- Slider jarak depan
+-- Settings
 -- ==========================================================
 BringTab:CreateSection({Name = "⚙️ Settings"})
 
@@ -2344,21 +2360,24 @@ BringTab:CreateSlider({
     Range = {5, 50},
     Increment = 1,
     Value = 18,
-    Callback = function(Value)
-        _BringFrontDist = Value
-    end,
+    Callback = function(Value) _BringFrontDist = Value end,
 })
 
--- ==========================================================
--- Slider radius tarik
--- ==========================================================
 BringTab:CreateSlider({
     Name = "Radius Tarik",
     Range = {100, 20000},
     Increment = 100,
     Value = 5000,
+    Callback = function(Value) _BringRadius = Value end,
+})
+
+BringTab:CreateSlider({
+    Name = "Update Interval (detik × 100)",
+    Range = {1, 30},
+    Increment = 1,
+    Value = 3,   -- 0.03 detik
     Callback = function(Value)
-        _BringRadius = Value
+        _BringInterval = Value / 100
     end,
 })
 
@@ -2368,12 +2387,12 @@ BringTab:CreateSlider({
 BringTab:CreateSection({Name = "⚡ Quick Actions"})
 
 BringTab:CreateButton({
-    Name = "Bring Now (Once)",
+    Name = "Bring Now (Server)",
     Callback = function()
-        doBringOnce()
+        serverBringOnce()
         Zynz:Notify({
             Name = "Bring",
-            Content = "Bring all enemies to You!",
+            Content = "Server-side bring executed!",
             Duration = 2,
         })
     end,
@@ -2387,7 +2406,7 @@ BringTab:CreateButton({
         BringCleanup()
         Zynz:Notify({
             Name = "Bring",
-            Content = "Stopped and restored.",
+            Content = "Stopped. Network ownership returned to server.",
             Duration = 2,
         })
     end,
