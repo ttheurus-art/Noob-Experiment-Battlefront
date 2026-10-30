@@ -133,7 +133,7 @@ local function UpdateParagraph()
         local xtreme = charsBought and charsBought:FindFirstChild("X-TREME")
 
         if xtreme and xtreme:IsA("BoolValue") and xtreme.Value == true then
-            if player.Name == "kinds_eye" or player.Name == "Player_Yusup" then
+            if player.Name == "kinds_eye" or player.Name == "player_yusup" then
                 table.insert(result, player.Name .. " (🔥OWNER SCRIPT🔥)")
             else
                 table.insert(result, player.Name)
