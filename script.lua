@@ -875,143 +875,6 @@ MainTab:CreateToggle({
 local MainTab = Window:CreateTab("Fun", nil)
 local MainSection = MainTab:CreateSection("I dont know what I make")
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
-local player = Players.LocalPlayer
-
-local RagdollSpinRunning = false
-local SpinSpeed = 99
-local MinImpulse = 900
-local MaxImpulse = 3500
-local FlingCooldown = 0.3
-
-local TouchConnections = {}
-local LastFling = 0
-
-local function DisconnectTouches()
-    for _, connection in ipairs(TouchConnections) do
-        connection:Disconnect()
-    end
-
-    table.clear(TouchConnections)
-end
-
-local function StartRagdoll(character)
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-
-    if humanoid then
-        humanoid.AutoRotate = false
-        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    end
-end
-
-local function StopRagdoll(character)
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-
-    if humanoid then
-        humanoid.AutoRotate = true
-        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-    end
-end
-
-local function FlingCharacter(character)
-    local root = character:FindFirstChild("HumanoidRootPart")
-
-    if not root then
-        return
-    end
-
-    local now = os.clock()
-
-    if now - LastFling < FlingCooldown then
-        return
-    end
-
-    LastFling = now
-
-    local direction = Vector3.new(
-        math.random(-100, 100) / 100,
-        math.random(20, 40) / 100,
-        math.random(-100, 100) / 100
-    )
-
-    if direction.Magnitude < 0.1 then
-        direction = Vector3.new(1, 0.3, 0)
-    end
-
-    direction = direction.Unit
-
-    local impulse = math.random(MinImpulse, MaxImpulse)
-
-    root:ApplyImpulse(
-        direction * impulse * root.AssemblyMass
-    )
-end
-
-local function SetupTouchDetection(character)
-    DisconnectTouches()
-
-    for _, part in ipairs(character:GetDescendants()) do
-        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-            table.insert(TouchConnections, part.Touched:Connect(function(hit)
-                if not RagdollSpinRunning then
-                    return
-                end
-
-                if not hit or hit:IsDescendantOf(character) then
-                    return
-                end
-
-                FlingCharacter(character)
-            end))
-        end
-    end
-end
-
-MainTab:CreateToggle({
-    Name = "I CALL IT SLINGINGING",
-    CurrentValue = false,
-    Flag = "RagdollSpinFling",
-
-    Callback = function(Value)
-        RagdollSpinRunning = Value
-
-        local character = player.Character
-        if not character then
-            return
-        end
-
-        if not Value then
-            DisconnectTouches()
-            StopRagdoll(character)
-            return
-        end
-
-        StartRagdoll(character)
-        SetupTouchDetection(character)
-
-        task.spawn(function()
-            while RagdollSpinRunning do
-                local currentCharacter = player.Character
-                local root = currentCharacter
-                    and currentCharacter:FindFirstChild("HumanoidRootPart")
-
-                if root then
-                    root.AssemblyAngularVelocity = Vector3.new(
-                        0,
-                        SpinSpeed,
-                        0
-                    )
-                end
-
-                RunService.Heartbeat:Wait()
-            end
-        end)
-    end,
-})
-
-
 --// AUTO BUY/USE BLOXXER CANNON
 
 local Players = game:GetService("Players")
@@ -1180,6 +1043,144 @@ MainTab:CreateToggle({
             end
         end)
     end
+})
+
+--//slinginging
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+local RagdollSpinRunning = false
+local SpinSpeed = 99
+local MinImpulse = 900
+local MaxImpulse = 3500
+local FlingCooldown = 0.3
+
+local TouchConnections = {}
+local LastFling = 0
+
+local function DisconnectTouches()
+    for _, connection in ipairs(TouchConnections) do
+        connection:Disconnect()
+    end
+
+    table.clear(TouchConnections)
+end
+
+local function StartRagdoll(character)
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+        humanoid.AutoRotate = false
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+    end
+end
+
+local function StopRagdoll(character)
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+        humanoid.AutoRotate = true
+        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+    end
+end
+
+local function FlingCharacter(character)
+    local root = character:FindFirstChild("HumanoidRootPart")
+
+    if not root then
+        return
+    end
+
+    local now = os.clock()
+
+    if now - LastFling < FlingCooldown then
+        return
+    end
+
+    LastFling = now
+
+    local direction = Vector3.new(
+        math.random(-100, 100) / 100,
+        math.random(20, 40) / 100,
+        math.random(-100, 100) / 100
+    )
+
+    if direction.Magnitude < 0.1 then
+        direction = Vector3.new(1, 0.3, 0)
+    end
+
+    direction = direction.Unit
+
+    local impulse = math.random(MinImpulse, MaxImpulse)
+
+    root:ApplyImpulse(
+        direction * impulse * root.AssemblyMass
+    )
+end
+
+local function SetupTouchDetection(character)
+    DisconnectTouches()
+
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+            table.insert(TouchConnections, part.Touched:Connect(function(hit)
+                if not RagdollSpinRunning then
+                    return
+                end
+
+                if not hit or hit:IsDescendantOf(character) then
+                    return
+                end
+
+                FlingCharacter(character)
+            end))
+		end
+	end
+end
+
+MainTab:CreateToggle({
+    Name = "I CALL IT SLINGINGING",
+    CurrentValue = false,
+    Flag = "RagdollSpinFling",
+
+    Callback = function(Value)
+        RagdollSpinRunning = Value
+
+        local character = player.Character
+        if not character then
+            return
+        end
+
+        if not Value then
+            DisconnectTouches()
+            StopRagdoll(character)
+            return
+        end
+
+        StartRagdoll(character)
+        SetupTouchDetection(character)
+
+        task.spawn(function()
+            while RagdollSpinRunning do
+                local currentCharacter = player.Character
+                local root = currentCharacter
+                    and currentCharacter:FindFirstChild("HumanoidRootPart")
+
+                if root then
+                    root.AssemblyAngularVelocity = Vector3.new(
+                        0,
+                        SpinSpeed,
+                        0
+                    )
+                end
+
+                RunService.Heartbeat:Wait()
+            end
+        end)
+    end,
 })
 
 
