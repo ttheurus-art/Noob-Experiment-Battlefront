@@ -1,3 +1,8 @@
+--// so guys I add -> "--//" for every part of the script so everyone know where, and I make it just not to confuse myself lol
+
+
+
+
 --[[
 	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
 ]]
