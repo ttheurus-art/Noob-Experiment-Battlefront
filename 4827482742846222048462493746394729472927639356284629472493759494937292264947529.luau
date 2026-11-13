@@ -40,7 +40,7 @@ local MinigameRunId = 0
 local FrozenScanId = 0
 
 local ScriptURL =
-    "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/autotimeessenc"
+    "https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/4827482742846222048462493746394729472927639356284629472493759494937292264947529.luau"
 
 --==================================================
 -- HELPERS
