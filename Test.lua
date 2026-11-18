@@ -23,11 +23,11 @@ p2.CanCollide = true
 p2.Transparency = 1
 p2.Parent = workspace
 
+--// Detect All Currency
+
 local Tab1 = Window:CreateTab({
     Name = "Stats"
 })
-
---// Detect All Currency
 
 local MoneyDisplay = MainTab:CreateParagraph({
     Title = "Currency💵",
