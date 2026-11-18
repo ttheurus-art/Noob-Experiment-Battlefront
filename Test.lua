@@ -1,6 +1,6 @@
 --// so guys I add -> "--//" for every part of the script so everyone know where, and I make it just not to confuse myself lol
 
-local Zynz = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Creator/refs/heads/main/Zynz.luau"))()
+local Zynz = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Zynz-Library/refs/heads/main/Zynz.luau"))()
 
 local Window = Zynz:CreateWindow({
     Name = "Zynz Library Test",
