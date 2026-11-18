@@ -1,45 +1,10 @@
 --// so guys I add -> "--//" for every part of the script so everyone know where, and I make it just not to confuse myself lol
 
+local Zynz = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Creator/refs/heads/main/Zynz.luau"))()
 
-
-
---[[
-	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
-]]
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
-local Window = Rayfield:CreateWindow({
-   Name = "Noob Experiment: Battlefront V4.6🔥",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "The Best Noob Experiment: Battlefront",
-   LoadingSubtitle = "By: Theurus_The_Creator",
-   Theme = "Ocean", -- Check https://docs.sirius.menu/rayfield/configuration/themes
-
-   DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
-
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
-      FileName = "FunscriptsGuiFF1"
-   },
-
-   Discord = {
-      Enabled = true, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "https://discord.gg/85cMYuy4J", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
-   },
-
-   KeySystem = false, -- Set this to true to use our key system
-   KeySettings = {
-      Title = "Key System",
-      Subtitle = "To Verify your not a bot, Please type: Key1109888",
-      Note = "Key is required to continue!", -- Use this to tell the user how to get a key
-      FileName = "Keyforent1r11", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-      SaveKey = false, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"Key1109888"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
-   }
+local Window = Zynz:CreateWindow({
+    Name = "Zynz Library Test",
+    MainTabTheme = "ScriptFault"
 })
 
 local p = Instance.new("Part")
@@ -58,9 +23,11 @@ p2.CanCollide = true
 p2.Transparency = 1
 p2.Parent = workspace
 
---// Detect All Currency
+local Tab1 = Window:CreateTab({
+    Name = "Stats"
+})
 
-local MainTab = Window:CreateTab("Stats", nil)
+--// Detect All Currency
 
 local MoneyDisplay = MainTab:CreateParagraph({
     Title = "Currency💵",
@@ -87,7 +54,7 @@ task.spawn(function()
                 .. "\nMoney: " .. moneyAmount.Text
         })
 
-        task.wait(0.2)
+        task.wait(0.1)
     end
 end)
 
@@ -121,7 +88,6 @@ task.spawn(function()
 end)
 
 --// Detect Player That Use This Script
-
 
 local Players = game:GetService("Players")
 
@@ -160,7 +126,6 @@ task.spawn(function()
         task.wait(0.5)
     end
 end)
-
 
 --// Detect Morph That Exist In Battlefield
 
@@ -206,209 +171,194 @@ task.spawn(function()
     end
 end)
 
-local MainTab = Window:CreateTab("Information", nil)
+--// Text...
+
+local MainTab = Window:CreateTab({
+    Name = "Information"
+})
 
 MainTab:CreateSection("Information")
 
 MainTab:CreateParagraph({
     Title = "information",
     Content = "I make this script for fun, but the dev ban me, so I decided to upload it and keep updating, For Revenge!"
-	})
+})
 
 MainTab:CreateParagraph({
-	Title = "Tips",
-	Content = "You Can Delete Npc Like Erlking, Sus_Moogus, And Others With Titan Builderman.\nJust Use Titan Builderman Then Teleport To Safe Place In Teleport (Script) Then Use Hook, And The Npc Disappear (deleted / died)\n\nIf You Lazy Or Whatever, You Can Just Click ''Call Titans / Call Special Titans'' In Shop (Script) That Feature Is Soo Useful When You Do Nightmare Mode\n\nYou Can Be Invisible And Invincible Forever By Using Any Titan/Unit That Has Teleport Skill\nFirst, Use Teleport, Then Use ''Buy Cannon Bloxxer/Speaker''\nHere The List\n\n•Titan Guest, Use Teleport Then Buy Speaker\n•Multiverse Titan Guest, Use Teleport Then Buy Bloxxer Cannon\n•Titan John Doe, Use Teleport Then Buy Speaker\n•Titan Bloxxer, Use Teleport(animation must be gone) Then Buy Speaker\n--* Thanks @wallance_editzz That Figure It Out And Telling  Me *--"
-	})
+    Title = "Tips",
+    Content = "You Can Delete Npc Like Erlking, Sus_Moogus, And Others With Titan Builderman.\nJust Use Titan Builderman Then Teleport To Safe Place In Teleport (Script) Then Use Hook, And The Npc Disappear (deleted / died)\n\nIf You Lazy Or Whatever, You Can Just Click ''Call Titans / Call Special Titans'' In Shop (Script) That Feature Is Soo Useful When You Do Nightmare Mode\n\nYou Can Be Invisible And Invincible Forever By Using Any Titan/Unit That Has Teleport Skill\nFirst, Use Teleport, Then Use ''Buy Cannon Bloxxer/Speaker''\nHere The List\n\n•Titan Guest, Use Teleport Then Buy Speaker\n•Multiverse Titan Guest, Use Teleport Then Buy Bloxxer Cannon\n•Titan John Doe, Use Teleport Then Buy Speaker\n•Titan Bloxxer, Use Teleport(animation must be gone) Then Buy Speaker\n--* Thanks @wallance_editzz That Figure It Out And Telling Me *--"
+})
 
 MainTab:CreateParagraph({
-	Title = "Massage From Owner Script",
-	Content = "Subscribe My Channel And Tell Or Ask Me Anytimg On The Community, The Channel Name Is @TheLastCloned The Display Name Is Theurus\n\n ⚠️WARNING⚠️ if the game updated, dont use this script! theres might be an anti cheat that ban you, so I will shut down this script for a while when the game update and check if there any anti Cheat"
-	})
+    Title = "Massage From Owner Script",
+    Content = "Subscribe My Channel And Tell Or Ask Me Anytimg On The Community, The Channel Name Is @TheLastCloned The Display Name Is Theurus\n\n ⚠️WARNING⚠️ if the game updated, dont use this script! theres might be an anti cheat that ban you, so I will shut down this script for a while when the game update and check if there any anti Cheat"
+})
 
 MainTab:CreateParagraph({
-	Title = "List Player That Not Allowed To Use This Script:",
-	Content = "- game_131214"
-	})
+    Title = "List Player That Not Allowed To Use This Script:",
+    Content = "- game_131214"
+})
 
 MainTab:CreateParagraph({
-	Title = "Update Log",
-	Content = "+Auto Buy/Use Bloxxer Cannon (on fun menu)"
-	})
+    Title = "Update Log",
+    Content = "+Auto Buy/Use Bloxxer Cannon (on fun menu)"
+})
+
+--// Shop
 		
-local MainTab = Window:CreateTab("Shop", nil)
-local MainSection = MainTab:CreateSection("You can buy thing")
-
-
-Rayfield:Notify({
-   Title = "Welcome!",
-   Content = "Enjoy Player!",
-   Duration = 4.5,
-   Image = nil,
+local MainTab = Window:CreateTab({
+    Name = "Shop"
 })
 
-local Button = MainTab:CreateButton({
-   Name = "Call Titans (Shop 2000 money)",
-   Callback = function()
+MainTab:CreateSection("You can buy thing")
 
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Call Titans"
-)
-end,
+Zynz:Notify({
+    Name = "Welcome!",
+    Paragraph = "Enjoy Player!",
+    Duration = 4.5
 })
 
-local Button = MainTab:CreateButton({
-   Name = "Call Special Titans (Shop 5000 money)",
-   Callback = function()
-
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Call Special Titans"
-)
-end,
+MainTab:CreateButton({
+    Name = "Call Titans (Shop 2000 money)",
+    Callback = function()
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+        Event:FireServer("Call Titans")
+    end
 })
 
-local MainSection = MainTab:CreateSection("The Op item")
-
-local Button = MainTab:CreateButton({
-   Name = "Buy Bloxxer Cannon (3000 money)",
-   Callback = function()
-
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Call Bloxxer Cannon"
-)
-end,
+MainTab:CreateButton({
+    Name = "Call Special Titans (Shop 5000 money)",
+    Callback = function()
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+        Event:FireServer("Call Special Titans")
+    end
 })
 
-local Button = MainTab:CreateButton({   Name = "Buy Speaker (750 money)(weak)",
-   Callback = function()
+MainTab:CreateSection("The Op item")
 
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Call Speakers"
-)
-end,
+MainTab:CreateButton({
+    Name = "Buy Bloxxer Cannon (3000 money)",
+    Callback = function()
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+        Event:FireServer("Call Bloxxer Cannon")
+    end
 })
 
-local MainSection = MainTab:CreateSection("Repair Up")
-
-local Button = MainTab:CreateButton({   Name = "Repair For Titan Noob And Titan Noob 1.5 (only if you lose a life)",
-   Callback = function()
-
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Repair"
-)
-end,
+MainTab:CreateButton({
+    Name = "Buy Speaker (750 money)(weak)",
+    Callback = function()
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+        Event:FireServer("Call Speakers")
+    end
 })
 
-local Button = MainTab:CreateButton({   Name = "Special Repair For Titan Brickbattler (only on Tired State or already use second life)",
-   Callback = function()
+MainTab:CreateSection("Repair Up")
 
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Special Repair"
-)
-end,
+MainTab:CreateButton({
+    Name = "Repair For Titan Noob And Titan Noob 1.5 (only if you lose a life)",
+    Callback = function()
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+        Event:FireServer("Repair")
+    end
 })
 
-local MainSection = MainTab:CreateSection("Fucking Useless")
+MainTab:CreateButton({
+    Name = "Special Repair For Titan Brickbattler (only on Tired State or already use second life)",
+    Callback = function()
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+        Event:FireServer("Special Repair")
+    end
+})
 
-local Button = MainTab:CreateButton({
+MainTab:CreateSection("Fucking Useless")
+
+MainTab:CreateButton({
     Name = "Buy Blaster (500 money)",
-
     Callback = function()
-
         local Event = game:GetService("ReplicatedStorage").ItemsEvent
-
         Event:FireServer("Blaster")
-        
-    end,
+    end
 })
 
-local Button = MainTab:CreateButton({
+MainTab:CreateButton({
     Name = "Buy Sword (100 money)",
-
     Callback = function()
-
         local Event = game:GetService("ReplicatedStorage").ItemsEvent
-
         Event:FireServer("Sword")
-        
-    end,
+    end
 })
 
-local Button = MainTab:CreateButton({
+MainTab:CreateButton({
     Name = "Buy Jetpack (100 money or less idk)",
-
     Callback = function()
-
         local Event = game:GetService("ReplicatedStorage").ItemsEvent
-
         Event:FireServer("Jetpack")
-        
-    end,
+    end
 })
 
-local Button = MainTab:CreateButton({
+MainTab:CreateButton({
     Name = "Buy Bruh (50 money)",
-
     Callback = function()
-
         local Event = game:GetService("ReplicatedStorage").ItemsEvent
-
         Event:FireServer("Bruh")
-        
-    end,
+    end
 })
 
-local MainTab = Window:CreateTab("Teleport", nil)
-local MainSection = MainTab:CreateSection("Teleport🧿")
+--// Teleport
 
-local Button = MainTab:CreateButton({
-   Name = "Teleport to safe area(not 100% safe)",
-   Callback = function()
-      local player = game.Players.LocalPlayer
-      local character = player.Character or player.CharacterAdded:Wait()
-
-      character:PivotTo(CFrame.new(1575, -444, 555))
-   end,
+local MainTab = Window:CreateTab({
+    Name = "Teleport"
 })
 
-local Button = MainTab:CreateButton({
-   Name = "Teleport to lobby inside (No Titans)",
-   Callback = function()
-      local player = game.Players.LocalPlayer
-      local character = player.Character or player.CharacterAdded:Wait()
+MainTab:CreateSection("Teleport🧿")
 
-      character:PivotTo(CFrame.new(1689, -490, -138))
-   end,
+MainTab:CreateButton({
+    Name = "Teleport to safe area(not 100% safe)",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+
+        character:PivotTo(CFrame.new(1575, -444, 555))
+    end
 })
 
-local Button = MainTab:CreateButton({
-   Name = "Teleport to lobby outside",
-   Callback = function()
-      local player = game.Players.LocalPlayer
-      local character = player.Character or player.CharacterAdded:Wait()
+MainTab:CreateButton({
+    Name = "Teleport to lobby inside (No Titans)",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
 
-      character:PivotTo(CFrame.new(1747, -399, -146))
-   end,
+        character:PivotTo(CFrame.new(1689, -490, -138))
+    end
 })
 
+MainTab:CreateButton({
+    Name = "Teleport to lobby outside",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
 
-local Button = MainTab:CreateButton({
-   Name = "Teleport Back (WayPoint I Think)",
-   Callback = function()
-      local player = game.Players.LocalPlayer
-      local character = player.Character or player.CharacterAdded:Wait()
-
-      character:PivotTo(CFrame.new(557, 178, -430))
-   end,
+        character:PivotTo(CFrame.new(1747, -399, -146))
+    end
 })
 
-local MainTab = Window:CreateTab("Auto Thing", nil)
-local MainSection = MainTab:CreateSection("Auto Thing")
+MainTab:CreateButton({
+    Name = "Teleport Back (WayPoint I Think)",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+
+        character:PivotTo(CFrame.new(557, 178, -430))
+    end
+})
+
+--// Auto Thingy
+
+local MainTab = Window:CreateTab({
+    Name = "Auto Thing"
+})
+
+MainTab:CreateSection("Auto Thing")
 
 local Running = false
 
@@ -449,7 +399,8 @@ local AttackRunning = false
 
 MainTab:CreateToggle({
     Name = "Auto M1 / Attack",
-    CurrentValue = false,    Flag = "AutoAttack",
+    CurrentValue = false,
+    Flag = "AutoAttack",
 
     Callback = function(Value)
         AttackRunning = Value
@@ -474,53 +425,53 @@ MainTab:CreateToggle({
                         local sword = abilities:FindFirstChild("Sword")
                         local combo = abilities:FindFirstChild("Combo")
                         local drill = abilities:FindFirstChild("Drill")
-						local hit = abilities:FindFirstChild("Hit")
+                        local hit = abilities:FindFirstChild("Hit")
                         local energysword = abilities:FindFirstChild("Energy Sword")
-						local knife = abilities:FindFirstChild("Knife")
-						local hammer = abilities:FindFirstChild("Hammer")
-                         
+                        local knife = abilities:FindFirstChild("Knife")
+                        local hammer = abilities:FindFirstChild("Hammer")
+
                         local slashEvent = slash and slash:FindFirstChild("RemoteEvent")
                         local punchEvent = punch and punch:FindFirstChild("RemoteEvent")
                         local swordEvent = sword and sword:FindFirstChild("RemoteEvent")
                         local comboEvent = combo and combo:FindFirstChild("RemoteEvent")
                         local drillEvent = drill and drill:FindFirstChild("RemoteEvent")
-						local hitEvent = hit and hit:FindFirstChild("RemoteEvent")
+                        local hitEvent = hit and hit:FindFirstChild("RemoteEvent")
                         local energyswordEvent = energysword and energysword:FindFirstChild("RemoteEvent")
-						local knifeEvent = knife and knife:FindFirstChild("RemoteEvent")
-						local hammerEvent = hammer and hammer:FindFirstChild("RemoteEvent")
-								
+                        local knifeEvent = knife and knife:FindFirstChild("RemoteEvent")
+                        local hammerEvent = hammer and hammer:FindFirstChild("RemoteEvent")
+
                         if slashEvent then
                             slashEvent:FireServer()
-                                end
+                        end
 
-					    if hammerEvent then
+                        if hammerEvent then
                             hammerEvent:FireServer()
-								end
-								
+                        end
+
                         if punchEvent then
                             punchEvent:FireServer()
-                                end
+                        end
 
                         if swordEvent then
                             swordEvent:FireServer()
-                                end
-								
-						if knifeEvent then
+                        end
+
+                        if knifeEvent then
                             knifeEvent:FireServer()
-								end
-								
+                        end
+
                         if drillEvent then
                             drillEvent:FireServer()
-								end
+                        end
 
-						if energyswordEvent then
+                        if energyswordEvent then
                             energyswordEvent:FireServer()
-								end
+                        end
 
                         if hitEvent then
                             hitEvent:FireServer()
-								end
-								
+                        end
+
                         if comboEvent then
                             comboEvent:FireServer()
                         end
@@ -563,42 +514,42 @@ MainTab:CreateToggle({
                         local rocket = abilities:FindFirstChild("Rocket")
                         local rockets = abilities:FindFirstChild("Rockets")
                         local rocketlaunchers = abilities:FindFirstChild("Rocket Launchers")
-						local rocketlauncher = abilities:FindFirstChild("Rocket Launcher")
-						local lasergun = abilities:FindFirstChild("Laser Gun")
-						local lasergunleft = abilities:FindFirstChild("Laser Gun Left")
-						local lasergunright = abilities:FindFirstChild("Laser Gun Right")
-						local corecannon = abilities:FindFirstChild("Core Cannon")
+                        local rocketlauncher = abilities:FindFirstChild("Rocket Launcher")
+                        local lasergun = abilities:FindFirstChild("Laser Gun")
+                        local lasergunleft = abilities:FindFirstChild("Laser Gun Left")
+                        local lasergunright = abilities:FindFirstChild("Laser Gun Right")
+                        local corecannon = abilities:FindFirstChild("Core Cannon")
 
                         local blastersEvent = blasters and blasters:FindFirstChild("RemoteEvent")
                         local blasterEvent = blaster and blaster:FindFirstChild("RemoteEvent")
                         local rocketEvent = rocket and rocket:FindFirstChild("RemoteEvent")
                         local rocketsEvent = rockets and rockets:FindFirstChild("RemoteEvent")
                         local rocketlaunchersEvent = rocketlaunchers and rocketlaunchers:FindFirstChild("RemoteEvent")
-						local rocketlauncherEvent = rocketlauncher and rocketlauncher:FindFirstChild("RemoteEvent")
-						local lasergunEvent = lasergun and lasergun:FindFirstChild("RemoteEvent")
-						local lasergunrightEvent = lasergunright and lasergunright:FindFirstChild("RemoteEvent")
-						local lasergunleftEvent = lasergunleft and lasergunleft:FindFirstChild("RemoteEvent")
-						local corecannonEvent = corecannon and corecannon:FindFirstChild("RemoteEvent")
+                        local rocketlauncherEvent = rocketlauncher and rocketlauncher:FindFirstChild("RemoteEvent")
+                        local lasergunEvent = lasergun and lasergun:FindFirstChild("RemoteEvent")
+                        local lasergunrightEvent = lasergunright and lasergunright:FindFirstChild("RemoteEvent")
+                        local lasergunleftEvent = lasergunleft and lasergunleft:FindFirstChild("RemoteEvent")
+                        local corecannonEvent = corecannon and corecannon:FindFirstChild("RemoteEvent")
 
                         if blastersEvent then
                             blastersEvent:FireServer()
                         end
 
-						if lasergunleftEvent then
+                        if lasergunleftEvent then
                             lasergunleftEvent:FireServer()
-						end
+                        end
 
-						if lasergunrightEvent then
+                        if lasergunrightEvent then
                             lasergunrightEvent:FireServer()
-						end
+                        end
 
-						if corecannonEvent then
+                        if corecannonEvent then
                             corecannonEvent:FireServer()
-						end
+                        end
 
-						if lasergunEvent then
+                        if lasergunEvent then
                             lasergunEvent:FireServer()
-						end
+                        end
 
                         if blasterEvent then
                             blasterEvent:FireServer()
@@ -610,11 +561,11 @@ MainTab:CreateToggle({
 
                         if rocketsEvent then
                             rocketsEvent:FireServer()
-						end
+                        end
 
-						if rocketlauncherEvent then
+                        if rocketlauncherEvent then
                             rocketlauncherEvent:FireServer()
-								end
+                        end
 
                         if rocketlaunchersEvent then
                             rocketlaunchersEvent:FireServer()
@@ -778,7 +729,7 @@ MainTab:CreateDropdown({
         "Nightmare",
         "Incident",
         "Endless",
-		"Boss Rush",
+        "Boss Rush",
         "Sandbox"
     },
     CurrentOption = {"Easy"},
@@ -809,7 +760,8 @@ MainTab:CreateToggle({
 
                     if Event then
                         Event:FireServer(SelectedMap)
-              end
+                    end
+
                     task.wait(1)
                 end
             end)
@@ -845,7 +797,8 @@ MainTab:CreateToggle({
 
     Callback = function(Value)
         SkipVotedEnabled = Value
-              if Value then
+
+        if Value then
             task.spawn(function()
                 while SkipVotedEnabled do
                     local Votes = game:GetService("ReplicatedStorage"):FindFirstChild("Votes")
@@ -862,23 +815,11 @@ MainTab:CreateToggle({
     end,
 })
 
-local MainSection = MainTab:CreateSection("Auto Farm (not complete)")
-
-MainTab:CreateToggle({
-    Name = "Auto Execute (for auto essence later)",
-    CurrentValue = false,
-    Flag = "AutoExecuteTeleport",
-    Callback = function(Value)
-        if Value and queue_on_teleport then
-            queue_on_teleport([[
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Noob-Experiment-Battlefront/refs/heads/main/script.lua"))()
-            ]])
-        end
-    end,
+local MainTab = Window:CreateTab({
+    Name = "Fun"
 })
 
-local MainTab = Window:CreateTab("Fun", nil)
-local MainSection = MainTab:CreateSection("I dont know what I make")
+MainTab:CreateSection("I dont know what I make")
 
 --// AUTO BUY/USE BLOXXER CANNON
 
@@ -909,7 +850,7 @@ MainTab:CreateDropdown({
         "Spawn 0.25s",
         "Spawn 0s"
     },
-    CurrentOption = "Spawn 1s",
+    CurrentOption = {"Spawn 1s"},
     Flag = "BloxxerSpawnSpeed",
 
     Callback = function(Option)
@@ -959,31 +900,6 @@ MainTab:CreateToggle({
             while AutoBloxxerCannon
                 and TaskGeneration == CurrentGeneration do
 
-                --// CHECK MORPH / ABILITY SLOT
-
-                local PlayerGui = Player:FindFirstChild("PlayerGui")
-                local AbilitiesGui = PlayerGui
-                    and PlayerGui:FindFirstChild("Abilities")
-                local AbilitySlot = AbilitiesGui
-                    and AbilitiesGui:FindFirstChild("AbilitySlot")
-
-                local HasAnyAbility = false
-
-                if AbilitySlot then
-                    for _, Child in ipairs(AbilitySlot:GetChildren()) do
-                        if Child.Name ~= "UIListLayout" then
-                            HasAnyAbility = true
-                            break
-                        end
-                    end
-                end
-
-                -- Tunggu sampai player sudah morph
-                if not HasAnyAbility then
-                    task.wait(0.5)
-                    continue
-                end
-
                 --// BUY CANNON
 
                 local ItemsEvent =
@@ -992,29 +908,20 @@ MainTab:CreateToggle({
                 if ItemsEvent then
                     ItemsEvent:FireServer(AbilityName)
                 else
-                    task.wait(1)
+                    task.wait(0.1)
                     continue
-                end
+						end
 
-                --// WAIT FOR CANNON TO APPEAR
+                --// WAIT INTERVAL
 
-                local SpawnDeadline = os.clock() + SpawnInterval
-
-                repeat
-                    if not AutoBloxxerCannon
-                        or TaskGeneration ~= CurrentGeneration then
-                        break
-                    end
-
-                    task.wait(0.03)
-                until os.clock() >= SpawnDeadline
+                task.wait(SpawnInterval)
 
                 if not AutoBloxxerCannon
                     or TaskGeneration ~= CurrentGeneration then
                     break
                 end
 
-                --// USE CANNON FOR 1 SECOND
+                --// USE CANNON
 
                 local UseUntil = os.clock() + UseDuration
 
@@ -1039,8 +946,6 @@ MainTab:CreateToggle({
 
                     task.wait(UseInterval)
                 until os.clock() >= UseUntil
-
-                -- Siklus berikutnya langsung mulai dari pembelian lagi
             end
 
             if TaskGeneration == CurrentGeneration then
@@ -1142,8 +1047,8 @@ local function SetupTouchDetection(character)
 
                 FlingCharacter(character)
             end))
-		end
-	end
+        end
+    end
 end
 
 MainTab:CreateToggle({
@@ -1188,7 +1093,6 @@ MainTab:CreateToggle({
     end,
 })
 
-
 --// MUSIC
 
 local SoundService = game:GetService("SoundService")
@@ -1197,17 +1101,17 @@ local MusicList = {
     ["None"] = nil,
     ["AFTERTASTE"] = "85281675332105",
     ["Creation of Hatred"] = "111304986203081",
-	["Eternity V1"] = "128855377868949",
-	["At The Speed of Light"] = "117386268398589",
-	["The Great Strategy"] = "122220105663741",
-	["A Retro Soul"] = "116457974828068"
+    ["Eternity V1"] = "128855377868949",
+    ["At The Speed of Light"] = "117386268398589",
+    ["The Great Strategy"] = "122220105663741",
+    ["A Retro Soul"] = "116457974828068"
 }
 
 local CustomMusicID = ""
-local MusicVolume = 5
+local MusicVolume = 2.5
 local SelectedMusicID = nil
 
--- Sound sementara untuk script
+--// SOUND
 local CustomMusic = Instance.new("Sound")
 CustomMusic.Name = "NoobExperiment_CustomMusic"
 CustomMusic.Parent = SoundService
@@ -1225,13 +1129,15 @@ local function StartMusic(ID)
     CustomMusic:Play()
 end
 
-MainTab:CreateSection("Music")
+MainTab:CreateSection({
+    Name = "Music"
+})
 
 --// CUSTOM MUSIC ID
 MainTab:CreateInput({
     Name = "Music ID",
-    PlaceholderText = "Enter Roblox Music ID...",
-    RemoveTextAfterFocusLost = false,
+    Placeholder = "Enter Roblox Music ID...",
+    Default = "",
 
     Callback = function(Text)
         CustomMusicID = Text
@@ -1268,261 +1174,30 @@ MainTab:CreateDropdown({
         "None",
         "AFTERTASTE",
         "Creation of Hatred",
-		"Eternity V1",
-		"At The Speed of Light",
-		"The Great Strategy",
-		"A Retro Soul",
+        "Eternity V1",
+        "At The Speed of Light",
+        "The Great Strategy",
+        "A Retro Soul",
     },
 
-    CurrentOption = {"None"},
-    MultipleOptions = false,
+    CurrentOption = "None",
 
     Callback = function(Option)
-        local SelectedName = Option[1]
-        SelectedMusicID = MusicList[SelectedName]
+        SelectedMusicID = MusicList[Option]
     end,
 })
 
---// VOLUME 0.1 - 10
+--// MUSIC VOLUME
 MainTab:CreateSlider({
     Name = "Music Volume",
     Range = {0.1, 10},
     Increment = 0.1,
-    Suffix = "/10",
-    CurrentValue = 2.5,
+    Value = 2.5,
 
     Callback = function(Value)
         MusicVolume = Value
         CustomMusic.Volume = Value
     end,
-})
-
---==================================================
---// LIGHTWEIGHT WAVE VISUALIZER
---// Masuk ke MainTab
---==================================================
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
-local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-
-
---==================================================
---// CLEAN UP SAAT SCRIPT DI-RELOAD
---==================================================
-
-local OldVisualizer = PlayerGui:FindFirstChild(
-    "NoobExperiment_Visualizer"
-)
-
-if OldVisualizer then
-    OldVisualizer:Destroy()
-end
-
-
---==================================================
---// SETTINGS
---==================================================
-
-local VisualizerEnabled = false
-local VisualizerColor = Color3.fromRGB(200, 55, 255)
-
-local BAR_COUNT = 85
-local MAX_HEIGHT = 100
-
-local Bars = {}
-
---==================================================
---// VISUALIZER GUI
---==================================================
-
-local VisualizerGui = Instance.new("ScreenGui")
-
-VisualizerGui.Name = "NoobExperiment_Visualizer"
-VisualizerGui.ResetOnSpawn = false
-VisualizerGui.IgnoreGuiInset = true
-VisualizerGui.DisplayOrder = 5
-VisualizerGui.Parent = PlayerGui
-
-
-local VisualizerFrame = Instance.new("Frame")
-
-VisualizerFrame.Name = "Visualizer"
-
-VisualizerFrame.AnchorPoint =
-    Vector2.new(0.5, 1)
-
--- Sedikit turun dari bagian paling bawah
-VisualizerFrame.Position =
-    UDim2.new(0.5, 0, 1, 8)
-
--- Menyesuaikan lebar layar
-VisualizerFrame.Size =
-    UDim2.new(1, -12, 0, MAX_HEIGHT)
-
-VisualizerFrame.BackgroundTransparency = 1
-VisualizerFrame.BorderSizePixel = 0
-VisualizerFrame.Parent = VisualizerGui
-
---==================================================
---// CREATE 28 BARS
---==================================================
-
-for i = 1, BAR_COUNT do
-
-    local Bar = Instance.new("Frame")
-
-    Bar.Name = "Bar_" .. i
-
-    Bar.AnchorPoint =
-        Vector2.new(0.5, 1)
-
-    -- Dibagi rata sepanjang layar
-    Bar.Position =
-        UDim2.new(
-            (i - 0.5) / BAR_COUNT,
-            0,
-            1,
-            0
-        )
-
-    -- Kotak dibuat lebih besar
-    Bar.Size =
-        UDim2.new(
-            1 / BAR_COUNT,
-            0,
-            0,
-            5
-        )
-
-    Bar.BackgroundColor3 =
-        VisualizerColor
-
-    Bar.BackgroundTransparency = 0.05
-    Bar.BorderSizePixel = 0
-
-    Bar.Parent = VisualizerFrame
-
-    Bars[i] = Bar
-
-end
-
-
---==================================================
---// WAVE ANIMATION
---==================================================
-
-local Time = 0
-
-local VisualizerConnection
-
-VisualizerConnection =
-    RunService.Heartbeat:Connect(function(DeltaTime)
-
-    if not VisualizerEnabled then
-        return
-    end
-
-    -- Membatasi DeltaTime supaya tetap stabil
-    Time += math.min(DeltaTime, 0.05)
-
-
-    for i, Bar in ipairs(Bars) do
-
-        -- Gelombang utama
-        local Wave =
-            math.sin(
-                Time * 3.55 +
-                i * 0.75
-            )
-
-
-        -- Gelombang kedua untuk variasi
-        local Wave2 =
-            math.sin(
-                Time * 3.55 +
-                i * 0.75
-            )
-
-
-        -- Tinggi bar
-        local Height =
-            4 +
-            ((Wave + 1) * 1) * 20 +
-            ((Wave2 + 1) * 1) * 6
-
-
-        Bar.Size =
-            UDim2.new(
-                1 / BAR_COUNT,
-                0,
-                0,
-                math.clamp(
-                    Height,
-                    5,
-                    MAX_HEIGHT
-                )
-            )
-
-    end
-
-end)
-
-
---==================================================
---// VISUALIZER CONTROLS
---// SEMUANYA MASUK MainTab
---==================================================
-
-MainTab:CreateSection(
-    "Wave Visualizer"
-)
-
-
---==================================================
---// ENABLE VISUALIZER
---==================================================
-
-MainTab:CreateToggle({
-
-    Name = "Enable Wave Visualizer",
-
-    CurrentValue = false,
-
-    Callback = function(Value)
-
-        VisualizerEnabled = Value
-
-		VisualizerFrame.Visible = VisualizerEnabled
-
-    end,
-
-})
-
---==================================================
---// COLOR PICKER
---==================================================
-
-MainTab:CreateColorPicker({
-
-    Name = "Visualizer Color",
-
-    Color = VisualizerColor,
-
-    Callback = function(Value)
-
-        VisualizerColor = Value
-
-        for _, Bar in ipairs(Bars) do
-
-            Bar.BackgroundColor3 = Value
-
-        end
-
-    end,
-
 })
 
 --==================================================
@@ -1563,11 +1238,8 @@ end
 
 local Enabled = false
 local Humanoid = nil
-
 local HealthConnection = nil
-
 local DeathRunning = false
-
 
 --==================================================
 -- GUI
@@ -1581,7 +1253,6 @@ Gui.ResetOnSpawn = false
 Gui.DisplayOrder = 50
 Gui.Parent = PlayerGui
 
-
 --==================================================
 -- HEALTH OVERLAY
 --==================================================
@@ -1589,24 +1260,13 @@ Gui.Parent = PlayerGui
 local Overlay = Instance.new("Frame")
 
 Overlay.Name = "HealthOverlay"
-
-Overlay.Size =
-    UDim2.fromScale(1, 1)
-
-Overlay.Position =
-    UDim2.fromScale(0, 0)
-
-Overlay.BackgroundColor3 =
-    Color3.fromRGB(255, 0, 0)
-
+Overlay.Size = UDim2.fromScale(1, 1)
+Overlay.Position = UDim2.fromScale(0, 0)
+Overlay.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 Overlay.BackgroundTransparency = 1
-
 Overlay.BorderSizePixel = 0
-
 Overlay.ZIndex = 10
-
 Overlay.Parent = Gui
-
 
 --==================================================
 -- HORIZONTAL EDGE GRADIENT
@@ -1615,20 +1275,9 @@ Overlay.Parent = Gui
 local GradientX = Instance.new("UIGradient")
 
 GradientX.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(
-        0,
-        Color3.fromRGB(255, 0, 0)
-    ),
-
-    ColorSequenceKeypoint.new(
-        0.5,
-        Color3.fromRGB(255, 0, 0)
-    ),
-
-    ColorSequenceKeypoint.new(
-        1,
-        Color3.fromRGB(255, 0, 0)
-    )
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
 })
 
 GradientX.Transparency = NumberSequence.new({
@@ -1644,7 +1293,6 @@ GradientX.Transparency = NumberSequence.new({
 GradientX.Rotation = 0
 GradientX.Parent = Overlay
 
-
 --==================================================
 -- VERTICAL EDGE GRADIENT
 --==================================================
@@ -1652,15 +1300,8 @@ GradientX.Parent = Overlay
 local GradientY = Instance.new("UIGradient")
 
 GradientY.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(
-        0,
-        Color3.fromRGB(255, 0, 0)
-    ),
-
-    ColorSequenceKeypoint.new(
-        1,
-        Color3.fromRGB(255, 0, 0)
-    )
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
 })
 
 GradientY.Transparency = NumberSequence.new({
@@ -1676,7 +1317,6 @@ GradientY.Transparency = NumberSequence.new({
 GradientY.Rotation = 90
 GradientY.Parent = Overlay
 
-
 --==================================================
 -- BLINK OVERLAY
 --==================================================
@@ -1684,23 +1324,13 @@ GradientY.Parent = Overlay
 local Blink = Instance.new("Frame")
 
 Blink.Name = "HealthBlink"
-
-Blink.Size =
-    UDim2.fromScale(1, 1)
-Blink.Position =
-    UDim2.fromScale(0, 0)
-
-Blink.BackgroundColor3 =
-    Color3.fromRGB(255, 0, 0)
-
+Blink.Size = UDim2.fromScale(1, 1)
+Blink.Position = UDim2.fromScale(0, 0)
+Blink.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 Blink.BackgroundTransparency = 1
-
 Blink.BorderSizePixel = 0
-
 Blink.ZIndex = 20
-
 Blink.Parent = Gui
-
 
 --==================================================
 -- DEATH SCREEN
@@ -1709,23 +1339,13 @@ Blink.Parent = Gui
 local DeathScreen = Instance.new("Frame")
 
 DeathScreen.Name = "DeathScreen"
-
-DeathScreen.Size =
-    UDim2.fromScale(1, 1)
-
-DeathScreen.Position =
-    UDim2.fromScale(0, 0)
-DeathScreen.BackgroundColor3 =
-    Color3.fromRGB(255, 0, 0)
-
+DeathScreen.Size = UDim2.fromScale(1, 1)
+DeathScreen.Position = UDim2.fromScale(0, 0)
+DeathScreen.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 DeathScreen.BackgroundTransparency = 1
-
 DeathScreen.BorderSizePixel = 0
-
 DeathScreen.ZIndex = 100
-
 DeathScreen.Parent = Gui
-
 
 --==================================================
 -- BLUR
@@ -1733,48 +1353,36 @@ DeathScreen.Parent = Gui
 
 local Blur = Instance.new("BlurEffect")
 
-Blur.Name =
-    "NoobExperiment_LowHealthBlur"
-
+Blur.Name = "NoobExperiment_LowHealthBlur"
 Blur.Size = 0
-
 Blur.Parent = Lighting
-
 
 --==================================================
 -- OVERLAY STRENGTH
 --==================================================
 
 local function SetOverlay(Transparency)
-
-    Overlay.BackgroundTransparency =
-        math.clamp(
-            Transparency,
-            0,
-            1
-        )
-
+    Overlay.BackgroundTransparency = math.clamp(
+        Transparency,
+        0,
+        1
+    )
 end
-
 
 --==================================================
 -- RESET
 --==================================================
 
 local function ResetEffects()
-
     SetOverlay(1)
 
     Blink.BackgroundTransparency = 1
-
     DeathScreen.BackgroundTransparency = 1
 
     Blur.Size = 0
 
     DeathRunning = false
-
-    end
-
+end
 
 --==================================================
 -- DEATH EFFECT
@@ -1783,7 +1391,6 @@ local function ResetEffects()
 --==================================================
 
 local function DeathEffect()
-
     if DeathRunning then
         return
     end
@@ -1794,409 +1401,271 @@ local function DeathEffect()
     Blink.BackgroundTransparency = 1
     Blur.Size = 0
 
-
     -- FULL RED
 
-    DeathScreen.BackgroundColor3 =
-        Color3.fromRGB(255, 0, 0)
-
+    DeathScreen.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     DeathScreen.BackgroundTransparency = 0
-
 
     -- RED -> BLACK
 
     local StartTime = os.clock()
     local Duration = 0.5
 
-    while
-        os.clock() - StartTime < Duration
-    do
+    while os.clock() - StartTime < Duration do
+        local Progress = math.clamp(
+            (os.clock() - StartTime) / Duration,
+            0,
+            1
+        )
 
-        local Progress =
-            math.clamp(
-                (os.clock() - StartTime)
-                / Duration,
-                0,
-                1
-            )
-
-        DeathScreen.BackgroundColor3 =
-            Color3.fromRGB(
-                math.floor(
-                    255 * (1 - Progress)
-                ),
-                0,
-                0
-            )
+        DeathScreen.BackgroundColor3 = Color3.fromRGB(
+            math.floor(255 * (1 - Progress)),
+            0,
+            0
+        )
 
         RunService.RenderStepped:Wait()
-
     end
 
-
-    DeathScreen.BackgroundColor3 =
-        Color3.fromRGB(0, 0, 0)
-
+    DeathScreen.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     DeathScreen.BackgroundTransparency = 0
-
 end
-
 
 --==================================================
 -- CHARACTER SETUP
 --==================================================
 
 local function SetupCharacter(Character)
-
-    local NewHumanoid =
-        Character:WaitForChild("Humanoid")
+    local NewHumanoid = Character:WaitForChild("Humanoid")
 
     Humanoid = NewHumanoid
 
     DeathRunning = false
-
     ResetEffects()
 
-
     if HealthConnection then
-
         HealthConnection:Disconnect()
-
         HealthConnection = nil
-
     end
 
-
-    HealthConnection =
-        RunService.Heartbeat:Connect(function()
+    HealthConnection = RunService.Heartbeat:Connect(function()
 
         --==============================================
         -- DISABLED
         --==============================================
 
         if not Enabled then
-
             ResetEffects()
-
             return
         end
 
-
-        if not Humanoid
-            or not Humanoid.Parent then
-
+        if not Humanoid or not Humanoid.Parent then
             return
         end
 
-
-        local MaxHealth =
-            Humanoid.MaxHealth
-
-        local Health =
-            Humanoid.Health
-
+        local MaxHealth = Humanoid.MaxHealth
+        local Health = Humanoid.Health
 
         if MaxHealth <= 0 then
             return
         end
-
 
         --==============================================
         -- DEAD
         --==============================================
 
         if Health <= 0 then
-
             if not DeathRunning then
-
-                task.spawn(
-                    DeathEffect
-                )
-
+                task.spawn(DeathEffect)
             end
 
             return
         end
 
-
         if DeathRunning then
             return
         end
 
-
-        local Percent =
-            Health / MaxHealth
-
+        local Percent = Health / MaxHealth
 
         --==============================================
         -- DEFAULT
         --==============================================
 
         local OverlayTransparency = 1
-        local BlurSize = -5
-		
-		--==============================================
+        local BlurSize = 0
+
+        --==============================================
         -- BELOW 65%
-        -- RED EDGE 10%
         --==============================================
 
         if Percent < 0.65 then
-
             OverlayTransparency = 0.75
-			BlurSize = 3
-
+            BlurSize = 3
         end
 
-			
-
-		--==============================================
+        --==============================================
         -- BELOW 60%
-        -- RED EDGE 10%
         --==============================================
 
         if Percent < 0.60 then
-
             OverlayTransparency = 0.65
-			BlurSize = 5
-
+            BlurSize = 5
         end
 
-			
-
-		--==============================================
+        --==============================================
         -- BELOW 55%
-        -- RED EDGE 10%
         --==============================================
 
         if Percent < 0.55 then
-
             OverlayTransparency = 0.55
-			BlurSize = 6
-
+            BlurSize = 6
         end
 
-			
-
-		--==============================================
+        --==============================================
         -- BELOW 50%
-        -- RED EDGE 10%
         --==============================================
 
         if Percent < 0.50 then
-
             OverlayTransparency = 0.50
-			BlurSize = 7
-
+            BlurSize = 7
         end
 
-			
-
-		--==============================================
+        --==============================================
         -- BELOW 45%
-        -- RED EDGE 10%
         --==============================================
 
         if Percent < 0.45 then
-
             OverlayTransparency = 0.45
-			BlurSize = 8
-
+            BlurSize = 8
         end
 
-			
-
-		--==============================================
+        --==============================================
         -- BELOW 40%
-        -- RED EDGE 10%
         --==============================================
 
         if Percent < 0.40 then
-
             OverlayTransparency = 0.40
-			BlurSize = 9
-
+            BlurSize = 9
         end
-
-			
-
 
         --==============================================
         -- BELOW 35%
-        -- RED EDGE 10%
         --==============================================
 
         if Percent < 0.35 then
-
             OverlayTransparency = 0.35
-			BlurSize = 10
-
+            BlurSize = 10
         end
-
 
         --==============================================
         -- BELOW 25%
-        -- RED EDGE 25%
         -- BLINK 1.7s
         --==============================================
 
         if Percent < 0.25 then
             OverlayTransparency = 0.25
-			BlurSize = 25
+            BlurSize = 25
 
-
-            local Pulse =
-                (
-                    math.sin(
-                        os.clock()
-                        * math.pi
-                        * 2
-                        / 1.7
-                    ) + 1
-                ) / 2
-
-
-            -- Blink hanya menambah efek.
-            -- Overlay utama tetap menyala.
+            local Pulse = (
+                math.sin(
+                    os.clock() * math.pi * 2 / 1.7
+                ) + 1
+            ) / 2
 
             Blink.BackgroundTransparency =
-                0.80 +
-                ((1 - Pulse) * 0.20)
-
-      else
+                0.80 + ((1 - Pulse) * 0.20)
+        else
             Blink.BackgroundTransparency = 1
-
         end
-
 
         --==============================================
         -- BELOW 10%
-        -- RED EDGE 50%
-        -- BLUR 35
         --==============================================
 
         if Percent < 0.10 then
-
             OverlayTransparency = 0.10
             BlurSize = 55
-
         end
-
 
         --==============================================
         -- BELOW 5%
-        -- RED LEBIH TEBAL
         -- FAST BLINK 0.75s
-        -- BLUR 85
         --==============================================
 
         if Percent < 0.05 then
-
-            -- Lebih tebal dari 10% HP
             OverlayTransparency = 0.05
-
             BlurSize = 85
 
-
-            local FastPulse =
-                (
-                    math.sin(
-                        os.clock()
-                        * math.pi
-                        * 2
-                        / 0.75
-                    ) + 1
-                ) / 2
-
+            local FastPulse = (
+                math.sin(
+                    os.clock() * math.pi * 2 / 0.75
+                ) + 1
+            ) / 2
 
             Blink.BackgroundTransparency =
-                0.65 +
-                ((1 - FastPulse) * 0.35)
-
+                0.65 + ((1 - FastPulse) * 0.35)
         end
-
 
         --==============================================
         -- APPLY SETTING SETIAP FRAME
         --==============================================
 
-        SetOverlay(
-            OverlayTransparency
-        )
+        SetOverlay(OverlayTransparency)
 
         if Blur.Size < BlurSize then
-    Blur.Size = math.min(Blur.Size + 1, BlurSize)
-elseif Blur.Size > BlurSize then
-    Blur.Size = math.max(Blur.Size - 1, BlurSize)
-			end
-
+            Blur.Size = math.min(Blur.Size + 1, BlurSize)
+        elseif Blur.Size > BlurSize then
+            Blur.Size = math.max(Blur.Size - 1, BlurSize)
+        end
     end)
-
 end
-
 
 --==================================================
 -- CURRENT CHARACTER
 --==================================================
 
 if LocalPlayer.Character then
-
     task.spawn(
         SetupCharacter,
         LocalPlayer.Character
     )
-
 end
-
 
 --==================================================
 -- RESPAWN
 --==================================================
 
-LocalPlayer.CharacterAdded:Connect(
-    function(Character)
-
-        task.spawn(
-            SetupCharacter,
-            Character
-        )
-
-    end
-)
-
+LocalPlayer.CharacterAdded:Connect(function(Character)
+    task.spawn(
+        SetupCharacter,
+        Character
+    )
+end)
 
 --==================================================
 -- MAIN TAB
 --==================================================
 
-MainTab:CreateSection(
-    "Low Health Effects"
-)
-
+MainTab:CreateSection("Low Health Effects")
 
 MainTab:CreateToggle({
-
     Name = "Low Health Visual",
-
-    CurrentValue = false,
+    Value = false,
 
     Callback = function(Value)
-
         Enabled = Value
 
         if not Value then
-
             ResetEffects()
-
         end
-
     end,
-
 })
+
 
 --==================================================
 --// PLAYER ARMOR + HEALTH DISPLAY
---// ADD-ON
---// TARUH DI PALING BAWAH SCRIPT UTAMA
+--// ZYNZ API VERSION
 --==================================================
 
 local Players = game:GetService("Players")
@@ -2208,7 +1677,17 @@ local MORPH_CHECK_RATE = 0.5
 
 local Displays = {}
 local CharacterStates = {}
+local WatchedPlayers = {}
 
+local Enabled = false
+
+--==================================================
+--// ZYNZ TAB
+--==================================================
+
+local ArmorHealthTab = Window:CreateTab({
+    Name = "Player Info"
+})
 
 --==================================================
 --// GET ARMOR
@@ -2220,10 +1699,7 @@ local function GetArmor(Character)
         return nil
     end
 
-    -- Cari object bernama Armor di seluruh morph
-    for _, Object in ipairs(
-        Character:GetDescendants()
-    ) do
+    for _, Object in ipairs(Character:GetDescendants()) do
 
         if string.lower(Object.Name) == "armor" then
 
@@ -2233,15 +1709,13 @@ local function GetArmor(Character)
                 return Object.Value
             end
 
-            local Value =
-                Object:GetAttribute("Value")
+            local Value = Object:GetAttribute("Value")
 
             if typeof(Value) == "number" then
                 return Value
             end
 
-            local ArmorValue =
-                Object:GetAttribute("Armor")
+            local ArmorValue = Object:GetAttribute("Armor")
 
             if typeof(ArmorValue) == "number" then
                 return ArmorValue
@@ -2249,34 +1723,23 @@ local function GetArmor(Character)
         end
     end
 
-
-    -- Attribute Armor pada Character
-    local CharacterArmor =
-        Character:GetAttribute("Armor")
+    local CharacterArmor = Character:GetAttribute("Armor")
 
     if typeof(CharacterArmor) == "number" then
         return CharacterArmor
     end
 
+    for _, Object in ipairs(Character:GetDescendants()) do
 
-    -- Cari attribute Armor di semua object
-    for _, Object in ipairs(
-        Character:GetDescendants()
-    ) do
-
-        local ArmorValue =
-            Object:GetAttribute("Armor")
+        local ArmorValue = Object:GetAttribute("Armor")
 
         if typeof(ArmorValue) == "number" then
             return ArmorValue
         end
-
     end
-
 
     return nil
 end
-
 
 --==================================================
 --// GET DISPLAY PART
@@ -2288,41 +1751,10 @@ local function GetDisplayPart(Character)
         return nil
     end
 
-    -- Prioritas RootPart supaya display
-    -- tidak bergantung pada tangan morph.
-    local Root =
-        Character:FindFirstChild(
-            "HumanoidRootPart"
-        )
-
-    if Root then
-        return Root
-    end
-
-
-    local UpperTorso =
-        Character:FindFirstChild(
-            "UpperTorso"
-        )
-
-    if UpperTorso then
-        return UpperTorso
-    end
-
-
-    local Torso =
-        Character:FindFirstChild(
-            "Torso"
-        )
-
-    if Torso then
-        return Torso
-    end
-
-
-    return nil
+    return Character:FindFirstChild("HumanoidRootPart")
+        or Character:FindFirstChild("UpperTorso")
+        or Character:FindFirstChild("Torso")
 end
-
 
 --==================================================
 --// GET OFFSET
@@ -2338,26 +1770,20 @@ end
 
 local function RemoveDisplay(Player)
 
-    local Data =
-        Displays[Player]
+    local Data = Displays[Player]
 
     if not Data then
         return
     end
 
-
     if Data.Gui then
-
         pcall(function()
             Data.Gui:Destroy()
         end)
-
     end
-
 
     Displays[Player] = nil
 end
-
 
 --==================================================
 --// CREATE DISPLAY
@@ -2365,38 +1791,24 @@ end
 
 local function CreateDisplay(Player)
 
-    if Player == LocalPlayer then
+    if not Enabled or Player == LocalPlayer then
         return
     end
 
-
-    local Character =
-        Player.Character
+    local Character = Player.Character
 
     if not Character then
         return
     end
 
+    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+    local DisplayPart = GetDisplayPart(Character)
 
-    local Humanoid =
-        Character:FindFirstChildOfClass(
-            "Humanoid"
-        )
-
-    local DisplayPart =
-        GetDisplayPart(Character)
-
-
-    if not Humanoid
-        or not DisplayPart then
-
+    if not Humanoid or not DisplayPart then
         return
-  end
-  
-    -- Kalau display sudah cocok dengan
-    -- character sekarang, jangan bikin ulang.
-    local Existing =
-        Displays[Player]
+    end
+
+    local Existing = Displays[Player]
 
     if Existing
         and Existing.Character == Character
@@ -2407,101 +1819,38 @@ local function CreateDisplay(Player)
         return
     end
 
-
     RemoveDisplay(Player)
 
-      --==================================================
     -- BILLBOARD
-    --==================================================
 
-    local Billboard =
-        Instance.new("BillboardGui")
+    local Billboard = Instance.new("BillboardGui")
 
-    Billboard.Name =
-        "NoobExperiment_ArmorHealth"
+    Billboard.Name = "NoobExperiment_ArmorHealth"
+    Billboard.Adornee = DisplayPart
+    Billboard.Size = UDim2.fromOffset(120, 50)
+    Billboard.StudsOffsetWorldSpace = GetOffset(Character)
+    Billboard.AlwaysOnTop = true
+    Billboard.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    Billboard.MaxDistance = MAX_DISTANCE
+    Billboard.Enabled = true
+    Billboard.Parent = DisplayPart
 
-    Billboard.Adornee =
-        DisplayPart
-
-    Billboard.Size =
-        UDim2.fromOffset(
-            120,
-            50
-        )
-
-    Billboard.StudsOffsetWorldSpace =
-        GetOffset(Character)
-
-    Billboard.AlwaysOnTop =
-        true
-
-    Billboard.ZIndexBehavior =
-        Enum.ZIndexBehavior.Sibling
-
-    Billboard.MaxDistance =
-        MAX_DISTANCE
-
-    Billboard.Enabled =
-        true
-
-    Billboard.Parent =
-        DisplayPart
-
-
-    --==================================================
     -- TEXT
-    --==================================================
 
-    local Text =
-        Instance.new("TextLabel")
+    local Text = Instance.new("TextLabel")
 
-    Text.Name =
-        "PlayerInfo"
-
-    Text.Size =
-        UDim2.fromScale(
-            1,
-            1
-        )
-
-    Text.BackgroundTransparency =
-        1
-
-    Text.TextColor3 =
-        Color3.fromRGB(
-            0,
-            255,
-            255
-        )
-
-    Text.TextStrokeColor3 =
-        Color3.fromRGB(
-            0,
-            0,
-            0
-        )
-
-    Text.TextStrokeTransparency =
-        0.1
-
-    Text.Font =
-        Enum.Font.GothamBold
-
-    Text.TextSize =
-        12
-
-    Text.TextWrapped =
-        true
-
-    Text.TextXAlignment =
-        Enum.TextXAlignment.Left
-
-    Text.TextYAlignment =
-        Enum.TextYAlignment.Center
-
-    Text.Parent =
-        Billboard
-
+    Text.Name = "PlayerInfo"
+    Text.Size = UDim2.fromScale(1, 1)
+    Text.BackgroundTransparency = 1
+    Text.TextColor3 = Color3.fromRGB(0, 255, 255)
+    Text.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    Text.TextStrokeTransparency = 0.1
+    Text.Font = Enum.Font.GothamBold
+    Text.TextSize = 12
+    Text.TextWrapped = true
+    Text.TextXAlignment = Enum.TextXAlignment.Left
+    Text.TextYAlignment = Enum.TextYAlignment.Center
+    Text.Parent = Billboard
 
     Displays[Player] = {
         Character = Character,
@@ -2510,14 +1859,11 @@ local function CreateDisplay(Player)
         Text = Text
     }
 
-
     CharacterStates[Player] = {
         Character = Character,
         LastDescendantCount = #Character:GetDescendants()
     }
-
 end
-
 
 --==================================================
 --// UPDATE DISPLAY
@@ -2525,26 +1871,18 @@ end
 
 local function UpdateDisplay(Player)
 
-    local Data =
-        Displays[Player]
+    local Data = Displays[Player]
 
     if not Data then
         return
     end
 
+    local Character = Player.Character
 
-    local Character =
-        Player.Character
-
-
-    -- Character sudah berubah
     if Character ~= Data.Character then
-
         CreateDisplay(Player)
-
         return
     end
-
 
     if not Character
         or not Character.Parent
@@ -2552,109 +1890,58 @@ local function UpdateDisplay(Player)
         or not Data.Gui.Parent then
 
         CreateDisplay(Player)
-
         return
     end
 
-
-    local Humanoid =
-        Character:FindFirstChildOfClass(
-            "Humanoid"
-        )
+    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
 
     if not Humanoid then
         return
     end
 
-
-    --==================================================
     -- DISTANCE
-    --==================================================
 
-    local LocalCharacter =
-        LocalPlayer.Character
+    local LocalCharacter = LocalPlayer.Character
 
-    local LocalRoot =
-        LocalCharacter
-        and LocalCharacter:FindFirstChild(
-            "HumanoidRootPart"
-        )
-
+    local LocalRoot = LocalCharacter
+        and LocalCharacter:FindFirstChild("HumanoidRootPart")
 
     if LocalRoot and Data.Part then
 
-        local Distance =
-            (
-                LocalRoot.Position
-                - Data.Part.Position
-            ).Magnitude
+        local Distance = (
+            LocalRoot.Position - Data.Part.Position
+        ).Magnitude
 
-        Data.Gui.Enabled =
-            Distance <= MAX_DISTANCE
+        Data.Gui.Enabled = Distance <= MAX_DISTANCE
 
     else
 
-        Data.Gui.Enabled =
-            false
+        Data.Gui.Enabled = false
 
     end
 
-
-    --==================================================
     -- HEALTH
-    --==================================================
 
-    local Health =
-        math.max(
-            0,
-            Humanoid.Health
-        )
+    local Health = math.max(0, Humanoid.Health)
+    local MaxHealth = math.max(0, Humanoid.MaxHealth)
 
-    local MaxHealth =
-        math.max(
-            0,
-            Humanoid.MaxHealth
-        )
-
-
-    --==================================================
     -- ARMOR
-    --==================================================
 
-    local Armor =
-        GetArmor(Character)
-
+    local Armor = GetArmor(Character)
 
     local ArmorText
 
     if Armor ~= nil then
-
-        ArmorText =
-            tostring(
-                math.floor(
-                    Armor + 0.5
-                )
-            )
-
+        ArmorText = tostring(math.floor(Armor + 0.5))
     else
-
-        ArmorText =
-            "N/A"
-
+        ArmorText = "N/A"
     end
 
+    -- POSITION
 
-    --==================================================
-    -- UPDATE POSITION
-    --==================================================
+    Data.Gui.StudsOffsetWorldSpace = GetOffset(Character)
 
-    Data.Gui.StudsOffsetWorldSpace =
-        GetOffset(Character)
-
-
-    --==================================================
-    -- UPDATE TEXT
-    --==================================================
+    -- TEXT
 
     Data.Text.Text =
         "["
@@ -2664,16 +1951,10 @@ local function UpdateDisplay(Player)
         .. ArmorText
         .. "\n"
         .. "Health: "
-        .. math.floor(
-            Health + 0.5
-        )
+        .. math.floor(Health + 0.5)
         .. "/"
-        .. math.floor(
-            MaxHealth + 0.5
-        )
-
+        .. math.floor(MaxHealth + 0.5)
 end
-
 
 --==================================================
 --// WATCH PLAYER
@@ -2685,81 +1966,53 @@ local function WatchPlayer(Player)
         return
     end
 
-
-    -- CharacterAdded
-    Player.CharacterAdded:Connect(
-        function(Character)
-
-            task.wait(0.2)
-
-            CreateDisplay(Player)
-
-        end
-    )
-
-
-    -- CharacterRemoving
-    Player.CharacterRemoving:Connect(
-        function()
-
-            RemoveDisplay(Player)
-
-        end
-    )
-
-
-    -- Character saat ini
-    if Player.Character then
-
-        task.spawn(function()
-
-            CreateDisplay(Player)
-
-        end)
-
+    if WatchedPlayers[Player] then
+        return
     end
 
-end
+    WatchedPlayers[Player] = true
 
+    Player.CharacterAdded:Connect(function(Character)
 
---==================================================
---// EXISTING PLAYERS
---==================================================
+        task.wait(0.2)
 
-for _, Player in ipairs(
-    Players:GetPlayers()
-) do
+        if Enabled then
+            CreateDisplay(Player)
+        end
 
-    WatchPlayer(Player)
+    end)
 
-end
-
-
---==================================================
---// NEW PLAYERS
---==================================================
-
-Players.PlayerAdded:Connect(
-    function(Player)
-
-        WatchPlayer(Player)
-
-    end
-)
-
---==================================================
---// PLAYER LEAVE
---==================================================
-
-Players.PlayerRemoving:Connect(
-    function(Player)
-
+    Player.CharacterRemoving:Connect(function()
         RemoveDisplay(Player)
+    end)
 
-        CharacterStates[Player] = nil
+    if Enabled and Player.Character then
+        task.spawn(function()
+            CreateDisplay(Player)
+        end)
+    end
+end
 
-  end)
+--==================================================
+--// PLAYER CONNECTIONS
+--==================================================
 
+for _, Player in ipairs(Players:GetPlayers()) do
+    WatchPlayer(Player)
+end
+
+Players.PlayerAdded:Connect(function(Player)
+    WatchPlayer(Player)
+end)
+
+Players.PlayerRemoving:Connect(function(Player)
+
+    RemoveDisplay(Player)
+
+    CharacterStates[Player] = nil
+    WatchedPlayers[Player] = nil
+
+end)
 
 --==================================================
 --// MAIN UPDATE LOOP
@@ -2769,329 +2022,177 @@ task.spawn(function()
 
     while true do
 
-        for _, Player in ipairs(
-            Players:GetPlayers()
-        ) do
+        if Enabled then
 
-            if Player ~= LocalPlayer then
+            for _, Player in ipairs(Players:GetPlayers()) do
 
-                -- Pastikan display selalu ada
-                if not Displays[Player]
-                    or not Displays[Player].Gui
-                    or not Displays[Player].Gui.Parent then
+                if Player ~= LocalPlayer then
 
-                    CreateDisplay(Player)
+                    if not Displays[Player]
+                        or not Displays[Player].Gui
+                        or not Displays[Player].Gui.Parent then
 
+                        CreateDisplay(Player)
+                    end
+
+                    UpdateDisplay(Player)
                 end
-
-
-                UpdateDisplay(Player)
-
             end
-
         end
 
-
-        task.wait(
-            UPDATE_RATE
-        )
-
+        task.wait(UPDATE_RATE)
     end
 
 end)
 
-
 --==================================================
 --// MORPH CHANGE DETECTOR
---// Untuk morph yang berubah tanpa
---// CharacterAdded.
 --==================================================
 
 task.spawn(function()
 
     while true do
 
-        for _, Player in ipairs(
-            Players:GetPlayers()
-        ) do
+        if Enabled then
 
-            if Player ~= LocalPlayer
-                and Player.Character then
+            for _, Player in ipairs(Players:GetPlayers()) do
 
-                local Character =
-                    Player.Character
+                if Player ~= LocalPlayer and Player.Character then
 
-                local State =
-                    CharacterStates[Player]
+                    local Character = Player.Character
+                    local State = CharacterStates[Player]
 
+                    if not State then
 
-                if not State then
+                        CharacterStates[Player] = {
+                            Character = Character,
+                            LastDescendantCount = #Character:GetDescendants()
+                        }
 
-                    CharacterStates[Player] = {
-                        Character = Character,
-                        LastDescendantCount =
-                            #Character:GetDescendants()
-                    }
+                        CreateDisplay(Player)
 
-                    CreateDisplay(Player)
+                    elseif State.Character ~= Character then
 
-                elseif State.Character ~= Character then
+                        State.Character = Character
+                        State.LastDescendantCount = #Character:GetDescendants()
 
-                    State.Character =
-                        Character
+                        CreateDisplay(Player)
 
-                    State.LastDescendantCount =
-                        #Character:GetDescendants()
+                    else
 
-                    CreateDisplay(Player)
+                        local Count = #Character:GetDescendants()
 
-                else
+                        if Count ~= State.LastDescendantCount then
 
-                    local Count =
-                        #Character:GetDescendants()
+                            State.LastDescendantCount = Count
 
-                    if Count ~= State.LastDescendantCount then
+                            task.defer(function()
+                                if Enabled then
+                                    CreateDisplay(Player)
+                                end
+                            end)
 
-                        State.LastDescendantCount =
-                            Count
-
-                        -- Struktur morph berubah.
-                        -- Pastikan display tetap berada
-                        -- pada posisi yang benar.
-
-                        task.defer(function()
-                            CreateDisplay(Player)
-                        end)
-
+                        end
                     end
-
                 end
-
             end
-
         end
 
-
-        task.wait(
-            MORPH_CHECK_RATE
-        )
-
+        task.wait(MORPH_CHECK_RATE)
     end
 
 end)
 
+--==================================================
+--// ENABLE / DISABLE
+--==================================================
+
+local function SetArmorHealthEnabled(State)
+
+    Enabled = State == true
+
+    if Enabled then
+
+        for _, Player in ipairs(Players:GetPlayers()) do
+            WatchPlayer(Player)
+            CreateDisplay(Player)
+        end
+
+    else
+
+        for Player in pairs(Displays) do
+            RemoveDisplay(Player)
+        end
+
+        table.clear(CharacterStates)
+    end
+end
+
+--==================================================
+--// ZYNZ TOGGLE
+--==================================================
+
+ArmorHealthTab:CreateToggle({
+    Name = "Armor + Health Display",
+    Value = false,
+
+    Callback = function(Value)
+        SetArmorHealthEnabled(Value)
+    end
+})
+
+--// Titan Noob
+
+
 local MainTab = Window:CreateTab("Special For Titan Noob", nil)
 local MainSection = MainTab:CreateSection("Get Items")
 
-local Button = MainTab:CreateButton({   Name = "Get Astro Claw",
-   Callback = function()
+MainTab:CreateButton({
+    Name = "Get Astro Claw",
+    Callback = function()
 
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Titan Astro Claw"
-)
-end,
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+        Event:FireServer("Titan Astro Claw")
+
+    end,
 })
 
-local Button = MainTab:CreateButton({   Name = "Get Energy Sword",
-   Callback = function()
+MainTab:CreateButton({
+    Name = "Get Energy Sword",
+    Callback = function()
 
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Titan Energy Sword"
-)
-end,
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+        Event:FireServer("Titan Energy Sword")
+
+    end,
 })
 
-local Button = MainTab:CreateButton({   Name = "Get Laser Gun (Left Hand) (Cost 1000 money lol)",
-   Callback = function()
+MainTab:CreateButton({
+    Name = "Get Laser Gun (Left Hand) (Cost 1000 money lol)",
+    Callback = function()
 
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Titan Laser Gun"
-)
-end,
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+        Event:FireServer("Titan Laser Gun")
+
+    end,
 })
 
-local Button = MainTab:CreateButton({   Name = "Get Laser Gun (Right Hand)",
-   Callback = function()
+MainTab:CreateButton({
+    Name = "Get Laser Gun (Right Hand)",
+    Callback = function()
 
-local Event = game:GetService("ReplicatedStorage").ItemsEvent
-Event:FireServer(
-    "Titan Laser Gun2"
-)
-end,
+        local Event = game:GetService("ReplicatedStorage").ItemsEvent
+        Event:FireServer("Titan Laser Gun2")
+
+    end,
 })
 
 MainTab:CreateParagraph({
     Title = "TIPS",
-    Content = "Astro Claw + Left Hand Blaster + Energy Sword (Replace Left Hand Blaster) + Left Hand Blaster Again + Right Hand Blaster + Energy Sword + Phase 2 + Blue Orb = 115% Defense!" 
-	})
-
-local MainTab = Window:CreateTab("Esp Thing", nil)
-local MainSection = MainTab:CreateSection("          ")
-
-local EnemyESPEnabled = false
-local EnemyESPColor = Color3.fromRGB(200, 0, 0)
-local EnemyHighlights = {}
-
-local function addEnemyESP(enemy)
-    if not enemy:IsA("Model") or EnemyHighlights[enemy] then
-        return
-    end
-
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "EnemyESP"
-    highlight.FillColor = EnemyESPColor
-    highlight.OutlineColor = EnemyESPColor
-    highlight.FillTransparency = 0.7
-    highlight.OutlineTransparency = 0.5
-    highlight.Adornee = enemy
-    highlight.Parent = enemy
-
-    EnemyHighlights[enemy] = highlight
-end
-
-local function removeEnemyESP()
-    for enemy, highlight in pairs(EnemyHighlights) do
-        if highlight then
-            highlight:Destroy()
-        end
-        EnemyHighlights[enemy] = nil
-    end
-end
-
-local function updateEnemyESPColor()
-    for _, highlight in pairs(EnemyHighlights) do
-        if highlight then
-            highlight.FillColor = EnemyESPColor
-            highlight.OutlineColor = EnemyESPColor
-        end
-    end
-end
-
-MainTab:CreateToggle({
-    Name = "Esp Enemy",
-    CurrentValue = false,
-    Flag = "EnemyESP",
-
-    Callback = function(Value)
-        EnemyESPEnabled = Value
-
-        local Enemies = workspace:FindFirstChild("Enemies")
-
-        if not Enemies then
-            return
-        end
-
-        if Value then
-            for _, enemy in ipairs(Enemies:GetChildren()) do
-                addEnemyESP(enemy)
-            end
-
-            Enemies.ChildAdded:Connect(function(enemy)
-                if EnemyESPEnabled then
-                    task.wait()
-                    addEnemyESP(enemy)
-                end
-            end)
-        else
-            removeEnemyESP()
-        end
-    end,
+    Content = "Astro Claw + Left Hand Blaster + Energy Sword (Replace Left Hand Blaster) + Left Hand Blaster Again + Right Hand Blaster + Energy Sword + Phase 2 + Blue Orb = 115% Defense!"
 })
 
-MainTab:CreateColorPicker({
-    Name = "Enemy ESP Color",
-    Color = Color3.fromRGB(200, 0, 0),
-    Flag = "EnemyESPColor",
-
-    Callback = function(Value)
-        EnemyESPColor = Value
-        updateEnemyESPColor()
-    end,
-})
-
-local AlliesESPEnabled = false
-local AlliesESPColor = Color3.fromRGB(0, 200, 55)
-local AlliesHighlights = {}
-
-local function addAlliesESP(summon)
-    if not summon:IsA("Model") or AlliesHighlights[summon] then
-        return
-    end
-
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "AlliesESP"
-    highlight.FillColor = AlliesESPColor
-    highlight.OutlineColor = AlliesESPColor
-    highlight.FillTransparency = 0.7
-    highlight.OutlineTransparency = 0.5
-    highlight.Adornee = summon
-    highlight.Parent = summon
-
-    AlliesHighlights[summon] = highlight
-end
-
-local function removeAlliesESP()
-    for summon, highlight in pairs(AlliesHighlights) do
-        if highlight then
-            highlight:Destroy()
-        end
-        AlliesHighlights[summon] = nil
-    end
-end
-
-local function updateAlliesESPColor()
-    for _, highlight in pairs(AlliesHighlights) do
-        if highlight then
-            highlight.FillColor = AlliesESPColor
-            highlight.OutlineColor = AlliesESPColor
-        end
-    end
-end
-
-MainTab:CreateToggle({
-    Name = "Esp Allies",
-    CurrentValue = false,
-    Flag = "EspAllies",
-
-    Callback = function(Value)
-        AlliesESPEnabled = Value
-
-        local Summons = workspace:FindFirstChild("Summons")
-
-        if not Summons then
-            return
-        end
-
-        if Value then
-            for _, summon in ipairs(Summons:GetChildren()) do
-                addAlliesESP(summon)
-            end
-
-            Summons.ChildAdded:Connect(function(summon)
-                if AlliesESPEnabled then
-                    task.wait()
-                    addAlliesESP(summon)
-                end
-            end)
-        else
-            removeAlliesESP()
-        end
-    end,
-})
-
-MainTab:CreateColorPicker({
-    Name = "Allies ESP Color",
-    Color = Color3.fromRGB(0, 200, 55),
-    Flag = "AlliesESPColor",
-
-    Callback = function(Value)
-        AlliesESPColor = Value
-        updateAlliesESPColor()
-    end,
-})
+--// ban panel
 
 local Event = game:GetService("ReplicatedStorage"):FindFirstChild("MorphEvent")
 Event:FireServer(
