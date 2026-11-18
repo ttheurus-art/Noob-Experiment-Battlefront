@@ -1,12 +1,5 @@
 --// so guys I add -> "--//" for every part of the script so everyone know where, and I make it just not to confuse myself lol
 
-local Zynz = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Creator/refs/heads/main/Zynz.luau"))()
-
-local Window = Zynz:CreateWindow({
-    Name = "Zynz Library Test",
-    MainTabTheme = "ScriptFault"
-})
-
 local p = Instance.new("Part")
 p.Size = Vector3.new(500, 15, 500)
 p.Position = Vector3.new(1575, -469, 555)
@@ -22,6 +15,14 @@ p2.Anchored = true
 p2.CanCollide = true
 p2.Transparency = 1
 p2.Parent = workspace
+
+
+local Zynz = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Zynz-Library/refs/heads/main/Zynz.luau"))()
+
+local Window = Zynz:CreateWindow({
+    Name = "Zynz Library Test",
+    MainTabTheme = "ScriptFault"
+})
 
 --// Detect All Currency
 
