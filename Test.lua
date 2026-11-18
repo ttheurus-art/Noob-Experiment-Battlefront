@@ -3,7 +3,7 @@
 local Zynz = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Zynz-Library/refs/heads/main/Zynz.luau"))()
 
 local Window = Zynz:CreateWindow({
-    Name = "Noob Experiment: Coder v0.0",
+    Name = "Noob Experiment: Coder v0.0.1",
     MainTabTheme = "ScriptFault"
 })
 
@@ -25,67 +25,39 @@ p2.Parent = workspace
 
 local StatsTab = Window:CreateTab({Name = "Stats"})
 
-local Players = game:GetService("Players")
---// CURRENCY DETECTOR
+--// Detect All Currency
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local StatsTab = Tab1
-
-local MoneyDisplay = StatsTab:CreateParagraph({
-    Title = "Currency 💵",
-    Content = "Loading currency..."
+local MoneyDisplay = Tab1:CreateParagraph({
+    Name = "Currency 💵",
+    Content = "Loading..."
 })
 
-local function GetCurrency()
-    local Leaderstats = LocalPlayer:FindFirstChild("leaderstats")
+task.spawn(function()
+    local Leaderstats = LocalPlayer:WaitForChild("leaderstats")
 
-    local Keys = Leaderstats and Leaderstats:FindFirstChild("Keys")
-    local TimeEssences = Leaderstats and Leaderstats:FindFirstChild("Time Essences")
+    local Keys = Leaderstats:WaitForChild("Keys")
+    local TimeEssences = Leaderstats:WaitForChild("Time Essences")
 
-    local Money = "Unknown"
+    while task.wait(0.5) do
+        local Money = "Unknown"
 
-    local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
-
-    if PlayerGui then
-        local Intermission = PlayerGui:FindFirstChild("Intermission")
+        local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
+        local Intermission = PlayerGui and PlayerGui:FindFirstChild("Intermission")
         local Frame = Intermission and Intermission:FindFirstChild("IntermissionFrame")
         local MoneyAmount = Frame and Frame:FindFirstChild("MoneyAmount")
 
         if MoneyAmount then
             Money = MoneyAmount.Text
         end
-    end
 
-    return {
-        Keys = Keys and tostring(Keys.Value) or "Loading...",
-        TimeEssences = TimeEssences and tostring(TimeEssences.Value) or "Loading...",
-        Money = Money
-    }
-end
-
-local function UpdateCurrency()
-    local Data = GetCurrency()
-
-    MoneyDisplay:Set({
-        Title = "Currency 💵",
-        Content = string.format(
-            "Keys: %s\nTime Essence: %s\nMoney: %s",
-            Data.Keys,
-            Data.TimeEssences,
-            Data.Money
+        MoneyDisplay:SetText(
+            "Keys: " .. tostring(Keys.Value)
+            .. "\nTime Essence: " .. tostring(TimeEssences.Value)
+            .. "\nMoney: " .. tostring(Money)
         )
-    })
-end
-
-task.spawn(function()
-    while task.wait(0.5) do
-        local Success, Error = pcall(UpdateCurrency)
-
-        if not Success then
-            warn("[Zynz Currency Error]:", Error)
-        end
     end
 end)
 
