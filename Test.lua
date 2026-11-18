@@ -3,7 +3,7 @@
 local Zynz = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Zynz-Library/refs/heads/main/Zynz.luau"))()
 
 local Window = Zynz:CreateWindow({
-    Name = "Zynz Library Test",
+    Name = "Noob Experiment: Coder",
     MainTabTheme = "ScriptFault"
 })
 
@@ -29,32 +29,40 @@ local Tab1 = Window:CreateTab({
     Name = "Stats"
 })
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 local MoneyDisplay = MainTab:CreateParagraph({
-    Title = "Currency💵",
+    Title = "Currency 💵",
     Content = "Keys: Loading...\nTime Essence: Loading...\nMoney: Loading..."
 })
 
 task.spawn(function()
-    while true do
-        local player = game:GetService("Players").LocalPlayer
+    local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-        local moneyAmount = player.PlayerGui
-            :WaitForChild("Intermission")
-            :WaitForChild("IntermissionFrame")
-            :WaitForChild("MoneyAmount")
+    local MoneyAmount = PlayerGui
+        :WaitForChild("Intermission")
+        :WaitForChild("IntermissionFrame")
+        :WaitForChild("MoneyAmount")
 
-        local leaderstats = player:WaitForChild("leaderstats")
-        local timeEssences = leaderstats:WaitForChild("Time Essences")
-        local keys = leaderstats:WaitForChild("Keys")
+    local Leaderstats = LocalPlayer:WaitForChild("leaderstats")
 
-        MoneyDisplay:Set({
-            Title = "Currency💵",
-            Content = "Keys: " .. keys.Value
-                .. "\nTime Essence: " .. timeEssences.Value
-                .. "\nMoney: " .. moneyAmount.Text
-        })
+    local Keys = Leaderstats:WaitForChild("Keys")
+    local TimeEssences = Leaderstats:WaitForChild("Time Essences")
 
-        task.wait(0.1)
+    while task.wait(0.1) do
+        local Success, Error = pcall(function()
+            MoneyDisplay:Set({
+                Title = "Currency 💵",
+                Content = "Keys: " .. tostring(Keys.Value)
+                    .. "\nTime Essence: " .. tostring(TimeEssences.Value)
+                    .. "\nMoney: " .. tostring(MoneyAmount.Text)
+            })
+        end)
+
+        if not Success then
+            warn("Currency Display Error: " .. tostring(Error))
+        end
     end
 end)
 
