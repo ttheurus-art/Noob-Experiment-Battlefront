@@ -3,7 +3,7 @@
 local Zynz = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttheurus-art/Zynz-Library/refs/heads/main/Zynz.luau"))()
 
 local Window = Zynz:CreateWindow({
-    Name = "Noob Experiment: Coder",
+    Name = "Noob Experiment: Coder v0",
     MainTabTheme = "ScriptFault"
 })
 
@@ -25,14 +25,12 @@ p2.Parent = workspace
 
 --// Detect All Currency
 
-local Tab1 = Window:CreateTab({
-    Name = "Stats"
-})
+local StatsTab = Window:CreateTab({Name = "Stats"})
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local MoneyDisplay = MainTab:CreateParagraph({
+local MoneyDisplay = Tab1:CreateParagraph({
     Title = "Currency 💵",
     Content = "Keys: Loading...\nTime Essence: Loading...\nMoney: Loading..."
 })
@@ -51,18 +49,12 @@ task.spawn(function()
     local TimeEssences = Leaderstats:WaitForChild("Time Essences")
 
     while task.wait(0.1) do
-        local Success, Error = pcall(function()
-            MoneyDisplay:Set({
-                Title = "Currency 💵",
-                Content = "Keys: " .. tostring(Keys.Value)
-                    .. "\nTime Essence: " .. tostring(TimeEssences.Value)
-                    .. "\nMoney: " .. tostring(MoneyAmount.Text)
-            })
-        end)
-
-        if not Success then
-            warn("Currency Display Error: " .. tostring(Error))
-        end
+        MoneyDisplay:Set({
+            Title = "Currency 💵",
+            Content = "Keys: " .. tostring(Keys.Value)
+                .. "\nTime Essence: " .. tostring(TimeEssences.Value)
+                .. "\nMoney: " .. tostring(MoneyAmount.Text)
+        })
     end
 end)
 
